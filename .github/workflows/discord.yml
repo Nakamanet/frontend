@@ -9,6 +9,7 @@ jobs:
     steps:
       - name: Send commit to Discord
         run: |
+          echo "$"
           curl -H "Content-Type: application/json" \
           -d "{\"content\":\"New commit pushed to ${{ github.ref_name }} by ${{ github.actor }}\"}" \
-          ${{ secrets.DISCORD_WEBHOOK }}
+          ${{ secrets.DISCORD_FRONT_HOOK }}
