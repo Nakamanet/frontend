@@ -4,7 +4,11 @@ export interface User {
     email: string;
     birthdate: string;
     role: string;
-    email_verified_at?: string;
+    localisation?: string | null;
+    bio?: string | null;
+    avatar_url?: string | null;
+    banner_url?: string | null;
+    theme_preference?: string | null;
     created_at: string;
     updated_at: string;
 }

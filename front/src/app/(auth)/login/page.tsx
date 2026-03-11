@@ -16,7 +16,7 @@ export default function LoginPage() {
         e.preventDefault();
         try {
             const response = await api.post('/auth/login', { email, password });
-            login(response.data.token);
+            login(response.data.token, response.data.user);
             router.push('/');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {

@@ -2,14 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { MessageCircle, Bell } from "lucide-react";
+import { Search, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
 export default function Navbar() {
     const { isLoggedIn, logout } = useAuth();
 
     return (
-        <div className="navbar justify-between p-4 bg-accent text-xl">
+        <div className="navbar justify-between p-2 bg-accent text-xl border-b border-border">
             <div className="pl-10">
                 <Link href="/">
                     <Image
@@ -20,15 +20,15 @@ export default function Navbar() {
                     />
                 </Link>
             </div>
-            <div className="flex gap-35">
-                <Link href="/list">My Anime List</Link>
+            <div className="flex gap-20">
+                <Link href="/list">Bibliothèque</Link>
                 <Link href="forum">Forum</Link>
                 <Link href="/chat">Chat</Link>
             </div>
             {isLoggedIn ? (
-                <div className="flex gap-5 pr-10">
-                    <MessageCircle className="mt-2"/>
-                    <Bell className="mt-2"/>
+                <div className="flex gap-8 pr-10">
+                    <Search size={32} className="mt-2"/>
+                    <Bell size={32} className="mt-2"/>
                     <div className="dropdown dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                             <div className="w-10 rounded-full">

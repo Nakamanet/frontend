@@ -3,9 +3,10 @@
 import Image from "next/image";
 import { useAuth } from "./context/AuthContext";
 import Link from "next/link";
+import { CircleUser, Users } from "lucide-react";
 
 export default function Home() {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   // A modifier quand les routes seront intégrées
   const posts = [
@@ -28,18 +29,41 @@ export default function Home() {
   ];
 
   return (
-    <main className="grid grid-cols-5 place-items-center h-screen">
+    <main className="grid grid-cols-5 place-items-center h-screen p-10">
       {/* Gauche de l'écran */}
-      <div className="mt-15 h-full">
-        <div className="card w-50 bg-accent shadow-sm place-items-center mb-5">
-          <div className="card-body">
+      <section className="w-full h-full">
+        <div className="card w-full bg-accent shadow-sm  mb-5 border border-border">
           {/* Bloc identité de l'utilisateur */}
-          {isLoggedIn ? (
-              <div>
-                <Image src="/logo.png" alt="Logo" width={100} height={100} className="w-20 h-20 rounded-full"/>
-                <p>Imortelmax</p>
-                <p>Bio</p>
-                <Link href="/profile">Mon profil</Link>
+          {isLoggedIn && user ? (
+            <div>
+              <figure className="w-full h-[100px]">
+                {user.banner_url ? (
+                  <Image src={user.banner_url} alt="Banner" fill className="object-cover" />
+                ) : (
+                  <span className="w-full h-full justify-center items-center border-b border-border bg-alerts rounded-t-[8px]"></span>
+                )}
+              </figure>
+              <div className="card-body flex w-full">
+                <div className="relative flex w-[50px] h-[50px]">
+                  {user.avatar_url ? (
+                    <Image src={user.avatar_url} alt="Logo" fill className="object-cover rounded-[10px]"/>
+                  ) : (
+                    <Image src="/logo.png" alt="Logo" fill className="object-cover rounded-[10px]"/>
+
+                    // <CircleUser size={50} className="border-2 border-border w-full h-full rounded-[10px] p-2"/>
+                  )}
+                  <div>
+                    <p>{user.username}</p>
+                    {/* A voir avec Remi */}
+                    <p>@{user.username}</p>
+                  </div>
+                </div>
+                <div>
+                  <p>Oeuvres</p>
+                  <p>Amis</p>
+                  <p>Posts</p>
+                </div>
+              </div>
             </div>
           ) : (
             <div>
@@ -49,13 +73,12 @@ export default function Home() {
             </div>
           )}
           </div>
-        </div>
         {/* Bloc Activité des amis */}
-        <div className="card w-50 bg-accent shadow-sm place-items-center mb-5">
+        <div className="card w-full bg-accent shadow-sm place-items-center mb-5 border border-border">
           <div className="card-body">
           {isLoggedIn ? (
             <div>
-              <p className="flex justify-center p-2 text-lg">Activité des amis</p>
+              <p className="flex justify-center p-2 text-lg"><Users /> Activité des amis</p>
               {/* Ajouter les activités des amis */}
             </div>
           ) : (
@@ -66,15 +89,16 @@ export default function Home() {
           </div>
         </div>
         {/* Bloc Top Anime */}
-        <div className="card w-50 bg-accent shadow-sm place-items-center mb-5">
+        <div className="card w-full bg-accent shadow-sm place-items-center mb-5 border border-border">
           <div className="card-body">
             <h1 className="flex justify-center text-lg">Top Anime</h1>
             <p>A remplir quand on aura l&apos;API</p>
           </div>
         </div>
-      </div>
+      </section>
+
       {/* Centre de l'écran */}
-      <div className="col-span-3 h-full">
+      <section className="col-span-3 h-full">
         {/* Ajouter un post */}
         <div className="flex m-8">
           <Image src="/logo.png" alt="Logo" width={100} height={100} className="w-10 h-10 rounded-full mr-2"/>
@@ -98,9 +122,10 @@ export default function Home() {
             Aucun post trouvé
           </p>
         )}
-      </div>
+      </section>
+
       {/* Droite de l'écran */}
-      <div>
+      <section>
         {/* Chat */}
         <div>
           <p>Chat</p>
@@ -108,7 +133,7 @@ export default function Home() {
         </div>
         {/* Agenda */}
         <p>Ca il faut que je vois comment faire</p>
-      </div>
+      </section>
     </main>
   ); 
 }

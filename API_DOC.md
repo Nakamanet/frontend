@@ -209,6 +209,86 @@ Aucun.
 
 ---
 
+## PATCH `/auth/profile`
+
+Mettre à jour le profil de l'utilisateur connecté. Tous les champs sont optionnels.
+
+**Auth requise** : Oui
+
+### Headers
+
+```
+Authorization: Bearer <token>
+```
+
+### Request Body (JSON)
+
+| Champ                 | Type   | Requis | Règles                                        |
+|-----------------------|--------|--------|-----------------------------------------------|
+| username              | string | non    | max 50 caractères, unique                     |
+| email                 | string | non    | format email, max 100, unique                 |
+| password              | string | non    | min 8 caractères, doit avoir `password_confirmation` |
+| password_confirmation | string | non*   | requis si `password` est fourni               |
+| birthdate             | string | non    | format date (YYYY-MM-DD)                      |
+| localisation          | string | non    | max 100 caractères, nullable                  |
+| bio                   | string | non    | max 500 caractères, nullable                  |
+| avatar_url            | string | non    | format URL valide, nullable                   |
+| banner_url            | string | non    | format URL valide, nullable                   |
+| theme_preference      | string | non    | valeur parmi : `light`, `dark`, `system`      |
+
+### Exemple requête
+
+```json
+{
+  "bio": "Fan de shonen et de RPG !",
+  "localisation": "Paris, France",
+  "theme_preference": "dark"
+}
+```
+
+### Réponse succès — `200 OK`
+
+```json
+{
+  "message": "Profile updated successfully",
+  "user": {
+    "id": 1,
+    "username": "naruto_fan",
+    "email": "naruto@example.com",
+    "birthdate": "2000-01-15",
+    "localisation": "Paris, France",
+    "bio": "Fan de shonen et de RPG !",
+    "avatar_url": null,
+    "banner_url": null,
+    "role": "user",
+    "theme_preference": "dark",
+    "created_at": "2026-02-25T12:00:00.000000Z",
+    "updated_at": "2026-03-11T10:00:00.000000Z"
+  }
+}
+```
+
+### Réponse erreur — `422 Unprocessable Entity`
+
+```json
+{
+  "message": "The username has already been taken.",
+  "errors": {
+    "username": ["The username has already been taken."]
+  }
+}
+```
+
+### Réponse erreur — `401 Unauthorized`
+
+```json
+{
+  "message": "Unauthenticated."
+}
+```
+
+---
+
 ## Objet User (référence)
 
 Champs retournés dans les réponses (le `password_hash` est toujours masqué) :

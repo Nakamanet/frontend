@@ -1,35 +1,62 @@
 'use client';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useCallback,useContext, useEffect, useState } from 'react';
+import api from '../lib/axios';
+import { User } from '../types/auth';
+
 
 interface AuthContextType {
     isLoggedIn: boolean;
-    login: (token: string) => void;
+    user: User | null;
+    login: (token: string, userData: User) => void;
     logout: () => void;
+    refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [user, setUser] = useState<User | null>(null);
 
-    // Vérification initiale au chargement
+    const fetchUser = useCallback(async () => {
+        try {
+            const { data } = await api.get<User>('/auth/me');
+            setUser(data);
+            setIsLoggedIn(true);
+        } catch {
+            setUser(null);
+            setIsLoggedIn(false);
+            if (typeof window !== 'undefined') {
+                localStorage.removeItem('token');
+            }
+        }
+    }, []);
+
     useEffect(() => {
-        const hasToken = !!localStorage.getItem('token');
-        queueMicrotask(() => setIsLoggedIn(hasToken));
-      }, []);
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        if (token) {
+            queueMicrotask(() => fetchUser());
+        }
+    }, [fetchUser]);
 
-    const login = (token: string) => {
-        localStorage.setItem('token', token);
+    const login = (token: string, userData: User) => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+        }
+        setUser(userData);
         setIsLoggedIn(true);
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        if (typeof window !== 'undefined') {
+            localStorage.removeItem('token');
+        }
+        setUser(null);
         setIsLoggedIn(false);
     };
 
     return (
-        <AuthContext.Provider value={{ isLoggedIn, login, logout }}>
+        <AuthContext.Provider value={{ isLoggedIn, user, login, logout, refreshUser: fetchUser }}>
             {children}
         </AuthContext.Provider>
     );

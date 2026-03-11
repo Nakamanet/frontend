@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/app/context/AuthContext";
 import api from "@/app/lib/axios";
 
 export default function RegisterPage() {
+    const { login } = useAuth();
     const router = useRouter();
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -16,7 +18,7 @@ export default function RegisterPage() {
         e.preventDefault();
         try {
             const response = await api.post('/auth/register', { username, email, password, birthdate });
-            localStorage.setItem('token', response.data.token);
+            login(response.data.token, response.data.user);
             router.push('/');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
