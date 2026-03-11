@@ -28,9 +28,9 @@ export default function Home() {
   ];
 
   return (
-    <main className="grid grid-cols-5 place-items-center">
+    <main className="grid grid-cols-5 place-items-center h-screen">
       {/* Gauche de l'écran */}
-      <div className="mt-15">
+      <div className="mt-15 h-full">
         <div className="card w-50 bg-accent shadow-sm place-items-center mb-5">
           <div className="card-body">
           {/* Bloc identité de l'utilisateur */}
@@ -74,21 +74,23 @@ export default function Home() {
         </div>
       </div>
       {/* Centre de l'écran */}
-      <div className="col-span-3">
+      <div className="col-span-3 h-full">
         {/* Ajouter un post */}
-        <div className="flex">
-          <Image src="/logo.png" alt="Logo" width={100} height={100} className="w-10 h-10 rounded-full"/>
-          <input type="text" placeholder="Ajouter un post..." className="input input-bordered w-full max-w-xs"/>
-          <button className="btn btn-primary">Poster</button>
+        <div className="flex m-8">
+          <Image src="/logo.png" alt="Logo" width={100} height={100} className="w-10 h-10 rounded-full mr-2"/>
+          <input type="text" placeholder="Ajouter un post..." className="input input-bordered w-xl"/>
+          <button className="btn bg-primary">Poster</button>
         </div>
         {/* Zone des posts */}
         {posts ? (
           posts.map((post) => (
-            <div key={post.id}>
-              <Image src={post.avatar_url} alt="Avatar" width={100} height={100} className="w-10 h-10 rounded-full"/>
-              <p>{post.username}</p>
-              <p>{post.content}</p>
-              <p>{new Date(post.updated_at).toLocaleString()}</p>
+            <div key={post.id} className="card w-50 bg-accent shadow-sm place-items-center m-5">
+              <div className="card-body">
+                <Image src={post.avatar_url} alt="Avatar" width={100} height={100} className="w-10 h-10 rounded-full"/>
+                <p>{post.username}</p>
+                <p>{post.content}</p>
+                <p>{new Date(post.updated_at).toLocaleString()}</p>
+              </div>
             </div>
           ))
         ) : (
