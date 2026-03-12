@@ -6,7 +6,7 @@
   --bg: #111827;
   --text: #FBFAFB;
   --primary: #E11048;
-  --muted: #4E4A40;
+  --muted: #374151;
   --accent: #1F2937;
   --border: #535871;
   --alerts: #E11048;
@@ -34,4 +34,13 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Cache la scrollbar tout en gardant le défilement */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

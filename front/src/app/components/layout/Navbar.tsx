@@ -15,7 +15,7 @@ export default function Navbar() {
                     <Image
                         src="/logo.png"
                         alt="Logo"
-                        width={150}
+                        width={120}
                         height={150}
                     />
                 </Link>
@@ -27,8 +27,8 @@ export default function Navbar() {
             </div>
             {isLoggedIn ? (
                 <div className="flex gap-8 pr-10">
-                    <Search size={32} className="mt-2"/>
-                    <Bell size={32} className="mt-2"/>
+                    <Search size={27} className="mt-2"/>
+                    <Bell size={27} className="mt-2"/>
                     <div className="dropdown dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                             <div className="w-10 rounded-full">
