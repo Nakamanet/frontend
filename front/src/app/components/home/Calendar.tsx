@@ -51,7 +51,7 @@ export default function Calendar() {
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
 
   return (
-    <div className="card bg-accent shadow-xl border border-border w-full">
+    <div className="card bg-accent rounded-[15px] shadow-xl border border-border w-full">
       <div className="card-body p-4">
         {/* Header : Flèches + Select mois + Select année */}
         <div className="flex justify-between items-center gap-2 mb-4">
