@@ -32,7 +32,7 @@ export default function Navbar() {
                     <div className="dropdown dropdown-end">
                         <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                             <div className="w-10 rounded-full">
-                                <Image src="/logo.png" alt="Avatar" width={32} height={32} />                     
+                                <Image src="/logo.png" alt="Avatar" width={32} height={32} />
                             </div>
                         </div>
                         <ul tabIndex={-1} className="menu menu-sm dropdown-content rounded-box z-1 mt-3 p-2 bg-accent shadow">
@@ -41,7 +41,7 @@ export default function Navbar() {
                         </ul>
                     </div>
                 </div>
-            ): (
+            ) : (
                 <div className="flex gap-5 p-2 pr-10">
                     <Link href="/login">Se connecter</Link>
                     <Link href="/register">S&apos;inscrire</Link>

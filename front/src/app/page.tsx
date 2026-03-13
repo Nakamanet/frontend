@@ -4,6 +4,7 @@ import { useAuth } from "./context/AuthContext";
 import SideBar from "./components/home/Sidebar";
 import PostList from "./components/home/PostList";
 import Chat from "./components/home/Chat";
+import Calendar from "./components/home/Calendar";
 
 export default function Home() {
   const { isLoggedIn, user } = useAuth();
@@ -26,7 +27,7 @@ export default function Home() {
         <Chat user={user} />
         {/* Agenda */}
         <div>
-          
+          <Calendar />
         </div>
       </section>
     </main>
