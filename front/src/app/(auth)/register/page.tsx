@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/context/AuthContext";
-import api from "@/app/lib/axios";
+import { useAuth } from "../../context/AuthContext";
+import api from "../../lib/axios";
 
 export default function RegisterPage() {
     const { login } = useAuth();
