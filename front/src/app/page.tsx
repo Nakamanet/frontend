@@ -1,41 +1,33 @@
 'use client';
 
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import api from "@/app/lib/axios";
+import { useAuth } from "./context/AuthContext";
+import SideBar from "./components/home/Sidebar";
+import PostList from "./components/home/PostList";
+import Chat from "./components/home/Chat";
+import Calendar from "./components/home/Calendar";
 
 export default function Home() {
-  const router = useRouter();
-  const token = localStorage.getItem('token');
-
-  const handleLogout = async () => {
-    try {
-      const response = await api.post('/auth/logout');
-      console.log('Réponse de l\'API:', response.data);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      console.error('Erreur lors de la déconnexion:', err);
-    } finally {
-      localStorage.removeItem('token');
-      router.push('/');
-    }
-  }
+  const { isLoggedIn, user } = useAuth();
 
   return (
-    <main>
-      <div>
-        {token ? (
-          <div>
-            <Image src="/logo.png" alt="Logo" width={100} height={100} />
-            <p>user</p>
-            <button onClick={handleLogout}>Se déconnecter</button>
-          </div>
-        ) : (
-          <div>
-            <h1>Veuillez vous connecter</h1>
-          </div>
-        )}
-      </div>
+    <main className="grid grid-cols-5 place-items-center h-screen px-15 py-10 max-w-[1500px] mx-auto">
+      {/* Gauche de l'écran */}
+      <section className="flex flex-col w-full h-full gap-5">
+        <SideBar isLoggedIn={isLoggedIn} user={user} />
+      </section>
+
+      {/* Centre de l'écran */}
+      <section className="flex flex-col col-span-3 w-full h-full min-h-0 px-6 gap-3 overflow-y-auto scrollbar-hide">        
+        <PostList isLoggedIn={isLoggedIn} user={user} />
+      </section>
+
+      {/* Droite de l'écran */}
+      <section className="flex flex-col w-full mx-auto h-full gap-5">
+        {/* Chat */}
+        <Chat user={user} />
+        {/* Agenda */}
+        <Calendar />
+      </section>
     </main>
   ); 
 }
