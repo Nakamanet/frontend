@@ -4,9 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search, Bell } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { CircleUser } from "lucide-react";
 
 export default function Navbar() {
-    const { isLoggedIn, logout } = useAuth();
+    const { isLoggedIn, logout, user } = useAuth();
 
     return (
         <header className="w-full border-b border-border bg-accent">
@@ -26,14 +27,18 @@ export default function Navbar() {
                     <Link href="forum">Forum</Link>
                     <Link href="/chat">Chat</Link>
                 </div>
-                {isLoggedIn ? (
+                {isLoggedIn && user ? (
                     <div className="flex gap-8 pr-10">
                         <Search size={27} className="mt-2"/>
                         <Bell size={27} className="mt-2"/>
                         <div className="dropdown dropdown-end">
                             <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                                 <div className="w-10 rounded-full">
-                                    <Image src="/logo.png" alt="Avatar" width={32} height={32} />
+                                    {user.avatar_url ? (
+                                        <Image src={user.avatar_url} alt="Avatar" width={32} height={32} />
+                                    ) : (
+                                        <CircleUser size={32} />
+                                    )}
                                 </div>
                             </div>
                             <ul tabIndex={-1} className="menu menu-sm dropdown-content rounded-box z-1 mt-3 p-2 bg-accent shadow">
