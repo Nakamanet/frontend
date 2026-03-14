@@ -4,7 +4,12 @@ import { redirect } from 'next/navigation';
 import Image from 'next/image';
 import { CircleUser } from 'lucide-react';
 import { useState } from 'react';
-import Profile from '../components/profile/Profile';
+import Profile from './components/Profile';
+import Activity from './components/Activity';
+import Friends from './components/Friends';
+import Likes from './components/Likes';
+import Library from './components/Library';
+import Groups from './components/Groups';
 
 export default function ProfilePage() {
     const [activeTab, setActiveTab] = useState('activities');
@@ -13,9 +18,9 @@ export default function ProfilePage() {
     if (!user) redirect('/login');
 
     return (
-        <main className="max-w-[1500px] mx-auto min-h-screen h-full">
+        <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full">
             {/* Banniere */}
-            <section className={`w-full p-5 h-40 flex items-end gap-4 ${user?.banner_url ? 'bg-cover bg-center' : 'bg-primary'}`}>
+            <section className={`w-full p-5 h-[20vh] flex items-end gap-4 ${user?.banner_url ? 'bg-cover bg-center' : 'bg-primary'}`}>
                 <p>
                     {user.avatar_url ? <Image src={user.avatar_url} alt="Avatar" width={100} height={100} /> : <CircleUser size={50} strokeWidth={1.5} />}
                 </p>
@@ -27,7 +32,7 @@ export default function ProfilePage() {
             {/* main content */}
             <section className="grid grid-cols-5">
                 {/* Menu lateral */}
-                <div className="w-full min-h-auto bg-accent flex flex-col gap-7 py-7 px-5 border-r border-border">
+                <div className="w-full h-auto bg-accent flex flex-col gap-7 py-7 px-5 border-r border-border">
                     <div className="flex flex-col justify-center items-center gap-1">
                         <p>Compte créé le {new Date(user.created_at).toLocaleDateString()}</p>
                         <p>Habite à {user.localisation || 'Non renseigné'}</p>
@@ -39,7 +44,7 @@ export default function ProfilePage() {
                                     className={`btn btn-ghost border-none ${activeTab === 'activities' ? 'bg-primary text-primary-content' : ''}`} 
                                     onClick={() => setActiveTab('activities')}
                                 >
-                                    Activités
+                                    Mes posts
                                 </button>
                             </li>
                             <li>
@@ -86,12 +91,12 @@ export default function ProfilePage() {
                     </div>
                 </div>
                 {/* Contenu principal */}
-                <div className="col-span-4">
-                    {/* {activeTab === 'activities' && <Activity />}
-                    {activeTab === 'friends' && <Friends />}
-                    {activeTab === 'likes' && <Likes />}
-                    {activeTab === 'library' && <Library />}
-                    {activeTab === 'groups' && <Groups />} */}
+                <div className="col-span-4 min-h-[70vh]">
+                    {activeTab === 'activities' && <Activity user={user} />}
+                    {activeTab === 'friends' && <Friends user={user} />}
+                    {activeTab === 'likes' && <Likes user={user} />}
+                    {activeTab === 'library' && <Library user={user} />}
+                    {activeTab === 'groups' && <Groups user={user} />}
                     {activeTab === 'profile' && <Profile user={user} />}
                 </div>
             </section>

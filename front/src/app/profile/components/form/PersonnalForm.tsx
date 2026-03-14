@@ -1,9 +1,9 @@
 'use client';
 
-import api from "../../lib/axios";
+import api from "../../../lib/axios";
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { User } from "../../types/auth";
+import { useAuth } from "../../../context/AuthContext";
+import { User } from "../../../types/auth";
 
 export default function PersonnalForm({ user }: { user: User }) {
     const [username, setUsername] = useState(user.username);

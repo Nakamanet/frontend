@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { User } from "../../types/auth";
-import api from "../../lib/axios";
+import { useAuth } from "../../../context/AuthContext";
+import { User } from "../../../types/auth";
+import api from "../../../lib/axios";
 
 export default function SupplementaireForm({ user }: { user: User }) {
     const [birthdate, setBirthdate] = useState(user.birthdate);

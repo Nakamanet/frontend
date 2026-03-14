@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { User } from "../../types/auth";
-import api from "../../lib/axios";
+import { useAuth } from "../../../context/AuthContext";
+import { User } from "../../../types/auth";
+import api from "../../../lib/axios";
 
 export default function MediaForm({ user }: { user: User }) {
     const [avatar_url, setAvatar_url] = useState(user.avatar_url);

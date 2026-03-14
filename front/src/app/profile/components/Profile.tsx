@@ -1,9 +1,9 @@
 'use client';
 
 import { User } from "../../types/auth";
-import PersonnalForm from "./PersonnalForm";
-import SupplementaireForm from "./SupplementaireForm";
-import MediaForm from "./MediaForm";
+import PersonnalForm from "./form/PersonnalForm";
+import SupplementaireForm from "./form/SupplementaireForm";
+import MediaForm from "./form/MediaForm";
 
 export default function Profile({ user }: { user: User }) {
     return (
