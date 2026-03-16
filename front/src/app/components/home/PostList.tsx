@@ -7,17 +7,13 @@ import {
     Users,
     SlidersHorizontal,
     CircleUser,
-    Heart,
-    MessageCircle,
-    Bookmark,
     Image as ImageIcon,
     SendHorizonal,
     Smile,
 } from "lucide-react";
 import Image from "next/image";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
 import { User } from "../../types/auth";
+import PostCards from "../PostCards";
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, user: User | null }) {
     const [filter, setFilter] = useState('all');
@@ -122,7 +118,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                         className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'trends' ? 'bg-alerts text-white' : 'text-border'}`}
                     >
                         <Flame size={18} />
-                        Tendances
+                        <span className="hidden md:inline">Tendances</span>
                     </button>
                     <button
                         onClick={() => {
@@ -135,7 +131,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                         className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'recent' ? 'bg-alerts text-white' : 'text-border'}`}
                     >
                         <Clock size={18} />
-                        Récents
+                        <span className="hidden md:inline">Récents</span>
                     </button>
                     <button
                         onClick={() => {
@@ -148,57 +144,18 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                         className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'friends' ? 'bg-alerts text-white' : 'text-border'}`}
                     >
                         <Users size={18} />
-                        Amis
+                        <span className="hidden md:inline">Amis</span>
                     </button>
                 </div>
                 <div className="flex px-4 gap-2">
                     <SlidersHorizontal size={20} />
-                    <p>Filtres</p>
+                    <p className="hidden md:inline">Filtres</p>
                 </div>
             </div>
             {/* Zone des posts */}
             {posts ? (
                 posts.map((post) => (
-                    <div key={post.id} className="bg-accent shadow-sm place-items-center w-full border border-border rounded-[15px] p-6">
-                        <div className="flex gap-3">
-                            <div>
-                                {post.avatar_url ? (
-                                    <Image
-                                        src={post.avatar_url}
-                                        alt="Avatar"
-                                        width={100}
-                                        height={100}
-                                        className="w-12 h-12 rounded-full"
-                                    />
-                                ) : (
-                                    <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
-                                        <CircleUser size={35} strokeWidth={1.5} />
-                                    </div>
-                                )}
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <div className="flex gap-2">
-                                    <p className="font-bold">{post.username}</p>
-                                    <p className="text-sm text-border">@{post.username}</p>
-                                    <p className="text-sm text-border">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
-                                </div>
-                                <p>{post.content}</p>
-                                <div className="flex gap-2">
-                                    <div className="flex gap-2">
-                                        <Heart size={20} />
-                                        <p>0</p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <MessageCircle size={20} />
-                                        <p>0</p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <Bookmark size={20} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <PostCards key={post.id} post={post} />
                 ))
             ) : (
                 <p>

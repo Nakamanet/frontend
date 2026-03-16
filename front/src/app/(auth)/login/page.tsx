@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "../../lib/axios";
 import { useAuth } from "../../context/AuthContext";
+import Link from "next/link";
 
 export default function LoginPage() {
     const { login } = useAuth();
@@ -30,13 +31,13 @@ export default function LoginPage() {
                 <form className="card-body" onSubmit={handleSubmit}>
                     <h2 className="card-title text-2xl font-bold">Se connecter</h2>
 
-                    <div className="form-control">
+                    <div className="form-control flex flex-col">
                         <label className="label">Email</label>
                         <input type="email" placeholder="email@exemple.com" className="input input-bordered" required 
                             onChange={(e) => setEmail(e.target.value)} />
                     </div>
 
-                    <div className="form-control">
+                    <div className="form-control flex flex-col">
                         <label className="label">Mot de passe</label>
                         <input type="password" placeholder="••••••••" className="input input-bordered" required 
                             onChange={(e) => setPassword(e.target.value)} />
@@ -48,6 +49,9 @@ export default function LoginPage() {
 
                     {error && <p className="text-red-500">{error}</p>}
                 </form>
+                <div className="card-body flex justify-center w-full">
+                    <p>Ou si vous n&apos;avez pas encore de compte, <Link href="/register" className="border-b">S&apos;inscrire</Link></p>
+                </div>
             </div>
         </div>
     );
