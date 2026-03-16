@@ -118,7 +118,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                         className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'trends' ? 'bg-alerts text-white' : 'text-border'}`}
                     >
                         <Flame size={18} />
-                        Tendances
+                        <span className="hidden md:inline">Tendances</span>
                     </button>
                     <button
                         onClick={() => {
@@ -131,7 +131,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                         className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'recent' ? 'bg-alerts text-white' : 'text-border'}`}
                     >
                         <Clock size={18} />
-                        Récents
+                        <span className="hidden md:inline">Récents</span>
                     </button>
                     <button
                         onClick={() => {
@@ -144,12 +144,12 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                         className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'friends' ? 'bg-alerts text-white' : 'text-border'}`}
                     >
                         <Users size={18} />
-                        Amis
+                        <span className="hidden md:inline">Amis</span>
                     </button>
                 </div>
                 <div className="flex px-4 gap-2">
                     <SlidersHorizontal size={20} />
-                    <p>Filtres</p>
+                    <p className="hidden md:inline">Filtres</p>
                 </div>
             </div>
             {/* Zone des posts */}
