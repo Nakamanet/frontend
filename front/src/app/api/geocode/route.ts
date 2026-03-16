@@ -17,7 +17,7 @@ export async function GET(req: Request) {
   
     const res = await fetch(
       `https://nominatim.openstreetmap.org/reverse?lat=${latNum}&lon=${lngNum}&format=json`,
-      { headers: { 'User-Agent': 'TonApp/1.0' } }
+      { headers: { 'User-Agent': 'Nakamanet/1.0' } }
     );
     const data = await res.json();
   
