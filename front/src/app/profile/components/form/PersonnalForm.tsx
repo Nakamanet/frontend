@@ -73,17 +73,17 @@ export default function PersonnalForm({ user }: { user: User }) {
     };
 
     return (
-        <div className="flex flex-col gap-8 p-5 m-8 bg-accent border border-border rounded-[15px]">
+        <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
             <h3 className="text-2xl font-bold">Informations personnelles</h3>
             <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitPersonal}>
                 <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
                         <label htmlFor="username">Nom d&apos;utilisateur</label>
                         <input 
                             type="text" 
                             id="username" 
                             name="username" 
-                            className="input input-bordered" 
+                            className="input input-ghost bg-border rounded-full" 
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                         />
@@ -92,13 +92,13 @@ export default function PersonnalForm({ user }: { user: User }) {
                         <p className="text-sm text-alerts">{fieldErrors.username}</p>
                     )}
 
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
                         <label htmlFor="email">Email</label>
                         <input 
                             type="email" 
                             id="email" 
                             name="email" 
-                            className="input input-bordered" 
+                            className="input input-ghost bg-border rounded-full" 
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
@@ -108,13 +108,13 @@ export default function PersonnalForm({ user }: { user: User }) {
                     )}
                 </div>
                 <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
                         <label htmlFor="password">Mot de passe</label>
                         <input 
                             type="password" 
                             id="password" 
                             name="password" 
-                            className="input input-bordered" 
+                            className="input input-ghost bg-border rounded-full" 
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
@@ -123,13 +123,13 @@ export default function PersonnalForm({ user }: { user: User }) {
                         <p className="text-sm text-alerts">{fieldErrors.password}</p>
                     )}
 
-                    <div className="flex justify-between items-center">
-                        <label htmlFor="password_confirmation">Confirmation du mot de passe</label>
+                    <div className="flex flex-col">
+                        <label htmlFor="password_confirmation">Confirmation mot de passe</label>
                         <input 
                             type="password" 
                             id="password_confirmation" 
                             name="password_confirmation" 
-                            className="input input-bordered" 
+                            className="input input-ghost bg-border rounded-full" 
                             value={password_confirmation}
                             onChange={(e) => setPassword_confirmation(e.target.value)}
                         />

@@ -56,17 +56,17 @@ export default function SupplementaireForm({ user }: { user: User }) {
     };
 
     return (
-        <div className="flex flex-col gap-8 p-5 m-8 bg-accent border border-border rounded-[15px]">
+        <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
             <h3 className="text-2xl font-bold">Informations supplémentaires</h3>
             <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitSupplementaire}>
                 <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
                         <label htmlFor="birthdate">Date de naissance</label>
                         <input 
                             type="date" 
                             id="birthdate" 
                             name="birthdate" 
-                            className="input input-bordered" 
+                            className="input input-ghost bg-border rounded-full" 
                             value={birthdate}
                             onChange={(e) => setBirthdate(e.target.value)}
                         />
@@ -76,12 +76,12 @@ export default function SupplementaireForm({ user }: { user: User }) {
                     )}
                 </div>
                 <div className="grid row-span-2">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
                         <label htmlFor="bio">Bio</label>
                         <textarea 
                             id="bio" 
                             name="bio" 
-                            className="textarea textarea-bordered" 
+                            className="textarea textarea-ghost bg-border rounded-[15px] min-h-[120px]" 
                             value={bio || ''}
                             onChange={(e) => setBio(e.target.value)}
                         />
@@ -91,13 +91,13 @@ export default function SupplementaireForm({ user }: { user: User }) {
                     )}
                 </div>
                 <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col">
                         <label htmlFor="localisation">Localisation</label>
                         <input 
                             type="text" 
                             id="localisation" 
                             name="localisation" 
-                            className="input input-bordered" 
+                            className="input input-ghost bg-border rounded-full" 
                             value={localisation || ''}
                             onChange={(e) => setLocalisation(e.target.value)}
                         />

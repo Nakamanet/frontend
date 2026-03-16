@@ -57,57 +57,60 @@ export default function MediaForm({ user }: { user: User }) {
     };
 
     return (
-        <div className="flex flex-col gap-8 p-5 m-8 bg-accent border border-border rounded-[15px]">
+        <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
             <h3 className="text-2xl font-bold">Médias</h3>
             <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitMedias}>
-                <div className="flex justify-between items-center">
-                    <label htmlFor="avatar_url">URL de l&apos;avatar</label>
-                    <input 
-                        type="text" 
-                        id="avatar_url" 
-                        name="avatar_url" 
-                        className="input input-bordered" 
-                        value={avatar_url ?? ''}
-                        onChange={(e) => setAvatar_url(e.target.value)}
-                    />
+                <div className="flex flex-col gap-2">
+                    <div className="flex flex-col">
+                        <label htmlFor="avatar_url">URL de l&apos;avatar</label>
+                        <input 
+                            type="text" 
+                            id="avatar_url" 
+                            name="avatar_url" 
+                            className="input input-ghost bg-border rounded-full" 
+                            value={avatar_url ?? ''}
+                            onChange={(e) => setAvatar_url(e.target.value)}
+                        />
+                    </div>
+                    {fieldErrors.avatar_url && (
+                        <p className="text-sm text-alerts">{fieldErrors.avatar_url}</p>
+                    )}
                 </div>
-                {fieldErrors.avatar_url && (
-                    <p className="text-sm text-alerts">{fieldErrors.avatar_url}</p>
-                )}
-
-                <div className="flex justify-between items-center">
-                    <label htmlFor="banner_url">URL de la bannière</label>
-                    <input 
-                        type="text" 
-                        id="banner_url" 
-                        name="banner_url" 
-                        className="input input-bordered" 
-                        value={banner_url ?? ''}
-                        onChange={(e) => setBanner_url(e.target.value)}
-                    />
+                <div className="flex flex-col gap-2">
+                    <div className="flex flex-col">
+                        <label htmlFor="banner_url">URL de la bannière</label>
+                        <input 
+                            type="text" 
+                            id="banner_url" 
+                            name="banner_url" 
+                            className="input input-ghost bg-border rounded-full" 
+                            value={banner_url ?? ''}
+                            onChange={(e) => setBanner_url(e.target.value)}
+                        />
+                    </div>
+                    {fieldErrors.banner_url && (
+                        <p className="text-sm text-alerts">{fieldErrors.banner_url}</p>
+                    )}
                 </div>
-                {fieldErrors.banner_url && (
-                    <p className="text-sm text-alerts">{fieldErrors.banner_url}</p>
-                )}
-
-                <div className="flex justify-between items-center">
-                    <label htmlFor="theme_preference">Préférence de thème</label>
-                    <select 
-                        id="theme_preference" 
-                        name="theme_preference" 
-                        className="input input-bordered" 
-                        value={theme_preference || ''}
-                        onChange={(e) => setTheme_preference(e.target.value)}
-                    >
-                        <option value="light">Light</option>
-                        <option value="dark">Dark</option>
-                        <option value="system">System</option>
-                    </select>
+                <div className="flex flex-col gap-2">  
+                    <div className="flex flex-col">
+                        <label htmlFor="theme_preference">Préférence de thème</label>
+                        <select 
+                            id="theme_preference" 
+                            name="theme_preference" 
+                            className="input input-ghost bg-border rounded-full" 
+                            value={theme_preference || ''}
+                            onChange={(e) => setTheme_preference(e.target.value)}
+                        >
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="system">System</option>
+                        </select>
+                    </div>
                     {fieldErrors.theme_preference && (
                         <p className="text-sm text-alerts">{fieldErrors.theme_preference}</p>
                     )}
                 </div>
-
                 <button 
                     type="submit" 
                     className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"

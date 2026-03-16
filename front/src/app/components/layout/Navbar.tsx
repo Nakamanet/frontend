@@ -36,8 +36,8 @@ export default function Navbar() {
                 <div className="flex items-center gap-3 pr-4 md:pr-10">
                     {isLoggedIn && user ? (
                         <>
-                            <Search size={27} className="hidden md:block mt-2"/>
-                            <Bell size={27} className="hidden md:block mt-2"/>
+                            <Search size={27} className="hidden md:block"/>
+                            <Bell size={27} className="hidden md:block"/>
                             <div className="dropdown dropdown-end">
                                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                                     <div className="w-10 rounded-full">
@@ -48,7 +48,7 @@ export default function Navbar() {
                                         )}
                                     </div>
                                 </div>
-                                <ul tabIndex={-1} className="menu menu-sm dropdown-content rounded-box z-1 mt-3 p-2 bg-accent shadow">
+                                <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-1 mt-3 p-2 bg-accent shadow">
                                     <li><Link href="/profile">Profile</Link></li>
                                     <li><button onClick={logout}>Déconnexion</button></li>
                                 </ul>
@@ -62,13 +62,34 @@ export default function Navbar() {
                     )}
 
                     {/* Burger button - mobile only */}
-                    <button
-                        className="md:hidden btn btn-ghost btn-circle"
-                        onClick={() => setMenuOpen(!menuOpen)}
+                    <label
+                        className="md:hidden btn btn-ghost border-none btn-circle swap swap-rotate"
                         aria-label="Menu"
                     >
-                        {menuOpen ? <X size={27} /> : <Menu size={27} />}
-                    </button>
+                        <input type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
+
+                        {/* hamburger icon */}
+                        <svg
+                            className="swap-off fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="32"
+                            height="32"
+                            viewBox="0 0 512 512"
+                        >
+                            <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
+                        </svg>
+
+                        {/* close icon */}
+                        <svg
+                            className="swap-on fill-current"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="32"
+                            height="32"
+                            viewBox="0 0 512 512"
+                        >
+                            <polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
+                        </svg>
+                    </label>
                 </div>
             </div>
 

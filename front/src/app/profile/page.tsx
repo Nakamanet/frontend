@@ -2,7 +2,7 @@
 import { useAuth } from '../context/AuthContext';
 import { redirect } from 'next/navigation';
 import Image from 'next/image';
-import { CircleUser } from 'lucide-react';
+import { CircleUser, MapPin, Calendar, BookOpen, Users } from 'lucide-react';
 import { useState } from 'react';
 import Profile from './components/Profile';
 import Activity from './components/Activity';
@@ -18,80 +18,101 @@ export default function ProfilePage() {
     if (!user) redirect('/login');
 
     return (
-        <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full">
-            {/* Banniere */}
-            <section className={`w-full p-5 h-[20vh] flex items-end gap-4 ${user?.banner_url ? 'bg-cover bg-center' : 'bg-primary'}`}>
-                <p>
-                    {user.avatar_url ? <Image src={user.avatar_url} alt="Avatar" width={100} height={100} /> : <CircleUser size={50} strokeWidth={1.5} />}
-                </p>
-                <div className="flex flex-col">
-                    <p>{user.username}</p>
-                    <p>@{user.username}</p>
+        <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
+            {/* Bannière : même principe que Sidebar */}
+            <section className="relative w-full h-[20vh] rounded-[15px] mb-8 overflow-visible">
+                <div className="absolute inset-0 bg-primary overflow-hidden rounded-[15px]">
+                    {user?.banner_url ? (
+                        <Image
+                            src={user.banner_url}
+                            alt="Bannière"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 1200px) 100vw, 1500px"
+                        />
+                    ) : null}
+                </div>
+                <div className="relative z-10 flex items-end p-5 h-full gap-4">
+                    <p className="absolute -bottom-3 left-10 bg-accent p-1 rounded-[15px]">
+                        {user.avatar_url ? (
+                            <Image src={user.avatar_url} alt="Avatar" width={60} height={60} />
+                        ) : (
+                            <CircleUser size={50} strokeWidth={1.5} className='p-3'/>
+                        )}
+                    </p>
+                    <div className="flex flex-col absolute bottom-1 left-30">
+                        <p className="text-lg">{user.username}</p>
+                        <p className="text-border">@{user.username}</p>
+                    </div>
                 </div>
             </section>
             {/* main content */}
-            <section className="grid grid-cols-5">
+            <section className="grid grid-cols-4">
                 {/* Menu lateral */}
-                <div className="w-full h-auto bg-accent flex flex-col gap-7 py-7 px-5 border-r border-border">
-                    <div className="flex flex-col justify-center items-center gap-1">
-                        <p>Compte créé le {new Date(user.created_at).toLocaleDateString()}</p>
-                        <p>Habite à {user.localisation || 'Non renseigné'}</p>
+                <div className="w-full h-auto flex flex-col gap-5 py-7 ">
+                    <div className="flex flex-col justify-center gap-1 bg-accent p-5 border border-border rounded-[15px]">
+                        <p className='pb-2'>{user.bio || 'Pas encore de bio'}</p>
+                        <p className="flex items-center gap-2"><MapPin size={15} className='text-primary'/> {user.localisation || 'Non renseigné'}</p>
+                        <p className="flex items-center gap-2"><Calendar size={15} className='text-primary'/> Membre depuis le {new Date(user.created_at).toLocaleDateString()}</p>
+                        <p className="flex items-center gap-2"><BookOpen size={15} className='text-primary'/> X oeuvres suivies</p>
+                        <p className="flex items-center gap-2"><Users size={15} className='text-primary'/> X amis</p>
+                        <p className="flex items-center gap-2"><BookOpen size={15} className='text-primary'/> X posts</p>
                     </div>
-                    <div>
+                    <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
                         <ul>
                             <li>
                                 <button 
-                                    className={`btn btn-ghost border-none ${activeTab === 'activities' ? 'bg-primary text-primary-content' : ''}`} 
+                                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`} 
                                     onClick={() => setActiveTab('activities')}
                                 >
-                                    Mes posts
+                                    Posts
                                 </button>
                             </li>
                             <li>
                                 <button 
-                                    className={`btn btn-ghost border-none ${activeTab === 'friends' ? 'bg-primary text-primary-content' : ''}`} 
+                                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'friends' ? 'bg-primary text-primary-content' : 'text-border'}`} 
                                     onClick={() => setActiveTab('friends')}
                                 >
-                                    Mes Amis
+                                    Amis
                                 </button>
                             </li>
                             <li>
                                 <button 
-                                    className={`btn btn-ghost border-none ${activeTab === 'likes' ? 'bg-primary text-primary-content' : ''}`} 
+                                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'likes' ? 'bg-primary text-primary-content' : 'text-border'}`} 
                                     onClick={() => setActiveTab('likes')}
                                 >
-                                    Mes Likes
+                                    Likes
                                 </button>
                             </li>                            
                             <li>
                                 <button 
-                                    className={`btn btn-ghost border-none ${activeTab === 'library' ? 'bg-primary text-primary-content' : ''}`} 
+                                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`} 
                                     onClick={() => setActiveTab('library')}
                                 >
-                                    Ma Bibliothèque
+                                    Bibliothèque
                                 </button>
                             </li>                            
                             <li>
                                 <button 
-                                    className={`btn btn-ghost border-none ${activeTab === 'groups' ? 'bg-primary text-primary-content' : ''}`} 
+                                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'groups' ? 'bg-primary text-primary-content' : 'text-border'}`} 
                                     onClick={() => setActiveTab('groups')}
                                 >
-                                    Mes Groupes
+                                    Groupes
                                 </button>
                             </li>                            
                             <li>
                                 <button 
-                                    className={`btn btn-ghost border-none ${activeTab === 'profile' ? 'bg-primary text-primary-content' : ''}`} 
+                                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'profile' ? 'bg-primary text-primary-content' : 'text-border'}`} 
                                     onClick={() => setActiveTab('profile')}
                                 >
-                                    Mon Profile
+                                    Paramètres
                                 </button>
                             </li>                        
                         </ul>
                     </div>
                 </div>
                 {/* Contenu principal */}
-                <div className="col-span-4 min-h-[70vh]">
+                <div className="col-span-3 min-h-[70vh]">
                     {activeTab === 'activities' && <Activity user={user} />}
                     {activeTab === 'friends' && <Friends user={user} />}
                     {activeTab === 'likes' && <Likes user={user} />}
