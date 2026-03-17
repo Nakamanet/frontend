@@ -6,136 +6,17 @@ import { User } from "../../../types/auth";
 import api from "../../../lib/axios";
 
 export default function NotificationForm({ user }: { user: User }) {
-    // A modifier plus tard quand ce sera en db
-    const [privacy, setPrivacy ] = useState(false);
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-
-    const { refreshUser } = useAuth();
-
-    const handleSubmitMedias = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setErrorMessage(null);
-        setSuccessMessage(null);
-        setFieldErrors({});
-        setIsSubmitting(true);
-
-        try {
-            const payload: Record<string, string> = {
-                comment: comment ?? '',
-                friendsRequests: friendsRequests ?? '',
-                mentions: mentions ?? '',
-                newSorties: newSorties ?? '',
-            };
-
-            const body = Object.fromEntries(
-                Object.entries(payload).filter(([, v]) => v !== undefined && v !== null && v !== '')
-            );
-
-            const { data } = await api.patch<{message: string, user: User}>('/auth/profile', body);
-            setSuccessMessage(data.message);
-            await refreshUser();
-        } catch (err: any) {
-            const res = err.response?.data;
-            if (err.response?.status === 422 && res?.errors) {
-                const errors: Record<string, string> = {}
-                Object.entries(res.errors).forEach(([key, messages]) => {
-                    errors[key] = Array.isArray(messages) ? messages[0] : String(messages);
-                });
-                setFieldErrors(errors);
-                setErrorMessage(res?.message ?? "Erreur de validation");
-            } else {
-                setErrorMessage(res?.message ?? "Erreur lors de la mise à jour du profil");
-            }
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-
-    // A voir apres
-    // const handleDeleteAccount = async () => {
-    //     try {
-    //         await api.delete('/auth/profile');
-    //         await refreshUser();
-    //     } catch (err: any) {
-    //         setErrorMessage(err.response?.data?.message ?? "Erreur lors de la suppression du compte");
-    //     }
-    // };
+    // Rajouter la logique pour changer le status du compte en Archived
 
     return (
-        <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
-            <h3 className="text-2xl font-bold">Confidentialité</h3>
-            <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitMedias}>
-                <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center">
-                        <div className="flex flex-col">
-                            <p>Profil privé</p>
-                            <p className="text-sm text-border">Seul vos amis peuvent voir votre profil</p>
-                        </div>
-
-                        <label className={`toggle text-base-content rounded-full ${privacy ? 'bg-primary' : 'bg-border'}`}>
-                            <input type="checkbox" checked={privacy} onChange={() => setPrivacy(!privacy)}/>
-                            <svg
-                                aria-label="disabled"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="4"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M18 6 6 18" />
-                                <path d="m6 6 12 12" />
-                            </svg>
-                            <svg aria-label="enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                <g
-                                strokeLinejoin="round"
-                                strokeLinecap="round"
-                                strokeWidth="4"
-                                fill="none"
-                                stroke="currentColor"
-                                >
-                                <path d="M20 6 9 17l-5-5"></path>
-                                </g>
-                            </svg>
-                        </label>   
-                    </div>
-                    {fieldErrors.privacy && (
-                        <p className="text-sm text-alerts">{fieldErrors.privacy}</p>
-                    )}
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <div className="flex flex-col justify-between">
-                        <label htmlFor="delete_account">
-                            <button className="btn btn-ghost btn-xs text-sm p-0 border-none hover:bg-transparent">Suprimer mon compte</button>
-                        </label>
-                        <p className="text-sm text-border">Supprimer toute vos données, cette action est irreversible</p>
-
-                    </div>
-                    {fieldErrors.friendsRequests && (
-                        <p className="text-sm text-alerts">{fieldErrors.friendsRequests}</p>
-                    )}
-                </div>
-
-                <button 
-                    type="submit" 
-                    className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"
-                    disabled={isSubmitting}
-                >
-                    {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-                </button>
-            </form>
-            {successMessage && (
-                <p className="text-sm text-success">{successMessage}</p>
-            )}
-            {errorMessage && (
-                <p className="text-sm text-alerts">{errorMessage}</p>
-            )}
+        <div className="flex justify-between items-center p-5 bg-accent border border-border rounded-[15px]">
+            <div className="flex flex-col items-center m-auto">
+                <label htmlFor="delete_account">
+                    <button className="btn btn-ghost btn-xs text-sm p-0 border-none hover:bg-transparent">Suprimer mon compte</button>
+                </label>
+                <p className="text-sm text-border">Supprimer toute vos données, cette action est irreversible</p>
+            </div>
         </div>
     );
 }

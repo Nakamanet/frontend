@@ -7,13 +7,14 @@ import { useState } from 'react';
 import Profile from './components/Profile';
 import Activity from './components/Activity';
 import Friends from './components/Friends';
-import Likes from './components/Likes';
 import Library from './components/Library';
 import Groups from './components/Groups';
 
 export default function ProfilePage() {
     const [activeTab, setActiveTab] = useState('activities');
     const { user } = useAuth();
+
+    const posts = []
 
     if (!user) redirect('/login');
 
@@ -54,7 +55,7 @@ export default function ProfilePage() {
                         <p className='pb-2'>{user.bio || 'Pas encore de bio'}</p>
                         <p className="flex items-center gap-2"><MapPin size={15} className='text-primary'/> {user.localisation || 'Non renseigné'}</p>
                         <p className="flex items-center gap-2"><Calendar size={15} className='text-primary'/> Membre depuis le {new Date(user.created_at).toLocaleDateString()}</p>
-                        <p className="flex items-center gap-2"><BookOpen size={15} className='text-primary'/> X oeuvres suivies</p>
+                        <p className="flex items-center gap-2"><BookOpen size={15} className='text-primary'/> {posts.length} oeuvres suivies</p>
                         <p className="flex items-center gap-2"><Users size={15} className='text-primary'/> X amis</p>
                         <p className="flex items-center gap-2"><BookOpen size={15} className='text-primary'/> X posts</p>
                     </div>
@@ -75,15 +76,7 @@ export default function ProfilePage() {
                                 >
                                     Amis
                                 </button>
-                            </li>
-                            <li>
-                                <button 
-                                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'likes' ? 'bg-primary text-primary-content' : 'text-border'}`} 
-                                    onClick={() => setActiveTab('likes')}
-                                >
-                                    Likes
-                                </button>
-                            </li>                            
+                            </li>                          
                             <li>
                                 <button 
                                     className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`} 
@@ -115,7 +108,6 @@ export default function ProfilePage() {
                 <div className="col-span-3 min-h-[70vh]">
                     {activeTab === 'activities' && <Activity user={user} />}
                     {activeTab === 'friends' && <Friends user={user} />}
-                    {activeTab === 'likes' && <Likes user={user} />}
                     {activeTab === 'library' && <Library user={user} />}
                     {activeTab === 'groups' && <Groups user={user} />}
                     {activeTab === 'profile' && <Profile user={user} />}

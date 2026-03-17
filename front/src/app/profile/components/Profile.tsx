@@ -9,7 +9,7 @@ import ConfidentialForm from "./form/ConfidentialForm";
 
 export default function Profile({ user }: { user: User }) {
     return (
-        <div className="flex gap-6 mt-7 ml-6">
+        <div className="grid grid-cols-2 gap-6 mt-7 ml-6">
             <div className="flex flex-col gap-6 w-full">
                 <PersonnalForm user={user} />
                 <SupplementaireForm user={user} />
@@ -17,6 +17,8 @@ export default function Profile({ user }: { user: User }) {
             <div className="flex flex-col gap-6 w-full">
                 <NotificationForm user={user} />
                 <MediaForm user={user} />
+            </div>
+            <div className="col-span-2">
                 <ConfidentialForm user={user} />
             </div>
         </div>
