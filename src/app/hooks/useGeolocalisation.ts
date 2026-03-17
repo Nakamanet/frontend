@@ -23,16 +23,24 @@ export function useGeolocation() {
 
           if (data.location) setLocation(data.location);
           else setError('Localisation introuvable');
+          console.log(data.location);
         } catch {
           setError('Erreur lors de la récupération');
         } finally {
           setLoading(false);
         }
       },
-      () => {
-        setError('Permission refusée');
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setError('Permission refusée');
+        } else if (err.code === err.TIMEOUT) {
+          setError('Délai de localisation dépassé');
+        } else {
+          setError('Localisation indisponible');
+        }
         setLoading(false);
-      }
+      },
+      { timeout: 10000 }
     );
   };
 

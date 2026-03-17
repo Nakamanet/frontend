@@ -7,8 +7,8 @@ import api from "../../../lib/axios";
 
 export default function SupplementaireForm({ user }: { user: User }) {
     const [birthdate, setBirthdate] = useState(user.birthdate);
-    const [localisation, setLocalisation] = useState(user.localisation);
     const [bio, setBio] = useState(user.bio);
+    const [privacy, setPrivacy] = useState(user.privacy);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -27,7 +27,7 @@ export default function SupplementaireForm({ user }: { user: User }) {
         try {
             const payload: Record<string, string> = {
                 birthdate: birthdate ?? '',
-                localisation: localisation ?? '',
+                privacy: privacy ?? false,
                 bio: bio ?? '',
             };
 
@@ -91,19 +91,42 @@ export default function SupplementaireForm({ user }: { user: User }) {
                     )}
                 </div>
                 <div className="flex flex-col gap-2">
-                    <div className="flex flex-col">
-                        <label htmlFor="localisation">Localisation</label>
-                        <input 
-                            type="text" 
-                            id="localisation" 
-                            name="localisation" 
-                            className="input input-ghost bg-border rounded-full" 
-                            value={localisation || ''}
-                            onChange={(e) => setLocalisation(e.target.value)}
-                        />
+                    <div className="flex justify-between items-center">
+                        <div className="flex flex-col">
+                            <p>Profil privé</p>
+                            <p className="text-sm text-border">Seul vos amis peuvent voir votre profil</p>
+                        </div>
+
+                        <label className={`toggle text-base-content rounded-full ${privacy ? 'bg-primary' : 'bg-border'}`}>
+                            <input type="checkbox" checked={privacy} onChange={() => setPrivacy(!privacy)}/>
+                            <svg
+                                aria-label="disabled"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M18 6 6 18" />
+                                <path d="m6 6 12 12" />
+                            </svg>
+                            <svg aria-label="enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                <g
+                                strokeLinejoin="round"
+                                strokeLinecap="round"
+                                strokeWidth="4"
+                                fill="none"
+                                stroke="currentColor"
+                                >
+                                <path d="M20 6 9 17l-5-5"></path>
+                                </g>
+                            </svg>
+                        </label>   
                     </div>
-                    {fieldErrors.localisation && (
-                        <p className="text-sm text-alerts">{fieldErrors.localisation}</p>
+                    {fieldErrors.privacy && (
+                        <p className="text-sm text-alerts">{fieldErrors.privacy}</p>
                     )}
                 </div>
 

@@ -31,12 +31,12 @@ export default function RegisterPage() {
             }
 
             if (loading) {
-                setError('Localisation en cours de détection...');
+                setError('Localisation en cours de détection, veuillez patienter...');
                 return;
             }
-            console.log(location);
 
-            const response = await api.post('/auth/register', { username, email, password, birthdate, localisation: location });
+            const response = await api.post('/auth/register', { username, email, password, birthdate, localisation: location || null });
+            console.log(response.data);
             login(response.data.token, response.data.user);
             router.push('/');
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,6 +44,7 @@ export default function RegisterPage() {
             setError(err.response?.data?.message || 'Erreur lors de l\'inscription');
         }
     }
+    console.log(location);
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-base-200">
