@@ -14,9 +14,10 @@ import {
   subMonths 
 } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { User } from '../../types/auth';
 
 
-export default function Calendar() {
+export default function Calendar({ user }: { user: User | null }) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
 

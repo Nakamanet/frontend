@@ -27,7 +27,7 @@ export default function Navbar() {
 
                 {/* Nav links - desktop only */}
                 <div className="hidden md:flex gap-20">
-                    <Link href="/list">Bibliothèque</Link>
+                    <Link href="/bibliotheque">Bibliothèque</Link>
                     <Link href="/forum">Forum</Link>
                     <Link href="/chat">Chat</Link>
                 </div>

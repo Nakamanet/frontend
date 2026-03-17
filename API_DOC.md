@@ -289,6 +289,271 @@ Authorization: Bearer <token>
 
 ---
 
+## GET `/auth/posts`
+
+Récupérer la liste paginée des posts (fil d'actualité).
+
+**Auth requise** : Non
+
+### Réponse succès — `200 OK`
+
+```json
+{
+  "current_page": 1,
+  "data": [
+    {
+      "id": 1,
+      "user_id": 1,
+      "content": "Mon avis sur Demon Slayer...",
+      "related_anime_id": 42,
+      "related_manga_id": null,
+      "image_urls": ["https://example.com/img.jpg"],
+      "is_spoiler": false,
+      "created_at": "2026-03-17T10:00:00.000000Z",
+      "updated_at": "2026-03-17T10:00:00.000000Z",
+      "user": { "id": 1, "username": "naruto_fan", "..." : "..." }
+    }
+  ],
+  "per_page": 20,
+  "total": 100,
+  "last_page": 5,
+  "next_page_url": "http://localhost:8080/api/auth/posts?page=2",
+  "prev_page_url": null
+}
+```
+
+---
+
+## GET `/auth/posts/{id}`
+
+Récupérer un post par son ID, avec ses commentaires.
+
+**Auth requise** : Non
+
+### Paramètres URL
+
+| Paramètre | Type    | Description  |
+|-----------|---------|--------------|
+| id        | integer | ID du post   |
+
+### Réponse succès — `200 OK`
+
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "content": "Mon avis sur Demon Slayer...",
+  "related_anime_id": 42,
+  "related_manga_id": null,
+  "image_urls": ["https://example.com/img.jpg"],
+  "is_spoiler": false,
+  "created_at": "2026-03-17T10:00:00.000000Z",
+  "updated_at": "2026-03-17T10:00:00.000000Z",
+  "user": { "id": 1, "username": "naruto_fan", "...": "..." },
+  "comments": [
+    {
+      "id": 1,
+      "content": "Totalement d'accord !",
+      "user": { "id": 2, "username": "sasuke_fan", "...": "..." }
+    }
+  ]
+}
+```
+
+### Réponse erreur — `404 Not Found`
+
+```json
+{ "message": "No query results for model [Post] 999" }
+```
+
+---
+
+## POST `/auth/posts`
+
+Créer un nouveau post.
+
+**Auth requise** : Oui
+
+### Request Body (JSON)
+
+| Champ             | Type     | Requis | Règles                        |
+|-------------------|----------|--------|-------------------------------|
+| content           | string   | oui    | max 5000 caractères           |
+| related_anime_id  | integer  | non    | nullable                      |
+| related_manga_id  | integer  | non    | nullable                      |
+| image_urls        | array    | non    | nullable, chaque élément = URL valide |
+| is_spoiler        | boolean  | non    | nullable                      |
+
+### Exemple requête
+
+```json
+{
+  "content": "Mon avis sur Demon Slayer saison 3...",
+  "related_anime_id": 42,
+  "image_urls": ["https://example.com/screenshot.jpg"],
+  "is_spoiler": true
+}
+```
+
+### Réponse succès — `201 Created`
+
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "content": "Mon avis sur Demon Slayer saison 3...",
+  "related_anime_id": 42,
+  "related_manga_id": null,
+  "image_urls": ["https://example.com/screenshot.jpg"],
+  "is_spoiler": true,
+  "created_at": "2026-03-17T10:00:00.000000Z",
+  "updated_at": "2026-03-17T10:00:00.000000Z"
+}
+```
+
+### Réponse erreur — `422 Unprocessable Entity`
+
+```json
+{
+  "message": "The content field is required.",
+  "errors": {
+    "content": ["The content field is required."]
+  }
+}
+```
+
+---
+
+## PATCH `/auth/posts/{id}`
+
+Modifier un post existant. Seul l'auteur du post peut le modifier.
+
+**Auth requise** : Oui
+
+### Paramètres URL
+
+| Paramètre | Type    | Description |
+|-----------|---------|-------------|
+| id        | integer | ID du post  |
+
+### Request Body (JSON)
+
+| Champ      | Type    | Requis | Règles              |
+|------------|---------|--------|---------------------|
+| content    | string  | non    | max 5000 caractères |
+| is_spoiler | boolean | non    |                     |
+| image_urls | array   | non    |                     |
+
+### Exemple requête
+
+```json
+{
+  "content": "Mise à jour de mon avis...",
+  "is_spoiler": false
+}
+```
+
+### Réponse succès — `200 OK`
+
+```json
+{
+  "id": 1,
+  "user_id": 1,
+  "content": "Mise à jour de mon avis...",
+  "related_anime_id": 42,
+  "related_manga_id": null,
+  "image_urls": ["https://example.com/screenshot.jpg"],
+  "is_spoiler": false,
+  "created_at": "2026-03-17T10:00:00.000000Z",
+  "updated_at": "2026-03-17T10:05:00.000000Z"
+}
+```
+
+### Réponse erreur — `403 Forbidden`
+
+```json
+{ "message": "Forbidden" }
+```
+
+### Réponse erreur — `404 Not Found`
+
+```json
+{ "message": "No query results for model [Post] 999" }
+```
+
+---
+
+## DELETE `/auth/posts/{id}`
+
+Supprimer un post. Seul l'auteur du post peut le supprimer.
+
+**Auth requise** : Oui
+
+### Paramètres URL
+
+| Paramètre | Type    | Description |
+|-----------|---------|-------------|
+| id        | integer | ID du post  |
+
+### Réponse succès — `200 OK`
+
+```json
+{ "message": "Post deleted" }
+```
+
+### Réponse erreur — `403 Forbidden`
+
+```json
+{ "message": "Forbidden" }
+```
+
+### Réponse erreur — `404 Not Found`
+
+```json
+{ "message": "No query results for model [Post] 999" }
+```
+
+---
+
+## PUT `/auth/disable/{id}`
+
+Désactiver son propre compte (soft delete). Seul l'utilisateur connecté peut désactiver son propre compte.
+
+**Auth requise** : Oui
+
+### Paramètres URL
+
+| Paramètre | Type    | Description         |
+|-----------|---------|---------------------|
+| id        | integer | ID de l'utilisateur |
+
+### Request Body
+
+Aucun.
+
+### Réponse succès — `200 OK`
+
+```json
+{
+  "message": "Account disabled",
+  "status": 200
+}
+```
+
+### Réponse erreur — `403 Forbidden`
+
+```json
+{ "message": "Forbidden" }
+```
+
+### Réponse erreur — `404 Not Found`
+
+```json
+{ "message": "No query results for model [User] 999" }
+```
+
+---
+
 ## Objet User (référence)
 
 Champs retournés dans les réponses (le `password_hash` est toujours masqué) :

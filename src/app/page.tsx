@@ -29,7 +29,7 @@ export default function HomePage() {
         {/* Droite de l'écran - desktop only */}
         <section className="hidden md:flex flex-col w-full mx-auto h-full gap-5">
           <Chat user={user} />
-          <Calendar />
+          <Calendar user={user} />
         </section>
       </main>
 
