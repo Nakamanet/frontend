@@ -13,7 +13,7 @@ export default function BibliothequePage() {
         <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
             <section className="flex flex-col gap-10 w-full h-full col-span-4 pr-6 overflow-y-auto scrollbar-hide">
                 <SearchBarPage />
-                <CarrousselPage title="Les titres que vous suivez" type="followed" />
+                <CarrousselPage title="Les titres que vous suivez" type="ma-bibliotheque" />
                 <CarrousselPage title="Les titres que vos amis suivent" type="friends" />
                 <CarrousselPage title="Les mangas" type="manga" />
                 <CarrousselPage title="Les animes" type="anime" />

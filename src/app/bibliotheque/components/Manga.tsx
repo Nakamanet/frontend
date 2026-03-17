@@ -27,7 +27,7 @@ export default function Manga() {
       return (
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
             {isLoading ? (
-                <div className="flex justify-center items-center h-full">
+                <div className="flex justify-center items-center h-full mx-auto my-[90px]">
                     <Loader2 className="animate-spin" />
                 </div>
             ) : error ? (

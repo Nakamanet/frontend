@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import Image from "next/image";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Lists() {
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -49,36 +51,44 @@ export default function Lists() {
 
     return (
         <div className="flex gap-4">
-            {isLoading ? (
-                <div className="flex justify-center items-center h-full">
-                    <Loader2 className="animate-spin" />
-                </div>
-            ) : error ? (
-                <div className="flex justify-center items-center h-full">
-                    <p className="text-red-500">{error}</p>
-                </div>
-            ) : (
-                <div className="flex gap-4">
-                    <div className="flex gap-4">
-                        {list.map((item) => (
-                            <div key={item.id}>
-                                {item.posterImage ? (
-                                    <Image 
-                                        src={item.posterImage} 
-                                        alt={item.titleEn} 
-                                        width={145} 
-                                        height={100} 
-                                        className="object-cover rounded-[15px]" 
-                                        priority
-                                    />
-                                ) : null }
-                            </div>
-                        ))}
-                </div>
-                    <div className="flex flex-col border border-border gap-2 rounded-[15px] items-center justify-center w-[145px] h-full">
-                        <Plus size={35} />
-                        <p>Ajouter un titre</p>
+            {user ? (
+                <>
+                {isLoading ? (
+                    <div className="flex justify-center items-center h-full mx-auto my-[90px]">
+                        <Loader2 className="animate-spin" />
                     </div>
+                ) : error ? (
+                    <div className="flex justify-center items-center h-full">
+                        <p className="text-red-500">{error}</p>
+                    </div>
+                ) : (
+                    <div className="flex gap-4">
+                        <div className="flex gap-4">
+                            {list.map((item) => (
+                                <div key={item.id}>
+                                    {item.posterImage ? (
+                                        <Image 
+                                            src={item.posterImage} 
+                                            alt={item.titleEn} 
+                                            width={145} 
+                                            height={100} 
+                                            className="object-cover rounded-[15px]" 
+                                            priority
+                                        />
+                                    ) : null }
+                                </div>
+                            ))}
+                    </div>
+                        <div className="flex flex-col border border-border gap-2 rounded-[15px] items-center justify-center w-[145px] h-full">
+                            <Plus size={35} />
+                            <p>Ajouter un titre</p>
+                        </div>
+                    </div>
+                )}
+                </>
+            ) : (
+                <div className="flex justify-center items-center h-full mx-auto my-3">
+                    <p>Vous devez être connecté pour voir votre bibliothèque</p>
                 </div>
             )}
         </div>

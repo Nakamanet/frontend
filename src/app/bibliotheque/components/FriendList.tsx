@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import Image from "next/image";
+import { useAuth } from "../../context/AuthContext";
 
 export default function FriendList() {
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -49,32 +51,40 @@ export default function FriendList() {
 
     return (
          <div className="flex gap-4">
-            {isLoading ? (
-                <div className="flex justify-center items-center h-full">
+            {user ? (
+                <>
+                {isLoading ? (
+                <div className="flex justify-center items-center h-full mx-auto my-[90px]">
                     <Loader2 className="animate-spin" />
                 </div>
-            ) : error ? (
-                <div className="flex justify-center items-center h-full">
-                    <p className="text-red-500">{error}</p>
-                </div>
-            ) : (
-                <div className="flex gap-4">
-                    <div className="flex gap-4">
-                        {friendsList.map((item) => (
-                            <div key={item.id}>
-                                {item.posterImage ? (
-                                    <Image 
-                                        src={item.posterImage} 
-                                        alt={item.titleEn} 
-                                        width={145} 
-                                        height={100} 
-                                        className="object-cover rounded-[15px]" 
-                                        priority
-                                    />
-                                ) : null }
-                            </div>
-                        ))}
+                ) : error ? (
+                    <div className="flex justify-center items-center h-full">
+                        <p className="text-red-500">{error}</p>
                     </div>
+                ) : (
+                    <div className="flex gap-4">
+                        <div className="flex gap-4">
+                            {friendsList.map((item) => (
+                                <div key={item.id}>
+                                    {item.posterImage ? (
+                                        <Image 
+                                            src={item.posterImage} 
+                                            alt={item.titleEn} 
+                                            width={145} 
+                                            height={100} 
+                                            className="object-cover rounded-[15px]" 
+                                            priority
+                                        />
+                                    ) : null }
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </>
+            ) : (
+                <div className="flex justify-center items-center h-full mx-auto my-3">
+                    <p>Vous devez être connecté pour voir votre bibliothèque</p>
                 </div>
             )}
         </div>

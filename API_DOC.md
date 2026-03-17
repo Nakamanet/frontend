@@ -515,6 +515,73 @@ Supprimer un post. Seul l'auteur du post peut le supprimer.
 
 ---
 
+## POST `/auth/likes/toggle`
+
+Liker ou unliker un post ou un commentaire. Si le like existe déjà, il est supprimé (unlike) ; sinon il est créé (like).
+
+**Auth requise** : Oui
+
+### Request Body (JSON)
+
+| Champ      | Type    | Requis | Règles                              |
+|------------|---------|--------|-------------------------------------|
+| post_id    | integer | non*   | nullable, doit exister en base      |
+| comment_id | integer | non*   | nullable, doit exister en base      |
+
+*Au moins un des deux champs est obligatoire.
+
+### Exemple requête — like d'un post
+
+```json
+{
+  "post_id": 1
+}
+```
+
+### Exemple requête — like d'un commentaire
+
+```json
+{
+  "comment_id": 5
+}
+```
+
+### Réponse succès (like créé) — `201 Created`
+
+```json
+{
+  "message": "Liked",
+  "liked": true
+}
+```
+
+### Réponse succès (like supprimé) — `200 OK`
+
+```json
+{
+  "message": "Unliked",
+  "liked": false
+}
+```
+
+### Réponse erreur — `422 Unprocessable Entity` (aucun champ fourni)
+
+```json
+{
+  "message": "post_id or comment_id is required"
+}
+```
+
+### Réponse erreur — `401 Unauthorized`
+
+```json
+{
+  "message": "Unauthenticated."
+}
+```
+
+---
+
 ## PUT `/auth/disable/{id}`
 
 Désactiver son propre compte (soft delete). Seul l'utilisateur connecté peut désactiver son propre compte.
