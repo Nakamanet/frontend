@@ -26,6 +26,7 @@ export interface Manga {
     titleJp: string | null;
     synopsis: string;
     type: string;
+    status: string;
     volumeCount: number | null;
     chapterCount: number | null;
     startDate: string | null;
