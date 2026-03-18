@@ -16,12 +16,10 @@ export default function Manga() {
         setIsLoading(true);
         setError(null);
         getMangas()
-            .then((mangas) => setMangasList(mangas))
+            .then((res) => setMangasList(res.data))
             .catch((err) => setError(err?.response?.data?.message ?? err?.message ?? 'Erreur lors du chargement du catalogue'))
             .finally(() => setIsLoading(false));
     }, []);
-
-    const fiveFirstMangas = mangasList.slice(0, 6);
 
       return (
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
@@ -36,7 +34,7 @@ export default function Manga() {
             ) : (
                 <div className="flex gap-4">
                     <div className="flex gap-4">
-                        {fiveFirstMangas.map((item) => (
+                        {mangasList.map((item) => (
                             <div key={item.id}>
                                 {item.posterImage ? (
                                     <Link href={`/bibliotheque/manga/genre/${item.slug}`}>

@@ -48,7 +48,6 @@ export interface Genre {
     slug: string;
 }
 
-// À utiliser quand le backend implémentera la pagination
 export interface PaginatedMeta {
     total: number;
     per_page: number;
