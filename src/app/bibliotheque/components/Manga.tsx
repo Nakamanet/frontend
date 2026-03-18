@@ -5,6 +5,7 @@ import { getMangas } from "../../lib/catalogue";
 import type { Manga } from "../../types/catalog"
 import { Loader2, Plus } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Manga() {
     const [mangasList, setMangasList] = useState<Manga[]>([]);
@@ -14,15 +15,13 @@ export default function Manga() {
     useEffect(() => {
         setIsLoading(true);
         setError(null);
-        Promise.all([getMangas()])
-          .then(([mangas]) => {
-            setMangasList(mangas);
-          })
-          .catch((err) => setError(err?.response?.data?.message ?? err?.message ?? 'Erreur lors du chargement du catalogue'))
-          .finally(() => setIsLoading(false));
-      }, []);
+        getMangas()
+            .then((res) => setMangasList(res.data))
+            .catch((err) => setError(err?.response?.data?.message ?? err?.message ?? 'Erreur lors du chargement du catalogue'))
+            .finally(() => setIsLoading(false));
+    }, []);
 
-      const fiveFirstMangas = mangasList.slice(0, 6);
+    const fiveFirstMangas = mangasList.slice(0, 6);
 
       return (
         <div className="flex gap-4 overflow-x-auto scrollbar-hide">
@@ -39,23 +38,27 @@ export default function Manga() {
                     <div className="flex gap-4">
                         {fiveFirstMangas.map((item) => (
                             <div key={item.id}>
-                                {item.posterImage ? (
-                                    <Image 
-                                        src={item.posterImage} 
-                                        alt={item.titleEn} 
-                                        width={145} 
-                                        height={100} 
-                                        className="object-cover rounded-[15px] min-w-[145px] min-h-[100px]" 
-                                        priority
-                                    />
+                                {item.poster_image ? (
+                                    <Link href={`/bibliotheque/manga/genre/${item.slug}`}>
+                                        <Image
+                                            src={item.poster_image}
+                                            alt={item.title_en}
+                                            width={145} 
+                                            height={100} 
+                                            className="object-cover rounded-[15px] min-w-[145px] min-h-[100px]" 
+                                            priority
+                                        />
+                                    </Link>
                                 ) : null }
                             </div>
                         ))}
                     </div>
-                    <div className="flex flex-col border border-border gap-2 rounded-[15px] items-center justify-center w-[145px] h-full">
-                        <Plus size={35}/>
-                        <p>Tous les mangas</p>
-                    </div>
+                    <Link href="/bibliotheque/manga">
+                        <div className="flex flex-col border border-border gap-2 rounded-[15px] items-center justify-center w-[145px] h-full">
+                            <Plus size={35}/>
+                            <p>Tous les mangas</p>
+                        </div>
+                    </Link>
                 </div>
             )}
         </div>

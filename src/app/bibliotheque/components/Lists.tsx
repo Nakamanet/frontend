@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "../../context/AuthContext";
+import Link from "next/link";
 
 export default function Lists() {
     const { user } = useAuth();
@@ -67,14 +68,17 @@ export default function Lists() {
                             {list.map((item) => (
                                 <div key={item.id}>
                                     {item.posterImage ? (
-                                        <Image 
-                                            src={item.posterImage} 
-                                            alt={item.titleEn} 
-                                            width={145} 
-                                            height={100} 
-                                            className="object-cover rounded-[15px]" 
-                                            priority
-                                        />
+                                        // A changer l'url plus tard
+                                        <Link href={`/bibliotheque/anime/genre/${item.slug}`}> 
+                                            <Image 
+                                                src={item.posterImage} 
+                                                alt={item.titleEn} 
+                                                width={145} 
+                                                height={100} 
+                                                className="object-cover rounded-[15px]" 
+                                                priority
+                                            />
+                                        </Link>
                                     ) : null }
                                 </div>
                             ))}
