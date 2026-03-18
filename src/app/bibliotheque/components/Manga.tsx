@@ -16,7 +16,7 @@ export default function Manga() {
         setIsLoading(true);
         setError(null);
         getMangas()
-            .then((res) => setMangasList(res.data))
+            .then((mangas) => setMangasList(mangas))
             .catch((err) => setError(err?.response?.data?.message ?? err?.message ?? 'Erreur lors du chargement du catalogue'))
             .finally(() => setIsLoading(false));
     }, []);
@@ -38,11 +38,11 @@ export default function Manga() {
                     <div className="flex gap-4">
                         {fiveFirstMangas.map((item) => (
                             <div key={item.id}>
-                                {item.poster_image ? (
+                                {item.posterImage ? (
                                     <Link href={`/bibliotheque/manga/genre/${item.slug}`}>
                                         <Image
-                                            src={item.poster_image}
-                                            alt={item.title_en}
+                                            src={item.posterImage}
+                                            alt={item.titleEn}
                                             width={145} 
                                             height={100} 
                                             className="object-cover rounded-[15px] min-w-[145px] min-h-[100px]" 

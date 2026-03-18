@@ -1,39 +1,39 @@
 export interface Anime {
     id: number;
     slug: string;
-    title_en: string;
-    title_jp: string | null;
-    synopsis: string;
+    titleEn: string;
+    titleJp: string | null;
+    synopsis: string | null;
     type: string;
     subtype: string | null;
     status: string;
-    start_date: string | null;
-    end_date: string | null;
+    startDate: string | null;
+    endDate: string | null;
     nsfw: boolean | null;
-    poster_image: string | null;
-    cover_image: string | null;
-    age_rating: string | null;
-    episode_count: number | null;
-    episode_length: number | null;
-    created_at: string | null;
-    updated_at: string | null;
+    posterImage: string | null;
+    coverImage: string | null;
+    ageRating: string | null;
+    episodeCount: number | null;
+    episodeLength: number | null;
+    createdAt: string | null;
+    updatedAt: string | null;
 }
 
 export interface Manga {
     id: number;
     slug: string;
-    title_en: string;
-    title_jp: string | null;
-    synopsis: string;
+    titleEn: string;
+    titleJp: string | null;
+    synopsis: string | null;
     type: string;
     status: string;
-    volume_count: number | null;
-    chapter_count: number | null;
-    start_date: string | null;
-    end_date: string | null;
-    poster_image: string | null;
-    cover_image: string | null;
-    created_at: string | null;
+    volumeCount: number | null;
+    chapterCount: number | null;
+    startDate: string | null;
+    endDate: string | null;
+    posterImage: string | null;
+    coverImage: string | null;
+    createdAt: string | null;
 }
 
 export interface Category {
@@ -48,6 +48,7 @@ export interface Genre {
     slug: string;
 }
 
+// À utiliser quand le backend implémentera la pagination
 export interface PaginatedMeta {
     total: number;
     per_page: number;
