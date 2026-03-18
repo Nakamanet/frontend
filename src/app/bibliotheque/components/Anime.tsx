@@ -16,7 +16,7 @@ export default function Anime() {
         setIsLoading(true);
         setError(null);
         getAnimes()
-            .then((res) => setAnimesList(res.data))
+            .then((animes) => setAnimesList(animes))
             .catch((err) => setError(err?.response?.data?.message ?? err?.message ?? 'Erreur lors du chargement du catalogue'))
             .finally(() => setIsLoading(false));
     }, []);
@@ -38,11 +38,11 @@ export default function Anime() {
                     <div className="flex gap-4">
                         {fiveFirstAnime.map((item) => (
                             <div key={item.id}>
-                                {item.poster_image ? (
+                                {item.posterImage ? (
                                     <Link href={`/bibliotheque/anime/genre/${item.slug}`}>
                                         <Image
-                                            src={item.poster_image}
-                                            alt={item.title_en}
+                                            src={item.posterImage}
+                                            alt={item.titleEn}
                                             width={145} 
                                             height={100} 
                                             className="object-cover rounded-[15px] min-w-[145px] min-h-[100px]" 
