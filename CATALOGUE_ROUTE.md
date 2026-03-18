@@ -8,7 +8,15 @@
 ## Sommaire
 
 - [Anime](#anime)
+  - [GET /anime](#get-anime)
+  - [GET /anime/:id](#get-animeid)
+  - [GET /anime/:id/categories](#get-animeidcategories)
+  - [GET /anime/:id/genres](#get-animeidgenres)
 - [Manga](#manga)
+  - [GET /manga](#get-manga)
+  - [GET /manga/:id](#get-mangaid)
+  - [GET /manga/:id/categories](#get-mangaidcategories)
+  - [GET /manga/:id/genres](#get-mangaidgenres)
 
 ---
 
@@ -16,9 +24,77 @@
 
 ### `GET /anime`
 
-Retourne la liste complète des animes.
+Retourne la liste paginée des animes.
 
 **Auth requise :** Non
+
+**Query params :**
+
+| Nom   | Type   | Défaut | Description               |
+|-------|--------|--------|---------------------------|
+| page  | number | 1      | Numéro de la page         |
+| limit | number | 20     | Nombre d'éléments par page |
+
+**Réponse 200 :**
+
+```json
+{
+  "meta": {
+    "total": 100,
+    "per_page": 20,
+    "current_page": 1,
+    "last_page": 5,
+    "first_page": 1,
+    "first_page_url": "/?page=1",
+    "last_page_url": "/?page=5",
+    "next_page_url": "/?page=2",
+    "previous_page_url": null
+  },
+  "data": [
+    {
+      "id": 1,
+      "slug": "cowboy-bebop",
+      "title_en": "Cowboy Bebop",
+      "title_jp": "カウボーイビバップ",
+      "synopsis": "...",
+      "type": "TV",
+      "subtype": "...",
+      "status": "finished",
+      "start_date": "1998-04-03T00:00:00.000Z",
+      "end_date": "1999-04-24T00:00:00.000Z",
+      "nsfw": false,
+      "poster_image": "https://...",
+      "cover_image": "https://...",
+      "age_rating": "R17+",
+      "episode_count": 26,
+      "episode_length": 24,
+      "created_at": "...",
+      "updated_at": "..."
+    }
+  ]
+}
+```
+
+---
+
+### `GET /anime/:id/categories`
+
+Retourne la liste des catégories d'un anime.
+
+**Auth requise :** Non
+
+**Paramètres :**
+
+| Nom      | Lieu | Type   | Description   |
+|----------|------|--------|---------------|
+| anime_id | path | number | ID de l'anime |
+
+**Réponses :**
+
+| Code | Description       |
+|------|-------------------|
+| 200  | Tableau de catégories |
+| 404  | Anime introuvable |
 
 **Réponse 200 :**
 
@@ -26,23 +102,41 @@ Retourne la liste complète des animes.
 [
   {
     "id": 1,
-    "slug": "cowboy-bebop",
-    "title_en": "Cowboy Bebop",
-    "title_jp": "カウボーイビバップ",
-    "synopsis": "...",
-    "type": "TV",
-    "subtype": "...",
-    "status": "finished",
-    "start_date": "1998-04-03T00:00:00.000Z",
-    "end_date": "1999-04-24T00:00:00.000Z",
-    "nsfw": false,
-    "poster_image": "https://...",
-    "cover_image": "https://...",
-    "age_rating": "R17+",
-    "episode_count": 26,
-    "episode_length": 24,
-    "created_at": "...",
-    "updated_at": "..."
+    "name": "Action",
+    "description": "..."
+  }
+]
+```
+
+---
+
+### `GET /anime/:id/genres`
+
+Retourne la liste des genres d'un anime.
+
+**Auth requise :** Non
+
+**Paramètres :**
+
+| Nom      | Lieu | Type   | Description   |
+|----------|------|--------|---------------|
+| anime_id | path | number | ID de l'anime |
+
+**Réponses :**
+
+| Code | Description       |
+|------|-------------------|
+| 200  | Tableau de genres |
+| 404  | Anime introuvable |
+
+**Réponse 200 :**
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Shonen",
+    "slug": "shonen"
   }
 ]
 ```
@@ -99,30 +193,51 @@ Retourne un anime par son ID.
 
 ### `GET /manga`
 
-Retourne la liste complète des mangas.
+Retourne la liste paginée des mangas.
 
 **Auth requise :** Non
+
+**Query params :**
+
+| Nom   | Type   | Défaut | Description               |
+|-------|--------|--------|---------------------------|
+| page  | number | 1      | Numéro de la page         |
+| limit | number | 20     | Nombre d'éléments par page |
 
 **Réponse 200 :**
 
 ```json
-[
-  {
-    "id": 1,
-    "title_en": "Berserk",
-    "title_jp": "ベルセルク",
-    "synopsis": "...",
-    "type": "manga",
-    "status": "ongoing",
-    "volume_count": 41,
-    "chapter_count": 364,
-    "start_date": "1989-08-25T00:00:00.000Z",
-    "end_date": null,
-    "poster_image": "https://...",
-    "cover_image": "https://...",
-    "created_at": "..."
-  }
-]
+{
+  "meta": {
+    "total": 100,
+    "per_page": 20,
+    "current_page": 1,
+    "last_page": 5,
+    "first_page": 1,
+    "first_page_url": "/?page=1",
+    "last_page_url": "/?page=5",
+    "next_page_url": "/?page=2",
+    "previous_page_url": null
+  },
+  "data": [
+    {
+      "id": 1,
+      "slug": "berserk",
+      "title_en": "Berserk",
+      "title_jp": "ベルセルク",
+      "synopsis": "...",
+      "type": "manga",
+      "status": "ongoing",
+      "volume_count": 41,
+      "chapter_count": 364,
+      "start_date": "1989-08-25T00:00:00.000Z",
+      "end_date": null,
+      "poster_image": "https://...",
+      "cover_image": "https://...",
+      "created_at": "..."
+    }
+  ]
+}
 ```
 
 ---
@@ -151,6 +266,7 @@ Retourne un manga par son ID.
 ```json
 {
   "id": 1,
+  "slug": "berserk",
   "title_en": "Berserk",
   "title_jp": "ベルセルク",
   "synopsis": "...",
@@ -164,6 +280,72 @@ Retourne un manga par son ID.
   "cover_image": "https://...",
   "created_at": "..."
 }
+```
+
+---
+
+### `GET /manga/:id/categories`
+
+Retourne la liste des catégories d'un manga.
+
+**Auth requise :** Non
+
+**Paramètres :**
+
+| Nom      | Lieu | Type   | Description  |
+|----------|------|--------|--------------|
+| manga_id | path | number | ID du manga  |
+
+**Réponses :**
+
+| Code | Description           |
+|------|-----------------------|
+| 200  | Tableau de catégories |
+| 404  | Manga introuvable     |
+
+**Réponse 200 :**
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Action",
+    "description": "..."
+  }
+]
+```
+
+---
+
+### `GET /manga/:id/genres`
+
+Retourne la liste des genres d'un manga.
+
+**Auth requise :** Non
+
+**Paramètres :**
+
+| Nom      | Lieu | Type   | Description  |
+|----------|------|--------|--------------|
+| manga_id | path | number | ID du manga  |
+
+**Réponses :**
+
+| Code | Description       |
+|------|-------------------|
+| 200  | Tableau de genres |
+| 404  | Manga introuvable |
+
+**Réponse 200 :**
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Shonen",
+    "slug": "shonen"
+  }
+]
 ```
 
 ---

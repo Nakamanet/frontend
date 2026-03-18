@@ -4,6 +4,7 @@ export interface User {
     email: string;
     birthdate: string;
     role: string;
+    is_deleted: boolean;
     localisation?: string | null;
     bio?: string | null;
     avatar_url?: string | null;
