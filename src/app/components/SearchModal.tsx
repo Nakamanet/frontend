@@ -12,7 +12,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts'>('all');
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [results, setResults] = useState<any[]>([]);
+  const [skip, setSkip] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   // Close on Escape key
   useEffect(() => {
@@ -32,23 +35,58 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!query.trim()) return;
 
     setLoading(true);
-    // TODO: Connect to Python AI Microservice: fetch('http://localhost:8000/search?q=' + query + '&filter=' + filter)
-    // Simulating response for now
-    setTimeout(() => {
-      setResults([
-        { id: 1, type: 'anime', title: 'Demon Slayer', description: 'Găsit prin Căutare Semantică IA: "Anime cu demoni și săbii"' },
-        { id: 2, type: 'post', title: 'Review Episodul 19', description: 'Găsit semantic în postările utilizatorilor.' }
-      ]);
+    setSkip(0);
+    try {
+      const response = await fetch(`http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=0&limit=20`);
+      if (response.ok) {
+        const data = await response.json();
+        setResults(data);
+        setHasMore(data.length === 20 && data[0]?.type !== 'system');
+      } else {
+        setResults([]);
+        console.error('Search API returned an error');
+      }
+    } catch (err) {
+      console.error('Failed to fetch from AI Microservice', err);
+      setResults([]);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
+
+  const loadMore = async () => {
+    if (!query.trim() || loadingMore) return;
+
+    setLoadingMore(true);
+    const nextSkip = skip + 20;
+    try {
+      const response = await fetch(`http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=${nextSkip}&limit=20`);
+      if (response.ok) {
+        const data = await response.json();
+        setResults(prev => [...prev, ...data]);
+        setSkip(nextSkip);
+        setHasMore(data.length === 20 && data[0]?.type !== 'system');
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  // Auto-search if filter changes
+  useEffect(() => {
+    if (query.trim() && !loading) {
+      handleSearch();
+    }
+  }, [filter]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/60 backdrop-blur-sm">
@@ -63,7 +101,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             <input
               type="text"
               autoFocus
-              placeholder="Ex: Un garçon qui veut devenir roi des pirates..."
+              placeholder="Ex: someone, horror, classics, etc..."
               className="w-full bg-transparent outline-none text-lg"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -75,7 +113,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
 
         {/* Filters */}
-        <div className="flex gap-2 p-3 bg-base-200/50 overflow-x-auto border-b border-border">
+        <div className="flex gap-2 p-3 bg-base-200/50  border-b border-border">
           {['all', 'anime', 'manga', 'users', 'posts'].map((f) => (
             <button
               key={f}
@@ -89,28 +127,41 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
         {/* Results Area */}
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 min-h-[300px]">
-          {loading ? (
+          {loading && results.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-base-content/50 mt-10">
               <Loader2 className="animate-spin mb-4" size={32} />
               <p>Recherche en cours...</p>
             </div>
-          ) : results.length > 0 ? (
-            results.map((res) => (
-              <div key={res.id} className="flex gap-4 p-3 rounded-lg hover:bg-base-200 cursor-pointer transition-colors border border-transparent hover:border-border">
-                <div className="w-12 h-12 bg-base-300 rounded flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
-                  {res.type}
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">{res.title}</h3>
-                  <p className="text-sm text-base-content/70">{res.description}</p>
-                </div>
+          ) : null}
+
+          {results.length > 0 && results.map((res) => (
+            <div key={res.id} className="flex gap-4 p-3 rounded-lg hover:bg-base-200 cursor-pointer transition-colors border border-transparent hover:border-border">
+              <div className="w-12 h-12 bg-base-300 rounded flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
+                {res.type}
               </div>
-            ))
-          ) : query ? (
+              <div>
+                <h3 className="font-bold text-lg">{res.title}</h3>
+                <p className="text-sm text-base-content/70">{res.description}</p>
+              </div>
+            </div>
+          ))}
+
+          {hasMore && (
+            <div className="flex justify-center mt-4 mb-6">
+              <button onClick={loadMore} disabled={loadingMore} className="btn btn-outline btn-primary rounded-full px-6 flex items-center gap-2">
+                {loadingMore && <Loader2 className="animate-spin" size={16} />}
+                Charger plus de résultats
+              </button>
+            </div>
+          )}
+
+          {!loading && results.length === 0 && query ? (
             <div className="text-center h-full flex flex-col justify-center items-center text-base-content/50 mt-10">
               <p>Pas de résultat pour "{query}"</p>
             </div>
-          ) : (
+          ) : null}
+
+          {!loading && results.length === 0 && !query ? (
             <div className="text-center h-full flex flex-col justify-center items-center text-base-content/50 mt-10">
               <Search className="mx-auto mb-4 opacity-20" size={48} />
               <p className="font-semibold mb-1">Cherche intelligemment avec NakamaAI</p>
@@ -118,7 +169,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 Utilise des descriptions naturelles. Essaie de chercher l'histoire au lieu du titre exact!
               </p>
             </div>
-          )}
+          ) : null}
         </div>
       </div>
     </div>
