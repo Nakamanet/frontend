@@ -4,7 +4,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { getAnimeById, getMangaById } from "@/app/lib/catalogue";
-import { Anime, Manga } from "@/app/types/catalog";
+import { Anime, Manga, Genre } from "@/app/types/catalog";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
@@ -16,6 +16,7 @@ export default function AnimePage() {
     const { slug } = useParams();
     const { user } = useAuth();
     const [item, setItem] = useState<Manga | Anime | null>(null);
+    const [itemGenre, setItemGenre] = useState<Genre[]>([]);
     const [voirPlus, setVoirPlus] = useState(false);
 
     const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
@@ -34,7 +35,7 @@ export default function AnimePage() {
 
     return (
         <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
-            <section className="flex flex-col w-full h-full col-span-4 pr-6">
+            <section className="col-span-4 pr-6 m-0">
                 {/* Section Header */}
                 <div className="flex flex-col w-full h-auto gap-2">
                     {/* Breadcrumb */}
@@ -59,27 +60,28 @@ export default function AnimePage() {
                     </div>  
                 </div>
                 {/* Section Content */}
-                <div className="grid grid-cols-4 gap-3 px-5">
-                    <div className="col-span-1 flex flex-col items-center gap-4">
+                <div className="flex w-full px-5 gap-5" style={{ marginTop: '-80px' }}>
+                    <div className="w-1/4 shrink-0 self-start gap-4 flex flex-col items-center">
                         {item?.posterImage ? (
                             <Image
                                 src={item.posterImage}
                                 alt="Avatar"
-                                width={200}
-                                height={300}
-                                className="object-cover rounded-[15px]"
+                                width={250}
+                                height={390}
+                                className="w-full object-cover rounded-[15px]"
                             />
                         ) : null}
                         <button className="btn btn-ghost border-none rounded-full bg-primary text-primary-content">
                             Ajouter à la liste
                         </button>
                     </div>
-                    <div className="col-span-3 flex flex-col gap-10">
+                    <div className="w-3/4 flex flex-col gap-10">
                         <div>
                             <p className="text-2xl font-bold">{item?.titleEn}</p>
                             <p className="text-lg">{item?.titleJp}</p>
                         </div>
-                        <div>
+                        <div className="bg-accent rounded-[15px] p-5">
+                            <p>Synopsis</p>
                             {item?.synopsis ? (
                                 <>
                                     {voirPlus ? (
