@@ -65,6 +65,14 @@ export default function ForumPage() {
                 </p>
               </div>
               <div className="whitespace-pre-wrap">{topic.content}</div>
+              <div className="mt-4">
+                <Link
+                  href={`/forum/${topic.id}`}
+                  className="px-4 py-2 border border-white font-bold inline-block"
+                >
+                  Voir la discussion
+                </Link>
+              </div>
             </div>
           ))}
         </div>
