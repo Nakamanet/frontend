@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Flame,
     Clock,
@@ -13,62 +13,21 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { User } from "../../types/auth";
+import { Post } from "../../types/post";
 import PostCards from "../PostCards";
+import { getPosts } from "@/app/lib/post";
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, user: User | null }) {
     const [filter, setFilter] = useState('all');
+    const [posts, setPosts] = useState<Post[]>([]);
 
-    // A modifier quand les routes seront intégrées
-    const posts = [
-        {
-            id: 1,
-            avatar_url: "/logo.png",
-            username: "John Doe",
-            content: "Bonjour, comment ça va ?",
-            created_at: "2026-03-10T12:00:00.000000Z",
-            updated_at: "2026-03-10T12:00:00.000000Z",
-        },
-        {
-            id: 2,
-            avatar_url: "",
-            username: "Jane Doe",
-            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-            created_at: "2026-02-25T12:00:00.000000Z",
-            updated_at: "2026-02-25T12:00:00.000000Z",
-        },
-        {
-            id: 3,
-            avatar_url: "",
-            username: "Jane Doe",
-            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-            created_at: "2026-02-25T12:00:00.000000Z",
-            updated_at: "2026-02-25T12:00:00.000000Z",
-        },
-        {
-            id: 4,
-            avatar_url: "",
-            username: "Jane Doe",
-            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-            created_at: "2026-02-25T12:00:00.000000Z",
-            updated_at: "2026-02-25T12:00:00.000000Z",
-        },
-        {
-            id: 5,
-            avatar_url: "",
-            username: "Jane Doe",
-            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-            created_at: "2026-02-25T12:00:00.000000Z",
-            updated_at: "2026-02-25T12:00:00.000000Z",
-        },
-        {
-            id: 6,
-            avatar_url: "/logo.png",
-            username: "Jane Doe",
-            content: "Je suis content de voir que vous êtes de retour !",
-            created_at: "2026-02-20T12:00:00.000000Z",
-            updated_at: "2026-02-20T12:00:00.000000Z",
-        },
-    ];
+    useEffect(() => {
+        getPosts()
+            .then((res) => setPosts(res.data))
+            .catch((err) => console.error(err));
+    }, []);
+    
+    console.log("posts : ", posts); 
 
     return (
         <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
@@ -153,7 +112,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                 </div>
             </div>
             {/* Zone des posts */}
-            {posts ? (
+            {posts.length > 0 ? (
                 posts.map((post) => (
                     <PostCards key={post.id} post={post} />
                 ))
