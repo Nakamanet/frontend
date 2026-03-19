@@ -3,22 +3,24 @@
 import { useAuth } from "@/app/context/AuthContext";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { getAnimeById, getMangaById, getAnimeGenres, getMangaGenres, getAnimeCategories, getMangaCategories } from "@/app/lib/catalogue";
-import { Anime, Manga, Genre, Category } from "@/app/types/catalog";
+import { getAnimeById, getMangaById } from "@/app/lib/catalogue";
+import { Anime, Manga } from "@/app/types/catalog";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import Chat from "@/app/components/home/Chat";
 import Calendar from "@/app/components/home/Calendar";
+import Episode from "./components/Episode";
+import Character from "./components/Character";
+import Thread from "./components/Thread";
 
-export default function AnimePage() {
+export default function DetailPage() {
     const { type } = useParams();
     const { slug } = useParams();
     const { user } = useAuth();
     const [item, setItem] = useState<Manga | Anime | null>(null);
-    const [itemGenre, setItemGenre] = useState<Genre[]>([]);
-    const [itemCategories, setItemCategories] = useState<Category[]>([]);
     const [voirPlus, setVoirPlus] = useState(false);
+    const [filter, setFilter] = useState('episode');
 
     const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -26,41 +28,21 @@ export default function AnimePage() {
         if (!type || !slug) return;
         const load = async () => {
             if (type === 'anime') {
-                try {
-                    const res = await getAnimeById(slug as string);
-                    setItem(res);
-                    getAnimeGenres(res.id)
-                        .then((genres) => setItemGenre(genres))
-                        .catch((err) => console.error(err));
-                    getAnimeCategories(res.id)
-                        .then((categories) => setItemCategories(categories))
-                        .catch((err) => console.error(err));
-                } catch (err) {
-                    console.error(err);
-                }
+                getAnimeById(slug as string)
+                    .then((res) => setItem(res))
+                    .catch((err) => console.error(err));
             } else if (type === 'manga') {
-                try {
-                    const res = await getMangaById(slug as string);
-                    setItem(res);
-                    getMangaGenres(res.id)
-                        .then((genres) => setItemGenre(genres))
-                        .catch((err) => console.error(err));
-                    getMangaCategories(res.id)
-                        .then((categories) => setItemCategories(categories))
-                        .catch((err) => console.error(err));
-                } catch (err) {
-                    console.error(err);
-                }
+                getMangaById(slug as string)
+                    .then((res) => setItem(res))
+                    .catch((err) => console.error(err));
             }
         }
         load();
     }, [type, slug]);
 
-    console.log('genre: ', itemGenre);
-    console.log('categories: ', itemCategories);
     return (
         <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
-            <section className="col-span-4 pr-6 m-0">
+            <section className="col-span-4 pr-6">
                 {/* Section Header */}
                 <div className="flex flex-col w-full h-auto gap-2">
                     {/* Breadcrumb */}
@@ -81,11 +63,13 @@ export default function AnimePage() {
                                 height={100}
                                 className="object-cover w-full h-full"
                             />
-                        ) : null}
+                        ) : (
+                            <span className="block h-40 bg-primary shrink-0 rounded-[15px]" />
+                        )}
                     </div>  
                 </div>
                 {/* Section Content */}
-                <div className="flex w-full px-5 gap-5" style={{ marginTop: '-80px' }}>
+                <div className="flex w-full px-5 gap-5" style={{ marginTop: '-80px', marginBottom: '30px' }}>
                     <div className="w-1/4 shrink-0 self-start gap-4 flex flex-col items-center">
                         {item?.posterImage ? (
                             <Image
@@ -97,30 +81,20 @@ export default function AnimePage() {
                             />
                         ) : null}
                         <button className="btn btn-ghost border-none rounded-full bg-primary text-primary-content">
-                            Ajouter à la liste
+                            Ajouter à ma liste
                         </button>
                     </div>
-                    <div className="w-3/4 flex flex-col gap-10 min-w-0">
-                        <div>
+                    <div className="w-3/4 min-w-0 flex flex-col gap-10 overflow-hidden">
+                        <div className="min-w-0">
                             <p className="text-2xl font-bold">{item?.titleEn}</p>
                             <p className="text-lg">{item?.titleJp}</p>
                         </div>
-                        <div className="bg-accent rounded-[15px] p-5 gap-3 flex flex-col min-w-0 overflow-hidden">
+                        <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden">
                             <p className="text-xl">Synopsis</p>
                             {item?.synopsis ? (
                                 <>
                                     {voirPlus ? (
-                                        <div className="flex flex-col gap-2 overflow-hidden min-w-0">
-                                            <p>{item?.synopsis}</p>
-                                            <div className="flex flex-wrap gap-2 min-w-0 w-full">
-                                                {itemGenre.map((g) => (
-                                                    <div key={g.id} className="badge badge-outline">{g.name}</div>
-                                                ))}
-                                                {itemCategories.map((c) => (
-                                                    <div key={c.id} className="border border-border rounded-full px-2 py-1 w-auto">{c.name}</div>
-                                                ))}
-                                            </div>
-                                        </div>
+                                        <p className="min-w-0 ">{item?.synopsis}</p>
                                     ) : (
                                         <p>{item?.synopsis.length > 300 ? item?.synopsis.substring(0, 300) + '...' : item?.synopsis}</p>
                                     )}
@@ -132,11 +106,64 @@ export default function AnimePage() {
                         </div>
                     </div>
                 </div>
+                {/* Episodes/Personnages/Thread */}
+                <div className="flex flex-col gap-5">
+                    <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-6">
+                        <div className="flex gap-5 items-center w-full">
+                            <button
+                                onClick={() => {
+                                    setFilter('episode');
+                                }}
+                                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
+                            >
+                                <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (filter === 'characters') {
+                                        setFilter('episode');
+                                    } else {
+                                        setFilter('characters');
+                                    }
+                                }}
+                                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
+                            >
+                                <span className="hidden md:inline">Personnages</span>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    if (filter === 'thread') {
+                                        setFilter('episode');
+                                    } else {
+                                        setFilter('thread');
+                                    }
+                                }}
+                                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'thread' ? 'bg-alerts text-white' : 'text-border'}`}
+                            >
+                                <span className="hidden md:inline">Amis</span>
+                            </button>
+                        </div>
+                    </div>
+                    {filter === 'episode' ? (
+                        <div className="flex flex-col gap-4">
+                            <Episode />
+                        </div>
+                    ) : filter === 'characters' ? (
+                        <div className="flex flex-col gap-4">
+                            <Character />
+                        </div>
+                    ) : filter === 'thread' ? (
+                        <div className="flex flex-col gap-4">
+                            <Thread />
+                        </div>
+                    ) : null}
+                </div>
             </section>
-            {/* <section className="flex flex-col gap-5 py-6">
+            <section className="flex flex-col gap-5 py-6">
                 <Chat user={user} />
+                {/* <Information type={"anime" | "manga"} item={item} /> */}
                 <Calendar user={user} />
-            </section> */}
+            </section>
         </main>
     );
 }
