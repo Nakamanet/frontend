@@ -16,18 +16,33 @@ import { User } from "../../types/auth";
 import { Post } from "../../types/post";
 import PostCards from "../PostCards";
 import { getPosts } from "@/app/lib/post";
+import { createPost } from "@/app/lib/post";
+import Link from "next/link";
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, user: User | null }) {
     const [filter, setFilter] = useState('all');
     const [posts, setPosts] = useState<Post[]>([]);
+    const [content, setContent] = useState('');
 
     useEffect(() => {
         getPosts()
             .then((res) => setPosts(res.data))
             .catch((err) => console.error(err));
     }, []);
+
+    const postPosts = async () => {
+        await createPost({
+            content,
+            related_anime_id: null,
+            related_manga_id: null,
+            image_urls: null,
+            is_spoiler: false,
+        });
+        setContent('');
+        getPosts().then((res) => setPosts(res.data));
+    }
     
-    console.log("posts : ", posts); 
+    console.log("posts : ", content); 
 
     return (
         <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
@@ -50,14 +65,27 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
                         </div>
                         <div className="flex flex-col gap-2 w-full">
                             <div>
-                                <input type="text" placeholder="Partage ton avis sur un manga, un anime, etc" className="input text-border input-ghost w-full h-10"/>
+                                <input 
+                                    type="text" 
+                                    value={content} 
+                                    onChange={(e) => setContent(e.target.value)} 
+                                    placeholder="Partage ton avis sur un manga, un anime, etc" 
+                                    maxLength={500}
+                                    className="input text-border input-ghost w-full h-10"
+                                />
                             </div>
                             <div className="flex justify-between gap-2">
                                 <div className="flex gap-2 pt-2">
                                     <ImageIcon size={20} />
                                     <Smile size={20} />
                                 </div>
-                                <button className="btn btn-ghost px-4 border border-border text-border rounded-[15px]"><SendHorizonal size={17} /> Poster</button>
+                                <button 
+                                    onClick={postPosts} 
+                                    className="btn btn-ghost px-4 border border-border text-border rounded-[15px]"
+                                >
+                                    <SendHorizonal size={17} /> 
+                                    Poster
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -114,7 +142,9 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean, us
             {/* Zone des posts */}
             {posts.length > 0 ? (
                 posts.map((post) => (
-                    <PostCards key={post.id} post={post} />
+                    <Link href={`/post/${post.id}`} key={post.id}>
+                        <PostCards key={post.id} post={post} />
+                    </Link>
                 ))
             ) : (
                 <p>
