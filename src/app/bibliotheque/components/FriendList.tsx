@@ -69,7 +69,7 @@ export default function FriendList() {
                                 <div key={item.id}>
                                     {item.posterImage ? (
                                         // A changer l'url plus tard
-                                        <Link href={`/bibliotheque/anime/genre/${item.slug}`}> 
+                                        <Link href={`/bibliotheque/${item.type}/${item.slug}`}> 
                                             <Image 
                                                 src={item.posterImage} 
                                                 alt={item.titleEn} 
