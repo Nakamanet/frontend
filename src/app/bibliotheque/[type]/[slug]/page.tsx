@@ -16,6 +16,7 @@ export default function AnimePage() {
     const { slug } = useParams();
     const { user } = useAuth();
     const [item, setItem] = useState<Manga | Anime | null>(null);
+    const [voirPlus, setVoirPlus] = useState(false);
 
     const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
@@ -58,26 +59,40 @@ export default function AnimePage() {
                     </div>  
                 </div>
                 {/* Section Content */}
-                <div className="grid grid-cols-4 gap-3">
-                    <div className="flex gap-3">
+                <div className="grid grid-cols-4 gap-3 px-5">
+                    <div className="col-span-1 flex flex-col items-center gap-4">
+                        {item?.posterImage ? (
+                            <Image
+                                src={item.posterImage}
+                                alt="Avatar"
+                                width={200}
+                                height={300}
+                                className="object-cover rounded-[15px]"
+                            />
+                        ) : null}
+                        <button className="btn btn-ghost border-none rounded-full bg-primary text-primary-content">
+                            Ajouter à la liste
+                        </button>
+                    </div>
+                    <div className="col-span-3 flex flex-col gap-10">
                         <div>
-                            {item?.posterImage ? (
-                                <Image
-                                    src={item.posterImage}
-                                    alt="Avatar"
-                                    width={100}
-                                    height={150}
-                                    className="object-cover"
-                                />
+                            <p className="text-2xl font-bold">{item?.titleEn}</p>
+                            <p className="text-lg">{item?.titleJp}</p>
+                        </div>
+                        <div>
+                            {item?.synopsis ? (
+                                <>
+                                    {voirPlus ? (
+                                        <p>{item?.synopsis}</p>
+                                    ) : (
+                                        <p>{item?.synopsis.length > 300 ? item?.synopsis.substring(0, 300) + '...' : item?.synopsis}</p>
+                                    )}
+                                    <button onClick={() => setVoirPlus(!voirPlus)}>
+                                        {voirPlus ? 'Voir moins' : 'Voir plus'}
+                                    </button>
+                                </>
                             ) : null}
                         </div>
-                        <div>
-                            <p>{item?.titleEn}</p>
-                            <p>{item?.titleJp}</p>
-                        </div>
-                    </div>
-                    <div>
-                        <p>{item?.synopsis}</p>
                     </div>
                 </div>
             </section>
