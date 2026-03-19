@@ -3,8 +3,8 @@
 import { useAuth } from "@/app/context/AuthContext";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { getAnimeById, getMangaById } from "@/app/lib/catalogue";
-import { Anime, Manga, Genre } from "@/app/types/catalog";
+import { getAnimeById, getMangaById, getAnimeGenres, getMangaGenres, getAnimeCategories, getMangaCategories } from "@/app/lib/catalogue";
+import { Anime, Manga, Genre, Category } from "@/app/types/catalog";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
@@ -17,22 +17,47 @@ export default function AnimePage() {
     const { user } = useAuth();
     const [item, setItem] = useState<Manga | Anime | null>(null);
     const [itemGenre, setItemGenre] = useState<Genre[]>([]);
+    const [itemCategories, setItemCategories] = useState<Category[]>([]);
     const [voirPlus, setVoirPlus] = useState(false);
 
     const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
     useEffect(() => {
-        if (type === 'anime') {
-            getAnimeById(slug as string)
-                .then((res) => setItem(res))
-                .catch((err) => console.error(err));
-        } else if (type === 'manga') {
-            getMangaById(slug as string)
-                .then((res) => setItem(res))
-                .catch((err) => console.error(err));
+        if (!type || !slug) return;
+        const load = async () => {
+            if (type === 'anime') {
+                try {
+                    const res = await getAnimeById(slug as string);
+                    setItem(res);
+                    getAnimeGenres(res.id)
+                        .then((genres) => setItemGenre(genres))
+                        .catch((err) => console.error(err));
+                    getAnimeCategories(res.id)
+                        .then((categories) => setItemCategories(categories))
+                        .catch((err) => console.error(err));
+                } catch (err) {
+                    console.error(err);
+                }
+            } else if (type === 'manga') {
+                try {
+                    const res = await getMangaById(slug as string);
+                    setItem(res);
+                    getMangaGenres(res.id)
+                        .then((genres) => setItemGenre(genres))
+                        .catch((err) => console.error(err));
+                    getMangaCategories(res.id)
+                        .then((categories) => setItemCategories(categories))
+                        .catch((err) => console.error(err));
+                } catch (err) {
+                    console.error(err);
+                }
+            }
         }
-    })
+        load();
+    }, [type, slug]);
 
+    console.log('genre: ', itemGenre);
+    console.log('categories: ', itemCategories);
     return (
         <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
             <section className="col-span-4 pr-6 m-0">
@@ -75,17 +100,27 @@ export default function AnimePage() {
                             Ajouter à la liste
                         </button>
                     </div>
-                    <div className="w-3/4 flex flex-col gap-10">
+                    <div className="w-3/4 flex flex-col gap-10 min-w-0">
                         <div>
                             <p className="text-2xl font-bold">{item?.titleEn}</p>
                             <p className="text-lg">{item?.titleJp}</p>
                         </div>
-                        <div className="bg-accent rounded-[15px] p-5">
-                            <p>Synopsis</p>
+                        <div className="bg-accent rounded-[15px] p-5 gap-3 flex flex-col min-w-0 overflow-hidden">
+                            <p className="text-xl">Synopsis</p>
                             {item?.synopsis ? (
                                 <>
                                     {voirPlus ? (
-                                        <p>{item?.synopsis}</p>
+                                        <div className="flex flex-col gap-2 overflow-hidden min-w-0">
+                                            <p>{item?.synopsis}</p>
+                                            <div className="flex flex-wrap gap-2 min-w-0 w-full">
+                                                {itemGenre.map((g) => (
+                                                    <div key={g.id} className="badge badge-outline">{g.name}</div>
+                                                ))}
+                                                {itemCategories.map((c) => (
+                                                    <div key={c.id} className="border border-border rounded-full px-2 py-1 w-auto">{c.name}</div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     ) : (
                                         <p>{item?.synopsis.length > 300 ? item?.synopsis.substring(0, 300) + '...' : item?.synopsis}</p>
                                     )}
@@ -98,10 +133,10 @@ export default function AnimePage() {
                     </div>
                 </div>
             </section>
-            <section className="flex flex-col gap-5 py-6">
+            {/* <section className="flex flex-col gap-5 py-6">
                 <Chat user={user} />
                 <Calendar user={user} />
-            </section>
+            </section> */}
         </main>
     );
 }
