@@ -64,7 +64,13 @@ export default function DetailPage() {
                                 className="object-cover w-full h-full"
                             />
                         ) : (
-                            <span className="block h-40 bg-primary shrink-0 rounded-[15px]" />
+                            <Image
+                                src="/bg.png"
+                                alt="Bannière"
+                                width={100}
+                                height={100}
+                                className="object-cover w-full h-full"
+                            />
                         )}
                     </div>  
                 </div>
@@ -79,7 +85,15 @@ export default function DetailPage() {
                                 height={390}
                                 className="w-full object-cover rounded-[15px]"
                             />
-                        ) : null}
+                        ) : (
+                            <Image
+                                src="/bg.png"
+                                alt="Bannière"
+                                width={100}
+                                height={100}
+                                className="object-cover w-full h-full rounded-[15px]"
+                            />
+                        )}
                         <button className="btn btn-ghost border-none rounded-full bg-primary text-primary-content">
                             Ajouter à ma liste
                         </button>
@@ -87,7 +101,7 @@ export default function DetailPage() {
                     <div className="w-3/4 min-w-0 flex flex-col gap-10 overflow-hidden">
                         <div className="min-w-0">
                             <p className="text-2xl font-bold">{item?.titleEn}</p>
-                            <p className="text-lg">{item?.titleJp}</p>
+                            <p className="text-lg">{item?.titleJp || "N/A"}</p>
                         </div>
                         <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden">
                             <p className="text-xl">Synopsis</p>
