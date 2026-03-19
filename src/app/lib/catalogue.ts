@@ -9,27 +9,32 @@ const catalogueApi = axios.create({
     },
 });
 
-export async function getAnimes(page = 1, limit = 20): Promise<PaginatedResponse<Anime>> {
+export async function getAnimes(page = 1, limit = 20, genre?: string): Promise<PaginatedResponse<Anime>> {
     const { data } = await catalogueApi.get<PaginatedResponse<Anime>>('/anime', {
-        params: { page, limit },
+        params: { page, limit, ...(genre && { genre }) },
     });
     return data;
 }
 
-export async function getMangas(page = 1, limit = 20): Promise<PaginatedResponse<Manga>> {
+export async function getMangas(page = 1, limit = 20, genre?: string): Promise<PaginatedResponse<Manga>> {
     const { data } = await catalogueApi.get<PaginatedResponse<Manga>>('/manga', {
-        params: { page, limit },
+        params: { page, limit, ...(genre && { genre }) },
     });
     return data;
 }
 
-export async function getAnimeById(id: number): Promise<Anime> {
+export async function getAnimeById(id: number | string): Promise<Anime> {
     const { data } = await catalogueApi.get<Anime>(`/anime/${id}`);
     return data;
 }
 
-export async function getMangaById(id: number): Promise<Manga> {
+export async function getMangaById(id: number | string): Promise<Manga> {
     const { data } = await catalogueApi.get<Manga>(`/manga/${id}`);
+    return data;
+}
+
+export async function getGenres(): Promise<Genre[]> {
+    const { data } = await catalogueApi.get<Genre[]>('/genres');
     return data;
 }
 

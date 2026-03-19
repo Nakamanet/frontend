@@ -37,7 +37,7 @@ export default function Manga() {
                         {mangasList.map((item) => (
                             <div key={item.id}>
                                 {item.posterImage ? (
-                                    <Link href={`/bibliotheque/manga/genre/${item.slug}`}>
+                                    <Link href={`/bibliotheque/manga/${item.slug}`}>
                                         <Image
                                             src={item.posterImage}
                                             alt={item.titleEn}

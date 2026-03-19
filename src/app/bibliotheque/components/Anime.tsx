@@ -37,7 +37,7 @@ export default function Anime() {
                         {animesList.map((item) => (
                             <div key={item.id}>
                                 {item.posterImage ? (
-                                    <Link href={`/bibliotheque/anime/genre/${item.slug}`}>
+                                    <Link href={`/bibliotheque/anime/${item.slug}`}>
                                         <Image
                                             src={item.posterImage}
                                             alt={item.titleEn}

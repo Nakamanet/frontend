@@ -7,6 +7,8 @@
 
 ## Sommaire
 
+- [Genres](#genres)
+  - [GET /genres](#get-genres)
 - [Anime](#anime)
   - [GET /anime](#get-anime)
   - [GET /anime/:id](#get-animeid)
@@ -20,6 +22,28 @@
 
 ---
 
+## Genres
+
+### `GET /genres`
+
+Retourne la liste complète des genres.
+
+**Auth requise :** Non
+
+**Réponse 200 :**
+
+```json
+[
+  {
+    "id": 1,
+    "name": "Shonen",
+    "slug": "shonen"
+  }
+]
+```
+
+---
+
 ## Anime
 
 ### `GET /anime`
@@ -30,10 +54,11 @@ Retourne la liste paginée des animes.
 
 **Query params :**
 
-| Nom   | Type   | Défaut | Description               |
-|-------|--------|--------|---------------------------|
-| page  | number | 1      | Numéro de la page         |
-| limit | number | 20     | Nombre d'éléments par page |
+| Nom   | Type   | Défaut | Description                              |
+|-------|--------|--------|------------------------------------------|
+| page  | number | 1      | Numéro de la page                        |
+| limit | number | 20     | Nombre d'éléments par page               |
+| genre | string | —      | Filtrer par slug de genre (ex: `ecchi`)  |
 
 **Réponse 200 :**
 
@@ -145,15 +170,15 @@ Retourne la liste des genres d'un anime.
 
 ### `GET /anime/:id`
 
-Retourne un anime par son ID.
+Retourne un anime par son ID ou son slug.
 
 **Auth requise :** Non
 
 **Paramètres :**
 
-| Nom | Lieu | Type   | Description   |
-|-----|------|--------|---------------|
-| id  | path | number | ID de l'anime |
+| Nom | Lieu | Type          | Description           |
+|-----|------|---------------|-----------------------|
+| id  | path | number/string | ID ou slug de l'anime |
 
 **Réponses :**
 
@@ -199,10 +224,11 @@ Retourne la liste paginée des mangas.
 
 **Query params :**
 
-| Nom   | Type   | Défaut | Description               |
-|-------|--------|--------|---------------------------|
-| page  | number | 1      | Numéro de la page         |
-| limit | number | 20     | Nombre d'éléments par page |
+| Nom   | Type   | Défaut | Description                              |
+|-------|--------|--------|------------------------------------------|
+| page  | number | 1      | Numéro de la page                        |
+| limit | number | 20     | Nombre d'éléments par page               |
+| genre | string | —      | Filtrer par slug de genre (ex: `shonen`) |
 
 **Réponse 200 :**
 
@@ -244,15 +270,15 @@ Retourne la liste paginée des mangas.
 
 ### `GET /manga/:id`
 
-Retourne un manga par son ID.
+Retourne un manga par son ID ou son slug.
 
 **Auth requise :** Non
 
 **Paramètres :**
 
-| Nom | Lieu | Type   | Description  |
-|-----|------|--------|--------------|
-| id  | path | number | ID du manga  |
+| Nom | Lieu | Type          | Description          |
+|-----|------|---------------|----------------------|
+| id  | path | number/string | ID ou slug du manga  |
 
 **Réponses :**
 

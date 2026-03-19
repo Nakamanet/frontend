@@ -103,7 +103,7 @@ export default function Calendar({ user }: { user: User | null }) {
 
         {/* Jours de la semaine */}
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold opacity-50 mb-2">
-          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => <div key={d}>{d}</div>)}
+          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => <div key={d + Math.random()}>{d}</div>)}
         </div>
 
         {/* Grille des jours */}
