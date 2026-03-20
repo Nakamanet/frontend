@@ -13,6 +13,8 @@ export default function TopicDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+
   useEffect(() => {
     const fetchTopic = async () => {
       try {
@@ -33,7 +35,9 @@ export default function TopicDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="p-8 text-center text-white">Chargement du sujet...</div>
+      <div className="p-8 text-center text-white border border-white max-w-4xl mx-auto mt-8">
+        Chargement du sujet...
+      </div>
     );
   }
 
@@ -78,17 +82,38 @@ export default function TopicDetailPage() {
         Réponses ({topic.replies?.length || 0})
       </h2>
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 mb-8">
         {topic.replies && topic.replies.length > 0 ? (
           topic.replies.map((reply) => (
-            <div key={reply.id} className="border border-white p-4 ml-8">
+            <div
+              key={reply.id}
+              className={`border border-white p-4 ${reply.parent_id ? "ml-12" : ""}`}
+            >
               <p className="text-sm mb-3">
                 <span className="font-bold">
                   {reply.user?.username || "Anonyme"}
                 </span>{" "}
                 • {new Date(reply.created_at).toLocaleDateString("fr-FR")}
+                {reply.parent_id && " (Sous-réponse)"}
               </p>
-              <div className="whitespace-pre-wrap">{reply.content}</div>
+              <div className="whitespace-pre-wrap mb-4">{reply.content}</div>
+
+              <button
+                onClick={() => setReplyingTo(reply.id)}
+                className="px-3 py-1 text-sm font-bold border border-white"
+              >
+                Répondre
+              </button>
+
+              {replyingTo === reply.id && (
+                <div className="mt-4">
+                  <ReplyForum
+                    topicId={topic.id}
+                    parentId={reply.id}
+                    onCancel={() => setReplyingTo(null)}
+                  />
+                </div>
+              )}
             </div>
           ))
         ) : (
@@ -98,7 +123,10 @@ export default function TopicDetailPage() {
         )}
       </div>
 
-      <ReplyForum topicId={topic.id} />
+      <div className="border-t border-white pt-8">
+        <h2 className="text-2xl font-bold mb-4">Participer à la discussion</h2>
+        <ReplyForum topicId={topic.id} />
+      </div>
     </div>
   );
 }

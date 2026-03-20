@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createForum } from "@/app/lib/forum";
 import type { Forum } from "@/app/types/forum";
+import { X } from "lucide-react"; // Ajout d'une icône pour fermer la modale
 
 export default function CreateForum() {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,82 +45,94 @@ export default function CreateForum() {
   };
 
   return (
-    <div className="mb-12 text-white">
+    <div className="w-full">
+      {/* BOUTON PRINCIPAL */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="px-4 py-2 font-bold border border-white"
+        onClick={() => setIsOpen(true)}
+        className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-3 font-bold text-white border-none w-full"
       >
-        {isOpen ? "Annuler" : "Créer un nouveau sujet"}
+        Créer un sujet
       </button>
 
+      {/* MODALE (POPUP) */}
       {isOpen && (
-        <form
-          onSubmit={handleSubmit}
-          className="mt-6 p-6 flex flex-col gap-6 border border-white"
-        >
-          <h2 className="text-xl font-bold">Nouveau Sujet</h2>
-
-          {error && (
-            <div className="p-2 font-bold border border-white">{error}</div>
-          )}
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold">Titre</label>
-            <input
-              type="text"
-              placeholder="Titre de votre sujet..."
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              maxLength={255}
-              className="p-2 text-white bg-transparent border border-white outline-none focus:ring-1 focus:ring-white"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold">Catégorie</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as Forum["category"])}
-              className="p-2 text-white bg-transparent border border-white outline-none focus:ring-1 focus:ring-white"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+          <div className="bg-accent border border-border rounded-3xl p-6 w-full max-w-lg relative shadow-2xl">
+            {/* Bouton fermer */}
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-5 right-5 text-border hover:text-white transition-colors"
             >
-              <option value="general" className="text-black">
-                Général
-              </option>
-              <option value="anime" className="text-black">
-                Anime
-              </option>
-              <option value="manga" className="text-black">
-                Manga
-              </option>
-              <option value="recommendations" className="text-black">
-                Recommandations
-              </option>
-              <option value="spoilers" className="text-black">
-                Spoilers
-              </option>
-            </select>
-          </div>
+              <X size={24} />
+            </button>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-bold">Contenu</label>
-            <textarea
-              placeholder="De quoi voulez-vous discuter ?"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-              className="p-2 h-32 resize-y text-white bg-transparent border border-white outline-none focus:ring-1 focus:ring-white"
-            ></textarea>
-          </div>
+            <h2 className="text-xl font-bold text-white mb-6">Nouveau Sujet</h2>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 font-bold disabled:opacity-50 mt-4 w-fit border border-white"
-          >
-            {loading ? "Création en cours..." : "Publier le sujet"}
-          </button>
-        </form>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {error && (
+                <div className="p-3 font-bold text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-border">Titre</label>
+                <input
+                  type="text"
+                  placeholder="Titre de votre sujet..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  maxLength={255}
+                  className="p-3 rounded-xl text-white bg-background border border-border outline-none focus:ring-1 focus:ring-alerts"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-border">
+                  Catégorie
+                </label>
+                <select
+                  value={category}
+                  onChange={(e) =>
+                    setCategory(e.target.value as Forum["category"])
+                  }
+                  className="p-3 rounded-xl text-white bg-background border border-border outline-none focus:ring-1 focus:ring-alerts"
+                >
+                  {/* Valeurs attendues par l'API */}
+                  <option value="general">Général</option>
+                  <option value="anime">Anime</option>
+                  <option value="manga">Manga</option>
+                  <option value="recommendations">Recommandations</option>
+                  <option value="spoilers">Spoilers</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-bold text-border">Contenu</label>
+                <textarea
+                  placeholder="De quoi voulez-vous discuter ?"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  required
+                  className="p-3 rounded-xl h-32 resize-y text-white bg-background border border-border outline-none focus:ring-1 focus:ring-alerts"
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-2 font-bold text-white border-none mt-2 w-full"
+              >
+                {loading ? (
+                  <span className="loading loading-spinner"></span>
+                ) : (
+                  "Publier le sujet"
+                )}
+              </button>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

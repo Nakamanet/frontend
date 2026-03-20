@@ -3,7 +3,17 @@
 import { useState } from "react";
 import { replyToForum } from "@/app/lib/forum";
 
-export default function ReplyForum({ topicId }: { topicId: number }) {
+interface ReplyForumProps {
+  topicId: number;
+  parentId?: number;
+  onCancel?: () => void;
+}
+
+export default function ReplyForum({
+  topicId,
+  parentId,
+  onCancel,
+}: ReplyForumProps) {
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,7 +24,7 @@ export default function ReplyForum({ topicId }: { topicId: number }) {
     setError(null);
 
     try {
-      await replyToForum(topicId, content);
+      await replyToForum(topicId, content, parentId);
       setContent("");
       window.location.reload();
     } catch (err: any) {
@@ -29,9 +39,13 @@ export default function ReplyForum({ topicId }: { topicId: number }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-8 p-6 flex flex-col gap-4 border border-white text-white"
+      className="mt-4 p-4 flex flex-col gap-4 border border-white text-white"
     >
-      <h3 className="text-xl font-bold">Ajouter une réponse</h3>
+      <h3 className="text-lg font-bold">
+        {parentId
+          ? "Répondre à ce commentaire"
+          : "Ajouter une réponse au sujet"}
+      </h3>
 
       {error && (
         <div className="p-2 font-bold border border-white">{error}</div>
@@ -47,13 +61,25 @@ export default function ReplyForum({ topicId }: { topicId: number }) {
         ></textarea>
       </div>
 
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-4 py-2 font-bold disabled:opacity-50 mt-2 w-fit border border-white"
-      >
-        {loading ? "Envoi en cours..." : "Répondre"}
-      </button>
+      <div className="flex gap-4 mt-2">
+        <button
+          type="submit"
+          disabled={loading}
+          className="px-4 py-2 font-bold disabled:opacity-50 border border-white"
+        >
+          {loading ? "Envoi..." : "Publier"}
+        </button>
+
+        {onCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 font-bold border border-white opacity-70"
+          >
+            Annuler
+          </button>
+        )}
+      </div>
     </form>
   );
 }
