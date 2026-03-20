@@ -1,0 +1,6 @@
+{
+  "/(auth)/register/page": "app/(auth)/register/page.js",
+  "/api/geocode/route": "app/api/geocode/route.js",
+  "/page": "app/page.js",
+  "/profile/page": "app/profile/page.js"
+}

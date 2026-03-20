@@ -6,10 +6,12 @@ import { Search, Bell, Menu, X } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { CircleUser } from "lucide-react";
 import { useState } from "react";
+import SearchModal from "../SearchModal";
 
 export default function Navbar() {
     const { isLoggedIn, logout, user } = useAuth();
     const [menuOpen, setMenuOpen] = useState(false);
+    const [searchModalOpen, setSearchModalOpen] = useState(false);
 
     return (
         <header className="w-full border-b border-border bg-accent">
@@ -36,8 +38,8 @@ export default function Navbar() {
                 <div className="flex items-center gap-3 pr-4 md:pr-10">
                     {isLoggedIn && user ? (
                         <>
-                            <Search size={27} className="hidden md:block"/>
-                            <Bell size={27} className="hidden md:block"/>
+                            <Search size={27} className="hidden md:block cursor-pointer hover:text-primary transition-colors" onClick={() => setSearchModalOpen(true)} />
+                            <Bell size={27} className="hidden md:block" />
                             <div className="dropdown dropdown-end">
                                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                                     <div className="w-10 rounded-full">
@@ -108,6 +110,8 @@ export default function Navbar() {
                     )}
                 </nav>
             )}
+
+            <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
         </header>
     );
 }
