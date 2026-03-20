@@ -1,0 +1,47 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+:root {
+  /* Charte graphique - Couleurs primaires */
+  --bg: #111827;
+  --text: #FBFAFB;
+  --primary: #E11048;
+  --muted: #374151;
+  --accent: #1F2937;
+  --border: #535871;
+  --alerts: #E11048;
+
+  /* Rétrocompatibilité / alias */
+  --background: var(--bg);
+  --foreground: var(--text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-bg: var(--bg);
+  --color-text: var(--text);
+  --color-primary: var(--primary);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-alerts: var(--alerts);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-montserrat: var(--font-montserrat);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-montserrat), sans-serif;
+}
+
+/* Cache la scrollbar tout en gardant le défilement */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
