@@ -1,54 +1,45 @@
-"use client";
+'use client'
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import Chat from "../components/home/Chat";
-import Calendar from "../components/home/Calendar";
-import { useAuth } from "../context/AuthContext";
-import { getForums } from "@/app/lib/forum";
-import type { Forum } from "@/app/types/forum";
-import {
-  Paperclip,
-  MessageSquare,
-  Eye,
-  Ellipsis,
-  SlidersHorizontal,
-} from "lucide-react";
-import CreateForum from "./components/CreateForum";
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import Chat from '../components/home/Chat'
+import Calendar from '../components/home/Calendar'
+import { useAuth } from '../context/AuthContext'
+import { getForums } from '@/app/lib/forum'
+import type { Forum } from '@/app/types/forum'
+import { Paperclip, MessageSquare, Eye, Ellipsis, SlidersHorizontal } from 'lucide-react'
+import CreateForum from './components/CreateForum'
 
 const CATEGORIES = [
-  { id: "", label: "Récents" },
-  { id: "general", label: "Général" },
-  { id: "anime", label: "Anime" },
-  { id: "manga", label: "Manga" },
-  { id: "recommendations", label: "Recommandations" },
-  { id: "spoilers", label: "Spoilers" },
-];
+  { id: '', label: 'Récents' },
+  { id: 'general', label: 'Général' },
+  { id: 'anime', label: 'Anime' },
+  { id: 'manga', label: 'Manga' },
+  { id: 'recommendations', label: 'Recommandations' },
+  { id: 'spoilers', label: 'Spoilers' },
+]
 
 export default function ForumPage() {
-  const { user } = useAuth();
-  const [topics, setTopics] = useState<Forum[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState<string>("");
+  const { user } = useAuth()
+  const [topics, setTopics] = useState<Forum[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [activeCategory, setActiveCategory] = useState<string>('')
 
   useEffect(() => {
     const fetchTopics = async () => {
-      setIsLoading(true);
+      setIsLoading(true)
       try {
-        const categoryParam =
-          activeCategory !== ""
-            ? (activeCategory as Forum["category"])
-            : undefined;
-        const forumsData = await getForums(1, categoryParam);
-        setTopics(forumsData.data || []);
+        const categoryParam = activeCategory !== '' ? (activeCategory as Forum['category']) : undefined
+        const forumsData = await getForums(1, categoryParam)
+        setTopics(forumsData.data || [])
       } catch (error) {
-        console.error("Erreur:", error);
+        console.error('Erreur:', error)
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
-    };
-    fetchTopics();
-  }, [activeCategory]);
+    }
+    fetchTopics()
+  }, [activeCategory])
 
   return (
     <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15 text-white">
@@ -91,8 +82,8 @@ export default function ForumPage() {
                   onClick={() => setActiveCategory(cat.id)}
                   className={`flex px-4 items-center gap-2 btn btn-ghost border-none btn-sm text-[15px] py-2 font-normal rounded-full transition-colors justify-start ${
                     activeCategory === cat.id
-                      ? "bg-alerts text-white hover:bg-alerts"
-                      : "text-border hover:bg-alerts/50 hover:text-white"
+                      ? 'bg-alerts text-white hover:bg-alerts'
+                      : 'text-border hover:bg-alerts/50 hover:text-white'
                   }`}
                 >
                   <span>{cat.label}</span>
@@ -116,23 +107,14 @@ export default function ForumPage() {
                   <Link href={`/forum/${topic.id}`} key={topic.id}>
                     <div className="flex flex-col border border-border bg-accent rounded-[15px] gap-4 p-4 hover:bg-white/[0.02] transition cursor-pointer">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[14px] font-bold text-white">
-                          {topic.user?.username || "Anonyme"}
-                        </span>
+                        <span className="text-[14px] font-bold text-white">{topic.user?.username || 'Anonyme'}</span>
                         <span className="text-xs text-border">
-                          •{" "}
-                          {new Date(topic.created_at).toLocaleDateString(
-                            "fr-FR",
-                          )}
+                          • {new Date(topic.created_at).toLocaleDateString('fr-FR')}
                         </span>
                       </div>
 
-                      <h3 className="text-[16px] font-bold text-white leading-snug">
-                        {topic.title}
-                      </h3>
-                      <p className="text-[14px] text-border line-clamp-2">
-                        {topic.content}
-                      </p>
+                      <h3 className="text-[16px] font-bold text-white leading-snug">{topic.title}</h3>
+                      <p className="text-[14px] text-border line-clamp-2">{topic.content}</p>
 
                       <div className="flex flex-col gap-3 mt-2">
                         <div>
@@ -163,5 +145,5 @@ export default function ForumPage() {
         <Calendar user={user} />
       </section>
     </main>
-  );
+  )
 }

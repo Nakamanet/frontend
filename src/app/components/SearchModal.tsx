@@ -1,92 +1,96 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Search, X, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react'
+import { Search, X, Loader2 } from 'lucide-react'
 
 interface SearchModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+  isOpen: boolean
+  onClose: () => void
 }
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
-  const [query, setQuery] = useState('');
-  const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts'>('all');
-  const [loading, setLoading] = useState(false);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [results, setResults] = useState<any[]>([]);
-  const [skip, setSkip] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
+  const [query, setQuery] = useState('')
+  const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts'>('all')
+  const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [results, setResults] = useState<any[]>([])
+  const [skip, setSkip] = useState(0)
+  const [hasMore, setHasMore] = useState(false)
 
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    if (isOpen) document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+      if (e.key === 'Escape') onClose()
+    }
+    if (isOpen) document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
 
   // Prevent scrolling when modal is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = 'unset'
     }
-  }, [isOpen]);
+  }, [isOpen])
 
   const handleSearch = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!query.trim()) return;
+    if (e) e.preventDefault()
+    if (!query.trim()) return
 
-    setLoading(true);
-    setSkip(0);
+    setLoading(true)
+    setSkip(0)
     try {
-      const response = await fetch(`http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=0&limit=20`);
+      const response = await fetch(
+        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=0&limit=20`
+      )
       if (response.ok) {
-        const data = await response.json();
-        setResults(data);
-        setHasMore(data.length === 20 && data[0]?.type !== 'system');
+        const data = await response.json()
+        setResults(data)
+        setHasMore(data.length === 20 && data[0]?.type !== 'system')
       } else {
-        setResults([]);
-        console.error('Search API returned an error');
+        setResults([])
+        console.error('Search API returned an error')
       }
     } catch (err) {
-      console.error('Failed to fetch from AI Microservice', err);
-      setResults([]);
+      console.error('Failed to fetch from AI Microservice', err)
+      setResults([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const loadMore = async () => {
-    if (!query.trim() || loadingMore) return;
+    if (!query.trim() || loadingMore) return
 
-    setLoadingMore(true);
-    const nextSkip = skip + 20;
+    setLoadingMore(true)
+    const nextSkip = skip + 20
     try {
-      const response = await fetch(`http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=${nextSkip}&limit=20`);
+      const response = await fetch(
+        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=${nextSkip}&limit=20`
+      )
       if (response.ok) {
-        const data = await response.json();
-        setResults(prev => [...prev, ...data]);
-        setSkip(nextSkip);
-        setHasMore(data.length === 20 && data[0]?.type !== 'system');
+        const data = await response.json()
+        setResults((prev) => [...prev, ...data])
+        setSkip(nextSkip)
+        setHasMore(data.length === 20 && data[0]?.type !== 'system')
       }
     } catch (err) {
-      console.error(err);
+      console.error(err)
     } finally {
-      setLoadingMore(false);
+      setLoadingMore(false)
     }
-  };
+  }
 
   // Auto-search if filter changes
   useEffect(() => {
     if (query.trim() && !loading) {
-      handleSearch();
+      handleSearch()
     }
-  }, [filter]);
+  }, [filter])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 bg-black/60 backdrop-blur-sm">
@@ -134,21 +138,29 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             </div>
           ) : null}
 
-          {results.length > 0 && results.map((res) => (
-            <div key={res.id} className="flex gap-4 p-3 rounded-lg hover:bg-base-200 cursor-pointer transition-colors border border-transparent hover:border-border">
-              <div className="w-12 h-12 bg-base-300 rounded flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
-                {res.type}
+          {results.length > 0 &&
+            results.map((res) => (
+              <div
+                key={res.id}
+                className="flex gap-4 p-3 rounded-lg hover:bg-base-200 cursor-pointer transition-colors border border-transparent hover:border-border"
+              >
+                <div className="w-12 h-12 bg-base-300 rounded flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
+                  {res.type}
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">{res.title}</h3>
+                  <p className="text-sm text-base-content/70">{res.description}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-lg">{res.title}</h3>
-                <p className="text-sm text-base-content/70">{res.description}</p>
-              </div>
-            </div>
-          ))}
+            ))}
 
           {hasMore && (
             <div className="flex justify-center mt-4 mb-6">
-              <button onClick={loadMore} disabled={loadingMore} className="btn btn-outline btn-primary rounded-full px-6 flex items-center gap-2">
+              <button
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="btn btn-outline btn-primary rounded-full px-6 flex items-center gap-2"
+              >
                 {loadingMore && <Loader2 className="animate-spin" size={16} />}
                 Charger plus de résultats
               </button>
@@ -173,5 +185,5 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

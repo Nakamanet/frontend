@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import { useAuth } from "./context/AuthContext";
-import SideBar from "./components/home/Sidebar";
-import PostList from "./components/home/PostList";
-import Chat from "./components/home/Chat";
-import Calendar from "./components/home/Calendar";
-import Link from "next/link";
-import { Home, BookOpen, MessageSquare, MessageCircle } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { useAuth } from './context/AuthContext'
+import SideBar from './components/home/Sidebar'
+import PostList from './components/home/PostList'
+import Chat from './components/home/Chat'
+import Calendar from './components/home/Calendar'
+import Link from 'next/link'
+import { Home, BookOpen, MessageSquare, MessageCircle } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 
 export default function HomePage() {
-  const { isLoggedIn, user } = useAuth();
-  const pathname = usePathname();
+  const { isLoggedIn, user } = useAuth()
+  const pathname = usePathname()
 
   return (
     <>
@@ -35,23 +35,35 @@ export default function HomePage() {
 
       {/* Footer mobile */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-accent border-t border-border flex justify-around items-center h-16 z-50">
-        <Link href="/" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/' ? 'text-primary' : 'text-border'}`}>
+        <Link
+          href="/"
+          className={`flex flex-col items-center gap-1 text-xs ${pathname === '/' ? 'text-primary' : 'text-border'}`}
+        >
           <Home size={22} />
           Accueil
         </Link>
-        <Link href="/list" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/list' ? 'text-primary' : 'text-border'}`}>
+        <Link
+          href="/list"
+          className={`flex flex-col items-center gap-1 text-xs ${pathname === '/list' ? 'text-primary' : 'text-border'}`}
+        >
           <BookOpen size={22} />
           Bibliothèque
         </Link>
-        <Link href="/forum" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/forum' ? 'text-primary' : 'text-border'}`}>
+        <Link
+          href="/forum"
+          className={`flex flex-col items-center gap-1 text-xs ${pathname === '/forum' ? 'text-primary' : 'text-border'}`}
+        >
           <MessageSquare size={22} />
           Forum
         </Link>
-        <Link href="/chat" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/chat' ? 'text-primary' : 'text-border'}`}>
+        <Link
+          href="/chat"
+          className={`flex flex-col items-center gap-1 text-xs ${pathname === '/chat' ? 'text-primary' : 'text-border'}`}
+        >
           <MessageCircle size={22} />
           Chat
         </Link>
       </nav>
     </>
-  );
+  )
 }

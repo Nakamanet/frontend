@@ -1,15 +1,15 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "daisyui";
 
 :root {
   /* Charte graphique - Couleurs primaires */
   --bg: #111827;
-  --text: #FBFAFB;
-  --primary: #E11048;
+  --text: #fbfafb;
+  --primary: #e11048;
   --muted: #374151;
-  --accent: #1F2937;
+  --accent: #1f2937;
   --border: #535871;
-  --alerts: #E11048;
+  --alerts: #e11048;
 
   /* Rétrocompatibilité / alias */
   --background: var(--bg);

@@ -1,23 +1,23 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { createForum } from "@/app/lib/forum";
-import type { Forum } from "@/app/types/forum";
-import { X } from "lucide-react"; // Ajout d'une icône pour fermer la modale
+import { useState } from 'react'
+import { createForum } from '@/app/lib/forum'
+import type { Forum } from '@/app/types/forum'
+import { X } from 'lucide-react' // Ajout d'une icône pour fermer la modale
 
 export default function CreateForum() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [category, setCategory] = useState<Forum["category"]>("general");
+  const [title, setTitle] = useState('')
+  const [content, setContent] = useState('')
+  const [category, setCategory] = useState<Forum['category']>('general')
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
 
     try {
       await createForum({
@@ -26,23 +26,20 @@ export default function CreateForum() {
         category,
         related_anime_id: null,
         related_manga_id: null,
-      });
+      })
 
-      setTitle("");
-      setContent("");
-      setCategory("general");
-      setIsOpen(false);
+      setTitle('')
+      setContent('')
+      setCategory('general')
+      setIsOpen(false)
 
-      window.location.reload();
+      window.location.reload()
     } catch (err: any) {
-      setError(
-        err.response?.data?.message ||
-          "Une erreur est survenue lors de la création.",
-      );
+      setError(err.response?.data?.message || 'Une erreur est survenue lors de la création.')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="w-full">
@@ -89,14 +86,10 @@ export default function CreateForum() {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-border">
-                  Catégorie
-                </label>
+                <label className="text-sm font-bold text-border">Catégorie</label>
                 <select
                   value={category}
-                  onChange={(e) =>
-                    setCategory(e.target.value as Forum["category"])
-                  }
+                  onChange={(e) => setCategory(e.target.value as Forum['category'])}
                   className="p-3 rounded-xl text-white bg-background border border-border outline-none focus:ring-1 focus:ring-alerts"
                 >
                   {/* Valeurs attendues par l'API */}
@@ -124,16 +117,12 @@ export default function CreateForum() {
                 disabled={loading}
                 className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-2 font-bold text-white border-none mt-2 w-full"
               >
-                {loading ? (
-                  <span className="loading loading-spinner"></span>
-                ) : (
-                  "Publier le sujet"
-                )}
+                {loading ? <span className="loading loading-spinner"></span> : 'Publier le sujet'}
               </button>
             </form>
           </div>
         </div>
       )}
     </div>
-  );
+  )
 }
