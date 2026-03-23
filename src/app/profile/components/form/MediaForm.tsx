@@ -36,7 +36,7 @@ export default function MediaForm({ user }: { user: User }) {
                 Object.entries(payload).filter(([, v]) => v !== undefined && v !== null && v !== '')
             );
 
-            const { data } = await api.patch<{message: string, user: User}>('/auth/profile', body);
+            const { data } = await api.patch<{message: string, user: User}>('/users/profile', body);
             setSuccessMessage(data.message);
             await refreshUser();
         } catch (err: any) {

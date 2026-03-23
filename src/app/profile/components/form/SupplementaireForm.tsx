@@ -27,7 +27,7 @@ export default function SupplementaireForm({ user }: { user: User }) {
         try {
             const payload: Record<string, string> = {
                 birthdate: birthdate ?? '',
-                privacy: privacy ?? false,
+                // privacy: privacy ?? false,
                 bio: bio ?? '',
             };
 
@@ -35,7 +35,7 @@ export default function SupplementaireForm({ user }: { user: User }) {
                 Object.entries(payload).filter(([, v]) => v !== undefined && v !== null && v !== '')
             );
 
-            const { data } = await api.patch<{message: string, user: User}>('/auth/profile', body);
+            const { data } = await api.patch<{message: string, user: User}>('/users/profile', body);
             setSuccessMessage(data.message);
             await refreshUser();
         } catch (err: any) {
