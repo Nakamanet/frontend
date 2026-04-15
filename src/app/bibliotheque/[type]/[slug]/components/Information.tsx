@@ -152,7 +152,7 @@ export default function Information({ type, item }: InformationProps) {
                 <td>
                     {item.status === 'finish'
                     ? 'Terminé'
-                    : item.status === 'current'
+                    : item.status === 'ongoing'
                         ? 'En cours'
                         : item.status === 'tba'
                         ? 'Date à venir'

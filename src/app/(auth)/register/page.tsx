@@ -39,6 +39,7 @@ export default function RegisterPage() {
         username,
         email,
         password,
+        password_confirmation: passwordConfirmation,
         birthdate,
         localisation: location || null,
       })

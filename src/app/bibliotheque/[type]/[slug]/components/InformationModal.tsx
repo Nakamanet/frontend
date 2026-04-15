@@ -67,7 +67,7 @@ export default function InformationModal({
               <tr>
                 <td className="text-base-content/60 w-1/2">Type</td>
                 <td>{'subtype' in item ? item.subtype : item.type}</td>
-              </tr>
+                </tr>
               <tr>
                 <td className="text-base-content/60">Status</td>
                 <td>
@@ -88,10 +88,12 @@ export default function InformationModal({
                 <td className="text-base-content/60">Date de début</td>
                 <td>{item.startDate ? new Date(item.startDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
               </tr>
-              <tr>
-                <td className="text-base-content/60">Date de fin</td>
-                <td>{item.endDate ? new Date(item.endDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
-              </tr>
+              {item.status !== 'ongoing' && (
+                <tr>
+                  <td className="text-base-content/60">Date de fin</td>
+                  <td>{item.endDate ? new Date(item.endDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
+                </tr>
+              )}
               {type === 'anime' && 'episodeCount' in item && (
                 <>
                   <tr>
