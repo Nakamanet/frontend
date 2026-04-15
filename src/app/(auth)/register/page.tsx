@@ -42,15 +42,13 @@ export default function RegisterPage() {
         birthdate,
         localisation: location || null,
       })
-      console.log(response.data)
-      login(response.data.token, response.data.user)
+      login(response.data.token, response.data.user, response.data.expires_in)
       router.push('/')
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || "Erreur lors de l'inscription")
     }
   }
-  console.log(location)
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-base-200">
