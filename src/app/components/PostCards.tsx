@@ -8,7 +8,7 @@ export default function PostCards({ post }: { post: Post }) {
   return (
     <div
       key={post.id}
-      className="bg-accent shadow-sm place-items-center w-full border border-border rounded-[15px] p-6"
+      className="bg-accent shadow-sm w-full border border-border rounded-[15px] p-6"
     >
       <div className="flex gap-3">
         <div>
