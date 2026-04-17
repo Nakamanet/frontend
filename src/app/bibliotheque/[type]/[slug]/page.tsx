@@ -10,8 +10,8 @@ import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import Chat from '@/app/components/home/Chat'
 import Calendar from '@/app/components/home/Calendar'
-import Episode from './components/Episode'
-import Character from './components/Character'
+import EpisodePage from './components/EpisodePage'
+import Character from './components/CharacterPage'
 import Thread from './components/Thread'
 import Information from './components/Information'
 
@@ -159,7 +159,12 @@ export default function DetailPage() {
           </div>
           {filter === 'episode' ? (
             <div className="flex flex-col gap-4">
-              <Episode />
+              {item && type === 'anime' && (
+                <EpisodePage type='anime' item={item as Anime} />
+              )}
+              {item && type === 'manga' && (
+                <EpisodePage type='manga' item={item as Manga} />
+              )}
             </div>
           ) : filter === 'characters' ? (
             <div className="flex flex-col gap-4">

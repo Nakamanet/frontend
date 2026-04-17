@@ -66,7 +66,7 @@ export default function InformationModal({
             <tbody>
               <tr>
                 <td className="text-base-content/60 w-1/2">Type</td>
-                <td>{'subtype' in item ? item.subtype : item.type}</td>
+                <td className='capitalize'>{'subtype' in item ? item.subtype : item.type}</td>
                 </tr>
               <tr>
                 <td className="text-base-content/60">Status</td>

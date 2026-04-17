@@ -60,16 +60,14 @@ export default function Information({ type, item }: InformationProps) {
             <tbody>
                 <tr>
                 <td>Type</td>
-                <td>{item.subtype}</td>
+                <td className='capitalize'>{item.subtype}</td>
                 </tr>
-                <tr>
-                    {item.episodeCount !== null && item.episodeCount !== 0 && (
-                        <tr>
-                            <td>Nombre d&apos;épisodes</td>
-                            <td>{item.episodeCount}</td>
-                        </tr>
-                    )}
-                </tr>
+                {item.episodeCount !== null && item.episodeCount !== 0 && (
+                  <tr>
+                      <td>Nombre d&apos;épisodes</td>
+                      <td>{item.episodeCount}</td>
+                  </tr>
+                )}
                 <tr>
                 <td>Status</td>
                 <td>
@@ -90,30 +88,6 @@ export default function Information({ type, item }: InformationProps) {
                 <td>Diffusion </td>
                 <td>{item.startDate ? new Date(item.startDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
                 </tr>
-                {/* {itemProductions.length > 0 && (
-                <>
-                    <tr>
-                    <td>Producteurs</td>
-                    <td>
-                        {itemProductions.map((prod) => (
-                        <div className="flex gap-2" key={prod.company.id}>
-                            {prod.role === 'producer' && <span key={prod.company.id}>{prod.company.name}</span>}
-                        </div>
-                        ))}
-                    </td>
-                    </tr>
-                    <tr>
-                    <td>Distributeurs</td>
-                    <td>
-                        {itemProductions.map((prod) => (
-                        <div className="flex gap-2" key={prod.company.id}>
-                            {prod.role === 'licensor' && <span key={prod.company.id}>{prod.company.name}</span>}
-                        </div>
-                        ))}
-                    </td>
-                    </tr>
-                </>
-                )} */}
                 <tr>
                 <td>Longueur</td>
                 <td>{item.episodeLength} min</td>
