@@ -19,13 +19,16 @@ export default function AnimePage() {
   const [genre, setGenre] = useState<string | undefined>(undefined)
   const [openModal, setOpenModal] = useState(false)
   const [page, setPage] = useState(1)
-  const maxPage = 100 // A changer plus tard
+  const [maxPage, setMaxPage] = useState(1) // A changer plus tard
 
   useEffect(() => {
     getAnimes(page, limit, genre)
-      .then((res) => setAnime(res.data))
+      .then((res) => {
+        setAnime(res.data); 
+        setMaxPage(res.meta.lastPage)
+      })
       .catch((err) => console.error(err))
-  }, [page, limit])
+  }, [page, limit, genre])
 
   console.log('anime', anime, 'page', page, 'limit', limit, 'genre', genre, 'openModal', openModal)
 

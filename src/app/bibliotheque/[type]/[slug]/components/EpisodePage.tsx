@@ -5,6 +5,7 @@ import { Anime, Manga, Chapter, Episode } from "@/app/types/catalog"
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import EpisodeModal from "./EpisodeModal";
+import Pagination from "../../components/Pagination";
 
 type EpisodeProps = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
@@ -13,13 +14,17 @@ export default function EpisodePage({ type, item } : EpisodeProps ) {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [episodeModal, setEpisodeModal] = useState(false);
   const [detail, setDetail] = useState<{ type: 'anime' ; item: Episode } | { type: 'manga'; item: Chapter }>();
-  const page = 1;
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1)
   const limit = 10;
 
   useEffect(() => {
     if (type === 'anime') {
       getEpisodes(item.id, page, limit)
-        .then((res) => setEpisodes(res.data))
+        .then((res) => {
+          setEpisodes(res.data); 
+          setLastPage(res.meta.lastPage)
+        })
         .catch((err) => console.error(err))
     }
     if (type === 'manga') {
@@ -31,54 +36,60 @@ export default function EpisodePage({ type, item } : EpisodeProps ) {
 
 
   return (
-    <div className="border border-border bg-accent rounded-[15px] p-5">
+    <div className="border border-border bg-accent rounded-[15px] p-5 ">
+      {/* Content */}
       {type === 'anime' && (
-        <>
-          <h1 className="text-center">Episodes</h1>
-          <div className="flex">
-            {episodes.map((e) => (
-              <button 
-                key={e.id} 
-                className=""
-                onClick={() => {setEpisodeModal(true); setDetail({ type: 'anime', item: e })}}
-              >
+        <ul className="flex flex-wrap gap-2 justify-center">
+          {episodes.map((e) => (
+            <button 
+              key={e.id} 
+              className="border border-border p-2 max-w-[250px] rounded-[15px] bg-muted hover:bg-accent"
+              onClick={() => {setEpisodeModal(true); setDetail({ type: 'anime', item: e })}}
+            >
+              <li className="flex flex-col gap-2">
                 {e.thumbnailUrl && (
                   <Image 
                     src={e.thumbnailUrl}
                     alt={e.title}
-                    height="100"
-                    width="100"
+                    height="200"
+                    width="200"
+                    className="mx-[20px]"
                   />
                 )}
-                <p>{e.number}. {e.title}</p>
-              </button>
-            ))}
-          </div>
-        </>
+                <p className="truncate">{e.number}. {e.title}</p>
+              </li>
+            </button>
+          ))}
+        </ul>
       )}
       {type === 'manga' && (
-        <>
-          <h1 className="text-center">Chapitres</h1>
-          <div className="flex">
-            {chapters.map((c) => (
-              <button 
-                key={c.id} 
-                className=""
-                onClick={() => {setEpisodeModal(true); setDetail({ type: 'manga', item: c })}}
-              >
-                {/* {c.thumbnailUrl && (
+        <ul className="flex flex-wrap gap-2 justify-center">
+          {chapters.map((e) => (
+            <button 
+              key={e.id} 
+              className="border border-border p-2 max-w-[250px] rounded-[15px] bg-muted hover:bg-accent"
+              onClick={() => {setEpisodeModal(true); setDetail({ type: 'manga', item: e })}}
+            >
+              <li className="flex flex-col gap-2">
+                {/* {e.thumbnailUrl && (
                   <Image 
-                    src={c.thumbnailUrl}
-                    alt={c.title}
-                    height="100"
-                    width="100"
+                    src={e.thumbnailUrl}
+                    alt={e.title}
+                    height="200"
+                    width="200"
+                    className="mx-[20px]"
                   />
                 )} */}
-                <p>{c.number}. {c.title}</p>
-              </button>
-            ))}
-          </div>
-        </>
+                <p className="truncate">{e.number}. {e.title}</p>
+              </li>
+            </button>
+          ))}
+        </ul>
+      )}
+
+      {/* Pagination */}
+      {lastPage > 1 && (
+        <Pagination page={page} lastPage={lastPage} onPageChange={setPage} />
       )}
 
       {detail && (

@@ -168,7 +168,12 @@ export default function DetailPage() {
             </div>
           ) : filter === 'characters' ? (
             <div className="flex flex-col gap-4">
-              <Character />
+              {item && type === 'manga' && (
+                <Character type= 'manga' item={item as Manga} />
+              )}
+              {item && type === 'anime' && (
+                <Character type= 'anime' item={item as Anime} />
+              )}
             </div>
           ) : filter === 'thread' ? (
             <div className="flex flex-col gap-4">
