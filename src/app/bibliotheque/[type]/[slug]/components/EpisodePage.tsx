@@ -12,7 +12,7 @@ export default function EpisodePage({ type, item } : EpisodeProps ) {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [episodeModal, setEpisodeModal] = useState(false);
-  const [detail, setDetail] = useState<Episode | Chapter | undefined>();
+  const [detail, setDetail] = useState<{ type: 'anime' ; item: Episode } | { type: 'manga'; item: Chapter }>();
   const page = 1;
   const limit = 10;
 
@@ -40,7 +40,7 @@ export default function EpisodePage({ type, item } : EpisodeProps ) {
               <button 
                 key={e.id} 
                 className=""
-                onClick={() => {setEpisodeModal(true); setDetail(e); console.log(episodeModal)}}
+                onClick={() => {setEpisodeModal(true); setDetail({ type: 'anime', item: e })}}
               >
                 {e.thumbnailUrl && (
                   <Image 
@@ -64,7 +64,7 @@ export default function EpisodePage({ type, item } : EpisodeProps ) {
               <button 
                 key={c.id} 
                 className=""
-                onClick={() => {setEpisodeModal(true); console.log(episodeModal)}}
+                onClick={() => {setEpisodeModal(true); setDetail({ type: 'manga', item: c })}}
               >
                 {/* {c.thumbnailUrl && (
                   <Image 
@@ -81,12 +81,13 @@ export default function EpisodePage({ type, item } : EpisodeProps ) {
         </>
       )}
 
-      <EpisodeModal 
-        isOpen={episodeModal} 
-        onClose={() => setEpisodeModal(false)} 
-        item={detail}
-        type={type}
-      />
+      {detail && (
+        <EpisodeModal 
+          isOpen={episodeModal} 
+          onClose={() => setEpisodeModal(false)} 
+          {... detail}
+        />
+      )}
     </div>
   )
 }

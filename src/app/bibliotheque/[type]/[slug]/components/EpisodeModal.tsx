@@ -5,16 +5,12 @@ import { Chapter, Episode } from '@/app/types/catalog'
 import { X } from 'lucide-react'
 import Image from 'next/image'
 import { format, parseISO } from 'date-fns'
-import { fr } from 'date-fns/locale'
 
-type EpisodeModalProps = {
-  isOpen: boolean
-  onClose: () => void
-  type: 'manga' | 'anime'
-  item: Episode | Chapter | undefined
-}
+type EpisodeModalProps =
+    | { isOpen: boolean; onClose: () => void; type: 'anime'; item: Episode }                                              
+    | { isOpen: boolean; onClose: () => void; type: 'manga'; item: Chapter }    
 
-export default function EpisodeModal({ isOpen, onClose, item, type }: EpisodeModalProps) {
+export default function EpisodeModal({ isOpen, onClose, type, item }: EpisodeModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -27,7 +23,7 @@ export default function EpisodeModal({ isOpen, onClose, item, type }: EpisodeMod
     document.body.style.overflow = isOpen ? 'hidden' : 'unset'
   }, [isOpen])
 
-  if (item === undefined || isOpen === false) return
+  if (isOpen === false) return
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -69,7 +65,7 @@ export default function EpisodeModal({ isOpen, onClose, item, type }: EpisodeMod
                 )} */}
                 <div className='flex flex-col gap-2 my-6'>
                     <h1>{item.number}. {item.title}</h1>
-                    <p className='font-medium text-gray-400'>{format(parseISO(item.releaseDate), 'dd/MM/yyyy')} - {item.volumeNumber} pages</p>
+                    <p className='font-medium text-gray-400'>{item.releaseDate ? format(parseISO(item.releaseDate), 'dd/MM/yyyy') : null} - {item.volumeNumber} pages</p>
                     <p>Description de l&apos;épisode/chapitre quand disponible</p>
                 </div>
                 <button className="btn btn-sm btn-circle btn-ghost m-2" onClick={onClose}>
