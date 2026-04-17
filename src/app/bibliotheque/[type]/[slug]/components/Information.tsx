@@ -59,8 +59,8 @@ export default function Information({ type, item }: InformationProps) {
             <table className="border-separate border-spacing-y-2 w-full">
             <tbody>
                 <tr>
-                <td>Type</td>
-                <td className='capitalize'>{item.subtype}</td>
+                  <td>Type</td>
+                  <td className='capitalize'>{item.subtype}</td>
                 </tr>
                 {item.episodeCount !== null && item.episodeCount !== 0 && (
                   <tr>

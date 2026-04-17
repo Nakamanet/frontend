@@ -53,7 +53,7 @@ export default function EpisodePage({ type, item } : EpisodeProps ) {
                     alt={e.title}
                     height="200"
                     width="200"
-                    className="mx-[20px]"
+                    className="mx-[20px] rounded-[15px]"
                   />
                 )}
                 <p className="truncate">{e.number}. {e.title}</p>

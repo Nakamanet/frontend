@@ -11,9 +11,9 @@ import { ChevronRight } from 'lucide-react'
 import Chat from '@/app/components/home/Chat'
 import Calendar from '@/app/components/home/Calendar'
 import EpisodePage from './components/EpisodePage'
-import Character from './components/CharacterPage'
 import Thread from './components/Thread'
 import Information from './components/Information'
+import CharacterPage from './components/CharacterPage'
 
 export default function DetailPage() {
   const { type } = useParams()
@@ -169,10 +169,10 @@ export default function DetailPage() {
           ) : filter === 'characters' ? (
             <div className="flex flex-col gap-4">
               {item && type === 'manga' && (
-                <Character type= 'manga' item={item as Manga} />
+                <CharacterPage type= 'manga' item={item as Manga} />
               )}
               {item && type === 'anime' && (
-                <Character type= 'anime' item={item as Anime} />
+                <CharacterPage type= 'anime' item={item as Anime} />
               )}
             </div>
           ) : filter === 'thread' ? (
