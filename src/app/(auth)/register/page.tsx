@@ -6,10 +6,12 @@ import { useAuth } from '../../context/AuthContext'
 import api from '../../lib/axios'
 import { useGeolocation } from '../../hooks/useGeolocalisation'
 import Link from 'next/link'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function RegisterPage() {
   const { login } = useAuth()
   const router = useRouter()
+  const { showToast } = useToast()
   const { location, loading, detect } = useGeolocation()
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
@@ -43,11 +45,11 @@ export default function RegisterPage() {
         birthdate,
         localisation: location || null,
       })
+      showToast('Inscription réussi', 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
       router.push('/')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Erreur lors de l'inscription")
+    } catch (err) {
+      showToast('Echec lors de la création de compte', 'error')
     }
   }
 

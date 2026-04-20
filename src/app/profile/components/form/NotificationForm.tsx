@@ -3,9 +3,11 @@
 import { useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { User } from '../../../types/auth'
-import api from '../../../lib/axios'
+import { updateProfil } from '@/app/lib/user'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function NotificationForm({ user }: { user: User }) {
+  const { showToast } = useToast()
   // A modifier plus tard quand ce sera en db
   const [comment, setComment] = useState(true)
   const [friendsRequests, setFriendsRequests] = useState(true)
@@ -13,16 +15,12 @@ export default function NotificationForm({ user }: { user: User }) {
   const [newSorties, setNewSorties] = useState(true)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   const { refreshUser } = useAuth()
 
   const handleSubmitMedias = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setErrorMessage(null)
-    setSuccessMessage(null)
     setFieldErrors({})
     setIsSubmitting(true)
 
@@ -38,21 +36,12 @@ export default function NotificationForm({ user }: { user: User }) {
         Object.entries(payload).filter(([, v]) => v !== undefined && v !== null && v !== '')
       )
 
-      const { data } = await api.patch<{ message: string; user: User }>('/users/profile', body)
-      setSuccessMessage(data.message)
+      await updateProfil(body)
+      showToast('Profil modifié avec succès', 'success')
       await refreshUser()
-    } catch (err: any) {
-      const res = err.response?.data
-      if (err.response?.status === 422 && res?.errors) {
-        const errors: Record<string, string> = {}
-        Object.entries(res.errors).forEach(([key, messages]) => {
-          errors[key] = Array.isArray(messages) ? messages[0] : String(messages)
-        })
-        setFieldErrors(errors)
-        setErrorMessage(res?.message ?? 'Erreur de validation')
-      } else {
-        setErrorMessage(res?.message ?? 'Erreur lors de la mise à jour du profil')
-      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      showToast('Erreur lors de la modification des préférences de notifications', 'error')
     } finally {
       setIsSubmitting(false)
     }
@@ -198,8 +187,6 @@ export default function NotificationForm({ user }: { user: User }) {
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
         </button>
       </form>
-      {successMessage && <p className="text-sm text-success">{successMessage}</p>}
-      {errorMessage && <p className="text-sm text-alerts">{errorMessage}</p>}
     </div>
   )
 }

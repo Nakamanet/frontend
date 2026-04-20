@@ -1,6 +1,7 @@
 import Navbar from './components/layout/Navbar'
 import './globals.css'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import { Montserrat } from 'next/font/google'
 
 const montserrat = Montserrat({
@@ -13,8 +14,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body className={montserrat.className}>
         <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
+          <ToastProvider>
+            <Navbar />
+            <main>{children}</main>
+          </ToastProvider>
         </AuthProvider>
       </body>
     </html>

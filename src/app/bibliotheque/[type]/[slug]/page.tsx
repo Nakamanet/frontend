@@ -14,11 +14,14 @@ import EpisodePage from './components/EpisodePage'
 import Thread from './components/Thread'
 import Information from './components/Information'
 import CharacterPage from './components/CharacterPage'
+import { addMyAnime, addMyManga } from '@/app/lib/library'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function DetailPage() {
   const { type } = useParams()
   const { slug } = useParams()
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [item, setItem] = useState<Manga | Anime | null>(null)
   const [voirPlus, setVoirPlus] = useState(false)
   const [filter, setFilter] = useState('characters')
@@ -43,9 +46,36 @@ export default function DetailPage() {
   
   if(item === null ) return
 
-  // const handleSubmit = async (id) => {
-
-  // }
+  const handleSubmit = async (id: number) => {
+    try {
+      if (type === 'anime') {
+        const body = {
+          anime_id: id,
+          status: 'plan_to_watch',
+          progress: 1, 
+          rewatch_count: 0,
+          score: 1,
+          is_private: false
+        }
+        await addMyAnime(body)
+        showToast('Anime ajouté à votre bibliothèque avec succès', 'success')
+      }
+      if (type === 'manga') {
+        const body = {
+          manga_id: id,
+          status: 'plan_to_read',
+          progress: 1, 
+          reread_count: 0,
+          score: 1,
+          is_private: false
+        }
+        await addMyManga(body)
+        showToast('Manga ajouté à votre bibliothèque avec succès', 'success')
+      }
+    } catch (err) {
+      showToast((err as Error).message, 'error')
+    }
+  }
 
   return (
     <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
@@ -102,7 +132,7 @@ export default function DetailPage() {
               />
             )}
             <button  
-              // onClick={handleSubmit(item.id)}
+              onClick={() => handleSubmit(item.id)}
               className="btn btn-ghost border-none rounded-full bg-primary text-primary-content"
             >
               Ajouter à ma liste

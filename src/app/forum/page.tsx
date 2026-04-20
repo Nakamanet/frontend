@@ -9,6 +9,7 @@ import { getForums } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
 import { Paperclip, MessageSquare, Eye, Ellipsis, SlidersHorizontal } from 'lucide-react'
 import CreateForum from './components/CreateForum'
+import { useToast } from '../context/ToastContext'
 
 const CATEGORIES = [
   { id: '', label: 'Récents' },
@@ -21,6 +22,7 @@ const CATEGORIES = [
 
 export default function ForumPage() {
   const { user } = useAuth()
+  const { showToast } = useToast()
   const [topics, setTopics] = useState<Forum[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string>('')
@@ -32,8 +34,9 @@ export default function ForumPage() {
         const categoryParam = activeCategory !== '' ? (activeCategory as Forum['category']) : undefined
         const forumsData = await getForums(1, categoryParam)
         setTopics(forumsData.data || [])
-      } catch (error) {
-        console.error('Erreur:', error)
+        showToast('Fil de discussion publié avec succès', 'success')
+      } catch (err) {
+        showToast('Echec lors de la publication du fil de discussion', 'error')
       } finally {
         setIsLoading(false)
       }

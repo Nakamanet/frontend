@@ -5,23 +5,24 @@ import { useRouter } from 'next/navigation'
 import api from '../../lib/axios'
 import { useAuth } from '../../context/AuthContext'
 import Link from 'next/link'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function LoginPage() {
   const { login } = useAuth()
   const router = useRouter()
+  const { showToast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
       const response = await api.post('/auth/login', { email, password })
+      showToast('Connexion réussi', 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
       router.push('/')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Identifiants invalides')
+    } catch (err) {
+      showToast('Email ou mot de passe invalide', 'error')
     }
   }
 
@@ -58,8 +59,6 @@ export default function LoginPage() {
               Se connecter
             </button>
           </div>
-
-          {error && <p className="text-red-500">{error}</p>}
         </form>
         <div className="card-body flex justify-center w-full">
           <p>

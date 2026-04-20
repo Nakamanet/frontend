@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { replyToForum } from '@/app/lib/forum'
+import { useToast } from '@/app/context/ToastContext'
 
 interface ReplyForumProps {
   topicId: number
@@ -10,21 +11,22 @@ interface ReplyForumProps {
 }
 
 export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumProps) {
+  const { showToast } = useToast()
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError(null)
 
     try {
       await replyToForum(topicId, content, parentId)
       setContent('')
+      showToast('Réponse au forum publié avec succès', 'success')
       window.location.reload()
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Erreur lors de l'envoi de la réponse.")
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      showToast('Erreur lors de la réponse au forum', 'error')
     } finally {
       setLoading(false)
     }
@@ -33,8 +35,6 @@ export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumPr
   return (
     <form onSubmit={handleSubmit} className="mt-4 p-4 flex flex-col gap-4 border border-white text-white">
       <h3 className="text-lg font-bold">{parentId ? 'Répondre à ce commentaire' : 'Ajouter une réponse au sujet'}</h3>
-
-      {error && <div className="p-2 font-bold border border-white">{error}</div>}
 
       <div className="flex flex-col gap-2">
         <textarea

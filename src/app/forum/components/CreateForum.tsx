@@ -4,11 +4,12 @@ import { useState } from 'react'
 import { createForum } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
 import { X } from 'lucide-react' // Ajout d'une icône pour fermer la modale
+import { useToast } from '@/app/context/ToastContext'
 
 export default function CreateForum() {
+  const { showToast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -17,7 +18,6 @@ export default function CreateForum() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError(null)
 
     try {
       await createForum({
@@ -33,9 +33,12 @@ export default function CreateForum() {
       setCategory('general')
       setIsOpen(false)
 
+      showToast('Forum publié avec succès', 'success')
+
       window.location.reload()
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Une erreur est survenue lors de la création.')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      showToast('Erreur lors de la publication du forum', 'error')
     } finally {
       setLoading(false)
     }
@@ -66,12 +69,6 @@ export default function CreateForum() {
             <h2 className="text-xl font-bold text-white mb-6">Nouveau Sujet</h2>
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              {error && (
-                <div className="p-3 font-bold text-red-400 bg-red-400/10 border border-red-400/20 rounded-lg text-sm">
-                  {error}
-                </div>
-              )}
-
               <div className="flex flex-col gap-2">
                 <label className="text-sm font-bold text-border">Titre</label>
                 <input

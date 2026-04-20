@@ -1,27 +1,25 @@
 'use client'
 
-import api from '../../../lib/axios'
+import { updateProfil } from '@/app/lib/user'
 import { useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { User } from '../../../types/auth'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function PersonnalForm({ user }: { user: User }) {
+  const { showToast } = useToast()
   const [username, setUsername] = useState(user.username)
   const [email, setEmail] = useState(user.email)
   const [password, setPassword] = useState('')
   const [password_confirmation, setPassword_confirmation] = useState('')
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [successMessage, setSuccessMessage] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   const { refreshUser } = useAuth()
 
   const handleSubmitPersonal = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setErrorMessage(null)
-    setSuccessMessage(null)
     setFieldErrors({})
     setIsSubmitting(true)
 
@@ -35,14 +33,12 @@ export default function PersonnalForm({ user }: { user: User }) {
 
       if (password && password_confirmation && password !== password_confirmation) {
         setFieldErrors({ password: 'Les mots de passe ne correspondent pas' })
-        setErrorMessage('Les mots de passe ne correspondent pas')
         setIsSubmitting(false)
         return
       }
 
       if ((password && !password_confirmation) || (!password && password_confirmation)) {
         setFieldErrors({ password: 'Les deux champs doivent être remplis' })
-        setErrorMessage('Les deux champs doivent être remplis')
         setIsSubmitting(false)
         return
       }
@@ -51,21 +47,12 @@ export default function PersonnalForm({ user }: { user: User }) {
         Object.entries(payload).filter(([, v]) => v !== undefined && v !== null && v !== '')
       )
 
-      const { data } = await api.patch<{ message: string; user: User }>('/users/profile', body)
-      setSuccessMessage(data.message)
+      await updateProfil(body)
+      showToast('Profil modifié avec succès', 'success')
       await refreshUser()
-    } catch (err: any) {
-      const res = err.response?.data
-      if (err.response?.status === 422 && res?.errors) {
-        const errors: Record<string, string> = {}
-        Object.entries(res.errors).forEach(([key, messages]) => {
-          errors[key] = Array.isArray(messages) ? messages[0] : String(messages)
-        })
-        setFieldErrors(errors)
-        setErrorMessage(res?.message ?? 'Erreur de validation')
-      } else {
-        setErrorMessage(res?.message ?? 'Erreur lors de la mise à jour du profil')
-      }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      showToast('Erreur lors de la modification du profil', 'error')
     } finally {
       setIsSubmitting(false)
     }
@@ -140,8 +127,6 @@ export default function PersonnalForm({ user }: { user: User }) {
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
         </button>
       </form>
-      {successMessage && <p className="text-sm text-success">{successMessage}</p>}
-      {errorMessage && <p className="text-sm text-alerts">{errorMessage}</p>}
     </div>
   )
 }

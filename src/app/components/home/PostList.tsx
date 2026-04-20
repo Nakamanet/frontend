@@ -18,11 +18,13 @@ import PostCards from '../PostCards'
 import { getPosts } from '@/app/lib/post'
 import { createPost } from '@/app/lib/post'
 import Link from 'next/link'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
   const [filter, setFilter] = useState('all')
   const [posts, setPosts] = useState<Post[]>([])
   const [content, setContent] = useState('')
+  const { showToast } = useToast()
 
   useEffect(() => {
     getPosts()
@@ -31,15 +33,20 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
   }, [])
 
   const postPosts = async () => {
-    await createPost({
-      content,
-      related_anime_id: null,
-      related_manga_id: null,
-      image_urls: null,
-      is_spoiler: false,
-    })
-    setContent('')
-    getPosts().then((res) => setPosts(res.data))
+    try {
+      await createPost({
+        content,
+        related_anime_id: null,
+        related_manga_id: null,
+        image_urls: null,
+        is_spoiler: false,
+      })
+      setContent('')
+      showToast('Post publié avec succès', 'success')
+      getPosts().then((res) => setPosts(res.data))
+    } catch (err) {
+      showToast('Echec lors de la publication du post', 'error')
+    }
   }
 
   console.log('posts : ', content)
