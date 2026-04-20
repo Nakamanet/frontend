@@ -28,13 +28,13 @@ L'API utilise une authentification **JWT (JSON Web Token)** stateless via la lib
 
 ## Endpoints d'authentification
 
-| Méthode | Endpoint | Auth requise | Description |
-|--------|----------|:------------:|-------------|
-| `POST` | `/auth/register` | Non | Inscription |
-| `POST` | `/auth/login` | Non | Connexion |
-| `POST` | `/auth/logout` | Oui | Déconnexion + blacklist du token |
-| `POST` | `/auth/refresh` | Oui | Renouvellement du token |
-| `GET` | `/auth/me` | Oui | Utilisateur actuellement connecté |
+| Méthode | Endpoint         | Auth requise | Description                       |
+| ------- | ---------------- | :----------: | --------------------------------- |
+| `POST`  | `/auth/register` |     Non      | Inscription                       |
+| `POST`  | `/auth/login`    |     Non      | Connexion                         |
+| `POST`  | `/auth/logout`   |     Oui      | Déconnexion + blacklist du token  |
+| `POST`  | `/auth/refresh`  |     Oui      | Renouvellement du token           |
+| `GET`   | `/auth/me`       |     Oui      | Utilisateur actuellement connecté |
 
 ---
 
@@ -44,14 +44,14 @@ L'API utilise une authentification **JWT (JSON Web Token)** stateless via la lib
 
 **Body (JSON) :**
 
-| Champ | Type | Requis | Description |
-|-------|------|:------:|-------------|
-| `username` | string | Oui | Nom d'utilisateur unique |
-| `email` | string | Oui | Adresse email unique |
-| `password` | string | Oui | Minimum 8 caractères |
-| `password_confirmation` | string | Oui | Doit correspondre à `password` |
-| `birthdate` | string | Oui | Format `YYYY-MM-DD` |
-| `localisation` | string | Non | Ville ou région |
+| Champ                   | Type   | Requis | Description                    |
+| ----------------------- | ------ | :----: | ------------------------------ |
+| `username`              | string |  Oui   | Nom d'utilisateur unique       |
+| `email`                 | string |  Oui   | Adresse email unique           |
+| `password`              | string |  Oui   | Minimum 8 caractères           |
+| `password_confirmation` | string |  Oui   | Doit correspondre à `password` |
+| `birthdate`             | string |  Oui   | Format `YYYY-MM-DD`            |
+| `localisation`          | string |  Non   | Ville ou région                |
 
 ```json
 {
@@ -216,11 +216,11 @@ user         → l'objet utilisateur (optionnel, pour l'UI)
 
 ### Où stocker le token
 
-| Mécanisme | Avantages | Inconvénients |
-|-----------|-----------|---------------|
-| `localStorage` | Persistant entre onglets | Accessible via JS (risque XSS) |
-| `sessionStorage` | Isolé par onglet | Perdu à la fermeture |
-| Cookie `HttpOnly` | Inaccessible via JS | Nécessite config CORS/CSRF côté API |
+| Mécanisme         | Avantages                | Inconvénients                       |
+| ----------------- | ------------------------ | ----------------------------------- |
+| `localStorage`    | Persistant entre onglets | Accessible via JS (risque XSS)      |
+| `sessionStorage`  | Isolé par onglet         | Perdu à la fermeture                |
+| Cookie `HttpOnly` | Inaccessible via JS      | Nécessite config CORS/CSRF côté API |
 
 Pour une SPA classique sans SSR, `localStorage` est la solution la plus simple.
 
@@ -230,17 +230,17 @@ Pour une SPA classique sans SSR, `localStorage` est la solution la plus simple.
 
 Les groupes de routes suivants nécessitent un token valide :
 
-| Préfixe | Accès |
-|---------|-------|
-| `/auth/logout` | Token requis |
-| `/auth/refresh` | Token requis |
-| `/auth/me` | Token requis |
-| `/users/*` | Token requis |
+| Préfixe                      | Accès        |
+| ---------------------------- | ------------ |
+| `/auth/logout`               | Token requis |
+| `/auth/refresh`              | Token requis |
+| `/auth/me`                   | Token requis |
+| `/users/*`                   | Token requis |
 | `/posts` (POST, PUT, DELETE) | Token requis |
-| `/likes/*` | Token requis |
+| `/likes/*`                   | Token requis |
 | `/forum` (POST, PUT, DELETE) | Token requis |
-| `/friends/*` | Token requis |
-| `/library/*` | Token requis |
+| `/friends/*`                 | Token requis |
+| `/library/*`                 | Token requis |
 
 > La lecture des posts et topics de forum est publique (pas de token requis).
 
@@ -248,11 +248,11 @@ Les groupes de routes suivants nécessitent un token valide :
 
 ## Gestion des erreurs
 
-| Code HTTP | Signification | Action recommandée |
-|-----------|--------------|-------------------|
-| `401 Unauthorized` | Token absent, invalide ou expiré | Tenter un refresh, sinon rediriger vers /login |
-| `403 Forbidden` | Authentifié mais pas autorisé pour cette ressource | Afficher une erreur à l'utilisateur |
-| `422 Unprocessable Entity` | Erreur de validation (champs manquants/invalides) | Afficher les erreurs retournées dans `errors` |
+| Code HTTP                  | Signification                                      | Action recommandée                             |
+| -------------------------- | -------------------------------------------------- | ---------------------------------------------- |
+| `401 Unauthorized`         | Token absent, invalide ou expiré                   | Tenter un refresh, sinon rediriger vers /login |
+| `403 Forbidden`            | Authentifié mais pas autorisé pour cette ressource | Afficher une erreur à l'utilisateur            |
+| `422 Unprocessable Entity` | Erreur de validation (champs manquants/invalides)  | Afficher les erreurs retournées dans `errors`  |
 
 **Format d'erreur de validation (`422`) :**
 
@@ -275,83 +275,83 @@ Les groupes de routes suivants nécessitent un token valide :
 ```javascript
 // auth.js
 
-const API_URL = 'http://localhost/api';
+const API_URL = 'http://localhost/api'
 
 export async function login(email, password) {
   const res = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify({ email, password }),
-  });
+  })
 
-  if (!res.ok) throw await res.json();
+  if (!res.ok) throw await res.json()
 
-  const data = await res.json();
-  localStorage.setItem('token', data.token);
-  localStorage.setItem('expires_at', Date.now() + data.expires_in * 1000);
-  return data.user;
+  const data = await res.json()
+  localStorage.setItem('token', data.token)
+  localStorage.setItem('expires_at', Date.now() + data.expires_in * 1000)
+  return data.user
 }
 
 export async function logout() {
-  await authFetch(`${API_URL}/auth/logout`, { method: 'POST' });
-  localStorage.removeItem('token');
-  localStorage.removeItem('expires_at');
+  await authFetch(`${API_URL}/auth/logout`, { method: 'POST' })
+  localStorage.removeItem('token')
+  localStorage.removeItem('expires_at')
 }
 
 export async function refreshToken() {
   const res = await fetch(`${API_URL}/auth/refresh`, {
     method: 'POST',
     headers: {
-      'Authorization': `Bearer ${localStorage.getItem('token')}`,
-      'Accept': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem('token')}`,
+      Accept: 'application/json',
     },
-  });
+  })
 
   if (!res.ok) {
-    localStorage.removeItem('token');
-    localStorage.removeItem('expires_at');
-    throw new Error('Session expirée');
+    localStorage.removeItem('token')
+    localStorage.removeItem('expires_at')
+    throw new Error('Session expirée')
   }
 
-  const data = await res.json();
-  localStorage.setItem('token', data.token);
-  localStorage.setItem('expires_at', Date.now() + data.expires_in * 1000);
-  return data.token;
+  const data = await res.json()
+  localStorage.setItem('token', data.token)
+  localStorage.setItem('expires_at', Date.now() + data.expires_in * 1000)
+  return data.token
 }
 
 // Wrapper fetch qui gère automatiquement le refresh sur 401
 export async function authFetch(url, options = {}) {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token')
 
   const res = await fetch(url, {
     ...options,
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Accept': 'application/json',
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
       'Content-Type': 'application/json',
       ...options.headers,
     },
-  });
+  })
 
   if (res.status === 401) {
     try {
-      const newToken = await refreshToken();
+      const newToken = await refreshToken()
       // Retenter la requête avec le nouveau token
       return fetch(url, {
         ...options,
         headers: {
-          'Authorization': `Bearer ${newToken}`,
-          'Accept': 'application/json',
+          Authorization: `Bearer ${newToken}`,
+          Accept: 'application/json',
           'Content-Type': 'application/json',
           ...options.headers,
         },
-      });
+      })
     } catch {
-      window.location.href = '/login';
+      window.location.href = '/login'
     }
   }
 
-  return res;
+  return res
 }
 ```
 
@@ -362,85 +362,85 @@ export async function authFetch(url, options = {}) {
 ```javascript
 // api.js
 
-import axios from 'axios';
+import axios from 'axios'
 
 const api = axios.create({
   baseURL: 'http://localhost/api',
-  headers: { 'Accept': 'application/json' },
-});
+  headers: { Accept: 'application/json' },
+})
 
 // Injecter le token à chaque requête
-api.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token')
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
 // Gérer les 401 : refresh automatique
-let isRefreshing = false;
-let failedQueue = [];
+let isRefreshing = false
+let failedQueue = []
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(p => error ? p.reject(error) : p.resolve(token));
-  failedQueue = [];
-};
+  failedQueue.forEach((p) => (error ? p.reject(error) : p.resolve(token)))
+  failedQueue = []
+}
 
 api.interceptors.response.use(
-  response => response,
-  async error => {
-    const originalRequest = error.config;
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return api(originalRequest);
-        });
+          failedQueue.push({ resolve, reject })
+        }).then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`
+          return api(originalRequest)
+        })
       }
 
-      originalRequest._retry = true;
-      isRefreshing = true;
+      originalRequest._retry = true
+      isRefreshing = true
 
       try {
-        const { data } = await api.post('/auth/refresh');
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('expires_at', Date.now() + data.expires_in * 1000);
-        api.defaults.headers.Authorization = `Bearer ${data.token}`;
-        processQueue(null, data.token);
-        return api(originalRequest);
+        const { data } = await api.post('/auth/refresh')
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('expires_at', Date.now() + data.expires_in * 1000)
+        api.defaults.headers.Authorization = `Bearer ${data.token}`
+        processQueue(null, data.token)
+        return api(originalRequest)
       } catch (refreshError) {
-        processQueue(refreshError, null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('expires_at');
-        window.location.href = '/login';
-        return Promise.reject(refreshError);
+        processQueue(refreshError, null)
+        localStorage.removeItem('token')
+        localStorage.removeItem('expires_at')
+        window.location.href = '/login'
+        return Promise.reject(refreshError)
       } finally {
-        isRefreshing = false;
+        isRefreshing = false
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(error)
   }
-);
+)
 
-export default api;
+export default api
 ```
 
 **Usage :**
 
 ```javascript
-import api from './api';
+import api from './api'
 
 // Login
-const { data } = await api.post('/auth/login', { email, password });
-localStorage.setItem('token', data.token);
+const { data } = await api.post('/auth/login', { email, password })
+localStorage.setItem('token', data.token)
 
 // Requête protégée (token injecté automatiquement)
-const { data: user } = await api.get('/auth/me');
+const { data: user } = await api.get('/auth/me')
 
 // Logout
-await api.post('/auth/logout');
-localStorage.removeItem('token');
+await api.post('/auth/logout')
+localStorage.removeItem('token')
 ```

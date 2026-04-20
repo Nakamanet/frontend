@@ -24,7 +24,7 @@ export default function MangaPage() {
   useEffect(() => {
     getMangas(page, limit, genre)
       .then((res) => {
-        setManga(res.data); 
+        setManga(res.data)
         setMaxPage(res.meta.lastPage)
       })
       .catch((err) => console.error(err))

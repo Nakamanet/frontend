@@ -6,9 +6,9 @@ import { CircleUser, Users, Flame } from 'lucide-react'
 export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
-        {isLoggedIn && user ? (
+      {isLoggedIn && user ? (
         <div className="card w-full bg-accent shadow-sm border border-border overflow-hidden rounded-[15px]">
-        {/* Bloc identité de l'utilisateur */}
+          {/* Bloc identité de l'utilisateur */}
           {/* Bannière : image ou fond rouge */}
           <div className="relative w-full h-20 shrink-0 rounded-t-[8px] overflow-hidden bg-primary">
             {user.banner_url ? (
@@ -61,9 +61,7 @@ export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; use
             </div>
           </div>
         </div>
-        ) : (
-          null
-        )}
+      ) : null}
       {/* Bloc Activité des amis a remplir quand l'API fonctionnera*/}
       <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-[15px]">
         <div className="card-body flex justify-center w-full">

@@ -7,8 +7,8 @@ import Image from 'next/image'
 import { format, parseISO } from 'date-fns'
 
 type EpisodeModalProps =
-    | { isOpen: boolean; onClose: () => void; type: 'anime'; item: Episode }                                              
-    | { isOpen: boolean; onClose: () => void; type: 'manga'; item: Chapter }    
+  | { isOpen: boolean; onClose: () => void; type: 'anime'; item: Episode }
+  | { isOpen: boolean; onClose: () => void; type: 'manga'; item: Chapter }
 
 export default function EpisodeModal({ isOpen, onClose, type, item }: EpisodeModalProps) {
   useEffect(() => {
@@ -32,29 +32,27 @@ export default function EpisodeModal({ isOpen, onClose, type, item }: EpisodeMod
         onClick={(e) => e.stopPropagation()}
       >
         {type === 'anime' && (
-            <div className='flex justify-between'>
-                {item.thumbnailUrl && (
-                    <Image 
-                        src={item.thumbnailUrl}
-                        alt={item.title}
-                        width="200"
-                        height="200"
-                        className='m-6'
-                    />
-                )}
-                <div className='flex flex-col gap-2 my-6'>
-                    <h1>{item.number}. {item.title}</h1>
-                    <p className='font-medium text-gray-400'>{format(parseISO(item.airdate), 'dd/MM/yyyy')} - {item.length} min</p>
-                    <p>Description de l&apos;épisode/chapitre quand disponible</p>
-                </div>
-                <button className="btn btn-sm btn-circle btn-ghost m-2" onClick={onClose}>
-                    <X size={20} />
-                </button>
+          <div className="flex justify-between">
+            {item.thumbnailUrl && (
+              <Image src={item.thumbnailUrl} alt={item.title} width="200" height="200" className="m-6" />
+            )}
+            <div className="flex flex-col gap-2 my-6">
+              <h1>
+                {item.number}. {item.title}
+              </h1>
+              <p className="font-medium text-gray-400">
+                {format(parseISO(item.airdate), 'dd/MM/yyyy')} - {item.length} min
+              </p>
+              <p>Description de l&apos;épisode/chapitre quand disponible</p>
             </div>
+            <button className="btn btn-sm btn-circle btn-ghost m-2" onClick={onClose}>
+              <X size={20} />
+            </button>
+          </div>
         )}
         {type === 'manga' && (
-            <div className='flex justify-between'>
-                {/* {item.thumbnailUrl && (
+          <div className="flex justify-between">
+            {/* {item.thumbnailUrl && (
                     <Image 
                         src={item.thumbnailUrl}
                         alt={item.title}
@@ -63,15 +61,19 @@ export default function EpisodeModal({ isOpen, onClose, type, item }: EpisodeMod
                         className='m-6'
                     />
                 )} */}
-                <div className='flex flex-col gap-2 my-6'>
-                    <h1>{item.number}. {item.title}</h1>
-                    <p className='font-medium text-gray-400'>{item.releaseDate ? format(parseISO(item.releaseDate), 'dd/MM/yyyy') : null} - {item.volumeNumber} pages</p>
-                    <p>Description de l&apos;épisode/chapitre quand disponible</p>
-                </div>
-                <button className="btn btn-sm btn-circle btn-ghost m-2" onClick={onClose}>
-                    <X size={20} />
-                </button>
+            <div className="flex flex-col gap-2 my-6">
+              <h1>
+                {item.number}. {item.title}
+              </h1>
+              <p className="font-medium text-gray-400">
+                {item.releaseDate ? format(parseISO(item.releaseDate), 'dd/MM/yyyy') : null} - {item.volumeNumber} pages
+              </p>
+              <p>Description de l&apos;épisode/chapitre quand disponible</p>
             </div>
+            <button className="btn btn-sm btn-circle btn-ghost m-2" onClick={onClose}>
+              <X size={20} />
+            </button>
+          </div>
         )}
       </div>
     </div>

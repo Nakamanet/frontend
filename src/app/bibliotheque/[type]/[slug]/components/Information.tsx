@@ -51,118 +51,118 @@ export default function Information({ type, item }: InformationProps) {
   return (
     <div className="border border-border bg-accent rounded-[15px] p-5">
       <div className="flex items-center justify-center gap-2 mb-4">
-        <Info className='text-primary'/>
+        <Info className="text-primary" />
         <p>Informations</p>
       </div>
       {type === 'anime' ? (
         <div className="flex flex-col gap-4">
-            <table className="border-separate border-spacing-y-2 w-full">
+          <table className="border-separate border-spacing-y-2 w-full">
             <tbody>
+              <tr>
+                <td>Type</td>
+                <td className="capitalize">{item.subtype}</td>
+              </tr>
+              {item.episodeCount !== null && item.episodeCount !== 0 && (
                 <tr>
-                  <td>Type</td>
-                  <td className='capitalize'>{item.subtype}</td>
+                  <td>Nombre d&apos;épisodes</td>
+                  <td>{item.episodeCount}</td>
                 </tr>
-                {item.episodeCount !== null && item.episodeCount !== 0 && (
-                  <tr>
-                      <td>Nombre d&apos;épisodes</td>
-                      <td>{item.episodeCount}</td>
-                  </tr>
-                )}
-                <tr>
+              )}
+              <tr>
                 <td>Status</td>
                 <td>
-                    {item.status === 'finish'
+                  {item.status === 'finish'
                     ? 'Terminé'
                     : item.status === 'ongoing'
-                        ? 'En cours'
-                        : item.status === 'tba'
+                      ? 'En cours'
+                      : item.status === 'tba'
                         ? 'Date à venir'
                         : item.status === 'upcoming'
-                            ? 'À venir'
-                            : item.status === 'unreleased'
+                          ? 'À venir'
+                          : item.status === 'unreleased'
                             ? 'Non sorti'
                             : 'N/A'}
                 </td>
-                </tr>
-                <tr>
+              </tr>
+              <tr>
                 <td>Diffusion </td>
                 <td>{item.startDate ? new Date(item.startDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
-                </tr>
-                <tr>
+              </tr>
+              <tr>
                 <td>Longueur</td>
                 <td>{item.episodeLength} min</td>
-                </tr>
-                <tr>
+              </tr>
+              <tr>
                 <td>Streaming</td>
                 <td>Incoming</td>
-                </tr>
+              </tr>
             </tbody>
-            </table>
-            <button
-              onClick={() => setVoirPlus(true)}
-              className="btn btn-ghost border-none rounded-full bg-primary text-primary-content"
-            >
-              Voir plus
-            </button>
+          </table>
+          <button
+            onClick={() => setVoirPlus(true)}
+            className="btn btn-ghost border-none rounded-full bg-primary text-primary-content"
+          >
+            Voir plus
+          </button>
         </div>
       ) : type === 'manga' ? (
         <div className="flex flex-col gap-4">
-            <table className="border-separate border-spacing-y-2 w-full">
+          <table className="border-separate border-spacing-y-2 w-full">
             <tbody>
-                {item.volumeCount !== null && item.volumeCount !== 0 && (
+              {item.volumeCount !== null && item.volumeCount !== 0 && (
                 <tr>
-                    <td>Nombre de tomes</td>
-                    <td>{item.volumeCount}</td>
+                  <td>Nombre de tomes</td>
+                  <td>{item.volumeCount}</td>
                 </tr>
-                )}
-                {item.chapterCount && (
+              )}
+              {item.chapterCount && (
                 <tr>
-                    <td>Nombre de chapitres</td>
-                    <td>{item.chapterCount}</td>
+                  <td>Nombre de chapitres</td>
+                  <td>{item.chapterCount}</td>
                 </tr>
-                )}
-                <tr>
+              )}
+              <tr>
                 <td>Status</td>
                 <td>
-                    {item.status === 'finish'
+                  {item.status === 'finish'
                     ? 'Terminé'
                     : item.status === 'ongoing'
-                        ? 'En cours'
-                        : item.status === 'tba'
+                      ? 'En cours'
+                      : item.status === 'tba'
                         ? 'Date à venir'
                         : item.status === 'upcoming'
-                            ? 'À venir'
-                            : item.status === 'unreleased'
+                          ? 'À venir'
+                          : item.status === 'unreleased'
                             ? 'Non sorti'
                             : 'N/A'}
                 </td>
-                </tr>
-                <tr>
-                    <td>Date de publication</td>
-                    <td>{item.startDate ? new Date(item.startDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
-                </tr>
-                <tr>
-                    {itemStaffs.length > 0 && (
-                        <>
-                            <td>Staff</td>
-                            <td>
-                                {itemStaffs.map((staff) => (
-                                    <div className="flex gap-2" key={staff.person.id}>
-                                        <span key={staff.person.id}>{staff.person.name}</span>
-                                    </div>
-                                ))}
-                            </td>
-                        </>
-                    )}
-                </tr>
+              </tr>
+              <tr>
+                <td>Date de publication</td>
+                <td>{item.startDate ? new Date(item.startDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
+              </tr>
+              <tr>
+                {itemStaffs.length > 0 && (
+                  <>
+                    <td>Staff</td>
+                    <td>
+                      {itemStaffs.map((staff) => (
+                        <div className="flex gap-2" key={staff.person.id}>
+                          <span key={staff.person.id}>{staff.person.name}</span>
+                        </div>
+                      ))}
+                    </td>
+                  </>
+                )}
+              </tr>
             </tbody>
-            </table>
-            <button
-              onClick={() => setVoirPlus(true)}
-              className="btn btn-ghost border-none rounded-full bg-primary text-primary-content"
-            >
-              Voir plus
-            </button>
+          </table>
+          <button
+            onClick={() => setVoirPlus(true)}
+            className="btn btn-ghost border-none rounded-full bg-primary text-primary-content"
+          >
+            Voir plus
+          </button>
         </div>
       ) : null}
 

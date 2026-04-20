@@ -24,7 +24,7 @@ export default function AnimePage() {
   useEffect(() => {
     getAnimes(page, limit, genre)
       .then((res) => {
-        setAnime(res.data); 
+        setAnime(res.data)
         setMaxPage(res.meta.lastPage)
       })
       .catch((err) => console.error(err))

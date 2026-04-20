@@ -40,10 +40,7 @@ export default function InformationModal({
   if (!isOpen) return null
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-      onClick={onClose}
-    >
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
       <div
         className="bg-base-100 w-11/12 max-w-2xl rounded-xl shadow-2xl border border-border flex flex-col max-h-[80vh] animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
@@ -66,8 +63,8 @@ export default function InformationModal({
             <tbody>
               <tr>
                 <td className="text-base-content/60 w-1/2">Type</td>
-                <td className='capitalize'>{'subtype' in item ? item.subtype : item.type}</td>
-                </tr>
+                <td className="capitalize">{'subtype' in item ? item.subtype : item.type}</td>
+              </tr>
               <tr>
                 <td className="text-base-content/60">Status</td>
                 <td>

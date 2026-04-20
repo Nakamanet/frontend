@@ -21,7 +21,7 @@ export default function DetailPage() {
   const { user } = useAuth()
   const [item, setItem] = useState<Manga | Anime | null>(null)
   const [voirPlus, setVoirPlus] = useState(false)
-  const [filter, setFilter] = useState('episode')
+  const [filter, setFilter] = useState('characters')
 
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
@@ -40,6 +40,12 @@ export default function DetailPage() {
     }
     load()
   }, [type, slug])
+  
+  if(item === null ) return
+
+  // const handleSubmit = async (id) => {
+
+  // }
 
   return (
     <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
@@ -95,7 +101,10 @@ export default function DetailPage() {
                 className="object-cover w-full h-full rounded-[15px]"
               />
             )}
-            <button className="btn btn-ghost border-none rounded-full bg-primary text-primary-content">
+            <button  
+              // onClick={handleSubmit(item.id)}
+              className="btn btn-ghost border-none rounded-full bg-primary text-primary-content"
+            >
               Ajouter à ma liste
             </button>
           </div>
@@ -122,22 +131,10 @@ export default function DetailPage() {
         {/* Episodes/Personnages/Thread */}
         <div className="flex flex-col gap-5">
           <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-6">
-            <div className="flex gap-5 items-center w-full">
+            <div className="flex gap-5 items-center justify-center w-full">
               <button
                 onClick={() => {
-                  setFilter('episode')
-                }}
-                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
-              >
-                <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
-              </button>
-              <button
-                onClick={() => {
-                  if (filter === 'characters') {
-                    setFilter('episode')
-                  } else {
-                    setFilter('characters')
-                  }
+                  setFilter('characters')
                 }}
                 className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
               >
@@ -145,8 +142,20 @@ export default function DetailPage() {
               </button>
               <button
                 onClick={() => {
-                  if (filter === 'thread') {
+                  if (filter === 'episode') {
+                    setFilter('characters')
+                  } else {
                     setFilter('episode')
+                  }
+                }}
+                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
+              >
+                <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
+              </button>
+              <button
+                onClick={() => {
+                  if (filter === 'thread') {
+                    setFilter('characters')
                   } else {
                     setFilter('thread')
                   }
@@ -159,21 +168,13 @@ export default function DetailPage() {
           </div>
           {filter === 'episode' ? (
             <div className="flex flex-col gap-4">
-              {item && type === 'anime' && (
-                <EpisodePage type='anime' item={item as Anime} />
-              )}
-              {item && type === 'manga' && (
-                <EpisodePage type='manga' item={item as Manga} />
-              )}
+              {item && type === 'anime' && <EpisodePage type="anime" item={item as Anime} />}
+              {item && type === 'manga' && <EpisodePage type="manga" item={item as Manga} />}
             </div>
           ) : filter === 'characters' ? (
             <div className="flex flex-col gap-4">
-              {item && type === 'manga' && (
-                <CharacterPage type= 'manga' item={item as Manga} />
-              )}
-              {item && type === 'anime' && (
-                <CharacterPage type= 'anime' item={item as Anime} />
-              )}
+              {item && type === 'manga' && <CharacterPage type="manga" item={item as Manga} />}
+              {item && type === 'anime' && <CharacterPage type="anime" item={item as Anime} />}
             </div>
           ) : filter === 'thread' ? (
             <div className="flex flex-col gap-4">

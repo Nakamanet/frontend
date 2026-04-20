@@ -41,7 +41,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isExpired = expires_at ? Date.now() > Number(expires_at) : false
 
     if (isExpired) {
-      api.post('/auth/refresh')
+      api
+        .post('/auth/refresh')
         .then(({ data }) => {
           localStorage.setItem('token', data.token)
           localStorage.setItem('expires_at', String(Date.now() + data.expires_in * 1000))
@@ -68,8 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = async () => {
     try {
       await api.post('/auth/logout')
-    } catch {
-    }
+    } catch {}
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token')
       localStorage.removeItem('expires_at')

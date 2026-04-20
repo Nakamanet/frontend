@@ -6,10 +6,7 @@ import { Post } from '../types/post'
 
 export default function PostCards({ post }: { post: Post }) {
   return (
-    <div
-      key={post.id}
-      className="bg-accent shadow-sm w-full border border-border rounded-[15px] p-6"
-    >
+    <div key={post.id} className="bg-accent shadow-sm w-full border border-border rounded-[15px] p-6">
       <div className="flex gap-3">
         <div>
           {post.user.avatar_url ? (
