@@ -48,6 +48,7 @@ export default function RegisterPage() {
       showToast('Inscription réussi', 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
       router.push('/')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       showToast('Echec lors de la création de compte', 'error')
     }

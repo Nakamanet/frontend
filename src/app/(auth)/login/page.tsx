@@ -21,6 +21,7 @@ export default function LoginPage() {
       showToast('Connexion réussi', 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
       router.push('/')
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       showToast('Email ou mot de passe invalide', 'error')
     }
