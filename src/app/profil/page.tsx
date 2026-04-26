@@ -1,4 +1,5 @@
 'use client'
+
 import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
@@ -10,14 +11,25 @@ import MyTopics from './components/MyTopics'
 import Friends from './components/Friends'
 import Library from './components/Library'
 import Groups from './components/Groups'
+import { getUserPosts } from '../lib/user'
+import { getMyAnime, getMyManga } from '../lib/library'
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
+  const [postCount, setPostCount] = useState(0)
+  const [workCount, setWorkCount] = useState(0)
   const { user } = useAuth()
 
-  const posts = []
-
   if (!user) redirect('/login')
+
+  useState(() => {
+    getUserPosts(user.id).then(res => setPostCount(res.total))
+    Promise.all([getMyAnime(), getMyManga()])
+      .then(([animes, mangas]) => {
+        setWorkCount(animes.length + mangas.length)
+      })
+  })
+
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
@@ -62,13 +74,13 @@ export default function ProfilPage() {
               {new Date(user.created_at).toLocaleDateString()}
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> {posts.length} oeuvres suivies
+              <BookOpen size={15} className="text-primary" /> {workCount} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
               <Users size={15} className="text-primary" /> X amis
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> X posts
+              <BookOpen size={15} className="text-primary" /> {postCount} posts
             </p>
           </div>
           <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
@@ -130,7 +142,7 @@ export default function ProfilPage() {
           {/* A faire plus tard */}
           {activeTab === 'forum' && <MyTopics user={user} />}
           {activeTab === 'friends' && <Friends user={user} />}
-          {activeTab === 'library' && <Library user={user} />}
+          {activeTab === 'library' && <Library />}
           {activeTab === 'groups' && <Groups user={user} />}
           {activeTab === 'profil' && <Profile user={user} />}
         </div>

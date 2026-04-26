@@ -19,16 +19,12 @@ export default function Activity({ user }: { user: User }) {
   }, [user.id])
 
   return (
-    <div className="flex flex-col gap-8 p-7 ">
+    <div className="flex flex-col gap-8 p-7">
       <div className="flex justify-center border border-border bg-accent rounded-full py-1 px-6">
         <div className="flex gap-5">
           <button
             onClick={() => {
-              if (filter === 'mine') {
-                setFilter('all')
-              } else {
                 setFilter('mine')
-              }
             }}
             className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'mine' ? 'bg-alerts text-white' : 'text-border'}`}
           >
@@ -38,7 +34,7 @@ export default function Activity({ user }: { user: User }) {
           <button
             onClick={() => {
               if (filter === 'save') {
-                setFilter('all')
+                setFilter('mine')
               } else {
                 setFilter('save')
               }
@@ -51,7 +47,7 @@ export default function Activity({ user }: { user: User }) {
           <button
             onClick={() => {
               if (filter === 'liked') {
-                setFilter('all')
+                setFilter('mine')
               } else {
                 setFilter('liked')
               }
@@ -64,7 +60,7 @@ export default function Activity({ user }: { user: User }) {
           <button
             onClick={() => {
               if (filter === 'deleted') {
-                setFilter('all')
+                setFilter('mine')
               } else {
                 setFilter('deleted')
               }
