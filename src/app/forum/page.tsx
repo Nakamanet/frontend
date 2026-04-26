@@ -10,6 +10,7 @@ import type { Forum } from '@/app/types/forum'
 import { Paperclip, MessageSquare, Eye, Ellipsis, SlidersHorizontal } from 'lucide-react'
 import CreateForum from './components/CreateForum'
 import { useToast } from '../context/ToastContext'
+import ForumCards from '../components/ForumCards'
 
 const CATEGORIES = [
   { id: '', label: 'Récents' },
@@ -74,7 +75,7 @@ export default function ForumPage() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-10 items-start flex-1">
-          <div className="w-full lg:w-[200px] flex-shrink-0 flex flex-col gap-6">
+          <div className="w-full lg:w-[200px] shrink-0 flex flex-col gap-6">
             <div className="w-full">
               <CreateForum />
             </div>
@@ -107,35 +108,7 @@ export default function ForumPage() {
                 </div>
               ) : (
                 topics.map((topic) => (
-                  <Link href={`/forum/${topic.id}`} key={topic.id}>
-                    <div className="flex flex-col border border-border bg-accent rounded-[15px] gap-4 p-4 hover:bg-white/[0.02] transition cursor-pointer">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[14px] font-bold text-white">{topic.user?.username || 'Anonyme'}</span>
-                        <span className="text-xs text-border">
-                          • {new Date(topic.created_at).toLocaleDateString('fr-FR')}
-                        </span>
-                      </div>
-
-                      <h3 className="text-[16px] font-bold text-white leading-snug">{topic.title}</h3>
-                      <p className="text-[14px] text-border line-clamp-2">{topic.content}</p>
-
-                      <div className="flex flex-col gap-3 mt-2">
-                        <div>
-                          <span className="text-[10px] font-bold px-3 py-1 bg-alerts text-white rounded-full uppercase tracking-wide">
-                            {topic.category}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-6 text-border text-sm font-medium">
-                          <span className="flex items-center gap-1.5 hover:text-alerts transition-colors">
-                            <MessageSquare size={16} />X
-                          </span>
-                          <span className="flex items-center gap-1.5 transition-colors">
-                            <Eye size={16} />X
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
+                  <ForumCards key={topic.id} topic={topic} />
                 ))
               )}
             </div>

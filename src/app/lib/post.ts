@@ -29,10 +29,3 @@ export async function updatePost(
 export async function deletePost(id: number): Promise<void> {
   await api.delete(`/posts/${id}`)
 }
-
-export async function toggleLike(
-  payload: { post_id: number } | { comment_id: number }
-): Promise<{ message: string; liked: boolean }> {
-  const { data } = await api.post<{ message: string; liked: boolean }>('/likes/toggle', payload)
-  return data
-}

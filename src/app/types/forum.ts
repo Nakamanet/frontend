@@ -23,6 +23,7 @@ export interface Forum {
   is_locked: boolean
   created_at: string
   updated_at: string
+  replies_count: number
   user: User
   replies?: ForumReply[]
 }

@@ -1,16 +1,22 @@
 'use client'
 
-import PostCards from '../../components/PostCards'
 import { User } from '../../types/auth'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Flame, ThumbsUp, Bookmark, Trash } from 'lucide-react'
-import { Post } from '../../types/post'
+import { getUserForum } from '@/app/lib/user'
+import { Forum } from '@/app/types/forum'
+import ForumCards from '@/app/components/ForumCards'
 
-export default function Activity({ user }: { user: User }) {
-  const [filter, setFilter] = useState('all')
+export default function MyTopics({ user }: { user: User }) {
+  const [filter, setFilter] = useState('mine')
+  const [forums, setForums] = useState<Forum[]>([])
 
-  // A modifier quand les routes seront intégrées
-  const [posts, setPosts] = useState<Post[]>([])
+  useEffect(() => {
+    getUserForum(user.id)
+      .then(res => setForums(res.data))
+      .catch(err => console.error(err))
+
+  }, [user.id])
 
   return (
     <div className="flex flex-col gap-8 p-7 ">
@@ -27,7 +33,7 @@ export default function Activity({ user }: { user: User }) {
             className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'mine' ? 'bg-alerts text-white' : 'text-border'}`}
           >
             <Flame size={18} />
-            <span className="hidden md:inline">Mes Posts</span>
+            <span className="hidden md:inline">Mes Forums</span>
           </button>
           <button
             onClick={() => {
@@ -70,14 +76,14 @@ export default function Activity({ user }: { user: User }) {
           </button>
         </div>
       </div>
-      {posts && posts.length > 0 ? (
+      {forums && forums.length > 0 ? (
         <div>
-          {posts.map((post) => (
-            <PostCards key={post.id} post={post} />
+          {forums.map((forum) => (
+            <ForumCards key={forum.id} topic={forum} />
           ))}
         </div>
       ) : (
-        <p>Vous n&apos;avez pas encore de posts</p>
+        <p>Vous n&apos;avez pas encore de forum</p>
       )}
     </div>
   )

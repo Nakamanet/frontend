@@ -18,6 +18,10 @@ export default function LoginPage() {
     e.preventDefault()
     try {
       const response = await api.post('/auth/login', { email, password })
+      if (response.data.user.is_deleted) {
+        showToast("Ce compte a été désactivé", 'error')
+        return
+      }
       showToast('Connexion réussi', 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
       router.push('/')
