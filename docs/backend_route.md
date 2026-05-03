@@ -85,7 +85,7 @@
 | PATCH | `/users/profile` | Oui | Mettre à jour son profil |
 | PUT | `/users/disable/{id}` | Oui | Désactiver son compte |
 | GET | `/users/search?q=` | Oui | Rechercher des utilisateurs |
-| GET | `/users/{id}/posts` | Oui | Posts d'un utilisateur |
+| GET | `/users/{id}/posts` | Non* | Posts d'un utilisateur |
 | GET | `/users/{id}/forum-topics` | Oui | Topics forum d'un utilisateur |
 
 ### PATCH `/users/profile`
@@ -141,18 +141,38 @@
 
 > Renvoie `422` si `q` fait moins de 2 caractères. Résultats limités à 20.
 
+### GET `/users/{id}/posts`
+
+**Réponse `200` :** liste paginée (même format que `GET /posts` avec `likes_count` et `comments_count`).
+
+> *Auth optionnelle : si connecté et que `{id}` correspond à l'utilisateur connecté, ses posts archivés sont inclus. Pour un autre utilisateur, les posts archivés sont exclus.
+
+### GET `/users/{id}/forum-topics`
+
+**Réponse `200` :** liste paginée (même format que `GET /forum/topics`).
+
 ---
 
 ## III. Posts
 
 | Méthode | Endpoint | Auth | Description |
 |---------|----------|------|-------------|
-| GET | `/posts` | Non | Liste des posts |
+| GET | `/posts` | Non | Liste des posts (feed) |
 | GET | `/posts/{id}` | Non | Détail d'un post |
 | GET | `/posts/{id}/comments` | Non | Commentaires d'un post |
 | POST | `/posts` | Oui | Créer un post |
 | PATCH | `/posts/{id}` | Oui | Modifier son post |
 | DELETE | `/posts/{id}` | Oui | Supprimer son post |
+| GET | `/posts/me/liked` | Oui | Posts likés par l'utilisateur connecté |
+| GET | `/posts/me/saved` | Oui | Posts sauvegardés |
+| GET | `/posts/me/archived` | Oui | Ses propres posts archivés |
+| GET | `/posts/me/archived-from-feed` | Oui | Posts d'autres users cachés de son feed |
+| POST | `/posts/{id}/save` | Oui | Sauvegarder un post |
+| DELETE | `/posts/{id}/save` | Oui | Retirer des sauvegardes |
+| PATCH | `/posts/{id}/archive` | Oui | Archiver son propre post |
+| PATCH | `/posts/{id}/unarchive` | Oui | Désarchiver son post |
+| POST | `/posts/{id}/hide` | Oui | Cacher un post d'un autre user de son feed |
+| DELETE | `/posts/{id}/hide` | Oui | Remettre un post caché dans le feed |
 
 ### GET `/posts` — Query params optionnels
 | Param | Type | Description |
@@ -164,6 +184,8 @@
 | `has_images` | boolean | Filtrer les posts avec images |
 | `sort` | string | `latest` / `oldest` / `most_liked` / `most_commented` |
 | `page` | integer | Pagination (20 items/page) |
+
+> Les posts archivés et cachés sont automatiquement filtrés selon l'utilisateur connecté. Si connecté, le champ `likes` indique si l'utilisateur a liké chaque post.
 
 **Réponse `200` :**
 ```json
@@ -311,6 +333,104 @@
 ```
 
 > Renvoie `403 Forbidden` si l'utilisateur n'est pas le créateur.
+
+---
+
+### GET `/posts/me/liked`
+
+**Réponse `200` :** liste paginée de posts (même format que `GET /posts`).
+
+### GET `/posts/me/saved`
+
+**Réponse `200` :** liste paginée de posts sauvegardés (même format que `GET /posts`).
+
+### GET `/posts/me/archived`
+
+Posts de l'utilisateur connecté qu'il a lui-même archivés (cachés de son propre profil public).
+
+**Réponse `200` :** liste paginée de posts (sans objet `user` imbriqué).
+
+### GET `/posts/me/archived-from-feed`
+
+Posts d'autres utilisateurs que l'utilisateur connecté a cachés de son feed.
+
+**Réponse `200` :** liste paginée de posts (même format que `GET /posts`).
+
+---
+
+### POST `/posts/{id}/save`
+
+**Réponse `201` :**
+```json
+{
+  "message": "Saved",
+  "saved": true
+}
+```
+
+### DELETE `/posts/{id}/save`
+
+**Réponse `200` :**
+```json
+{
+  "message": "Unsaved",
+  "saved": false
+}
+```
+
+---
+
+### PATCH `/posts/{id}/archive`
+
+Archive son propre post (le retire du profil public et du feed des autres).
+
+**Réponse `200` :**
+```json
+{
+  "message": "Archived",
+  "archived": true
+}
+```
+
+> Renvoie `403` si l'utilisateur n'est pas le créateur.
+
+### PATCH `/posts/{id}/unarchive`
+
+**Réponse `200` :**
+```json
+{
+  "message": "Unarchived",
+  "archived": false
+}
+```
+
+> Renvoie `403` si l'utilisateur n'est pas le créateur.
+
+---
+
+### POST `/posts/{id}/hide`
+
+Cache le post d'un autre utilisateur de son propre feed. Ne peut pas être utilisé sur ses propres posts (utiliser `/archive` à la place).
+
+**Réponse `201` :**
+```json
+{
+  "message": "Hidden from feed",
+  "hidden": true
+}
+```
+
+> Renvoie `422` si l'utilisateur tente de cacher son propre post.
+
+### DELETE `/posts/{id}/hide`
+
+**Réponse `200` :**
+```json
+{
+  "message": "Restored to feed",
+  "hidden": false
+}
+```
 
 ---
 

@@ -29,3 +29,38 @@ export async function updatePost(
 export async function deletePost(id: number): Promise<void> {
   await api.delete(`/posts/${id}`)
 }
+
+export async function getMylikedPosts(): Promise<PaginatedPosts> {
+  const { data } = await api.get<PaginatedPosts>('/posts/me/liked')
+  return data
+}
+
+export async function getMySavedPosts(): Promise<PaginatedPosts> {
+  const { data } = await api.get<PaginatedPosts>('/posts/me/saved')
+  return data
+} 
+
+export async function getMyArchivedPost(): Promise<PaginatedPosts> {
+  const { data } = await api.get<PaginatedPosts>('/posts/me/archived')
+  return data
+}
+
+export async function savePost(id: number): Promise<{ message: string, saved: boolean }> {
+  const { data } = await api.post(`/posts/${id}/save`)
+  return data
+}
+
+export async function unsavePost(id: number): Promise<{ message: string, saved: boolean }> {
+  const { data } = await api.delete(`/posts/${id}/save`)
+  return data
+}
+
+export async function archivePost(id: number): Promise<{ message: string, archived: boolean }> {
+  const { data } = await api.patch(`/posts/${id}/archive`)
+  return data
+} 
+
+export async function unarchivePost(id: number): Promise<{ message: string, archived: boolean }> {
+  const { data } = await api.patch(`/posts/${id}/unarchive`)
+  return data
+}

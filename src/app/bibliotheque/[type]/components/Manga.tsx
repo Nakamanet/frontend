@@ -19,7 +19,7 @@ export default function MangaPage() {
   const [genre, setGenre] = useState<string | undefined>(undefined)
   const [openModal, setOpenModal] = useState(false)
   const [page, setPage] = useState(1)
-  const [maxPage, setMaxPage] = useState(1) // A changer plus tard
+  const [maxPage, setMaxPage] = useState(1)
 
   useEffect(() => {
     getMangas(page, limit, genre)

@@ -73,7 +73,7 @@ export default function Activity({ user }: { user: User }) {
         </div>
       </div>
       {posts && posts.length > 0 ? (
-        <div>
+        <div className='flex flex-col gap-2'>
           {posts.map((post) => (
             <PostCards key={post.id} post={post} />
           ))}

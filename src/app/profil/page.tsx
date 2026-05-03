@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { CircleUser, MapPin, Calendar, BookOpen, Users } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
 import MyTopics from './components/MyTopics'
@@ -13,22 +13,26 @@ import Library from './components/Library'
 import Groups from './components/Groups'
 import { getUserPosts } from '../lib/user'
 import { getMyAnime, getMyManga } from '../lib/library'
+import { getFriends } from '../lib/friends'
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
   const [postCount, setPostCount] = useState(0)
   const [workCount, setWorkCount] = useState(0)
+  const [friendsCount, setFriendsCount] = useState(0)
   const { user } = useAuth()
 
   if (!user) redirect('/login')
 
-  useState(() => {
+  useEffect(() => {
     getUserPosts(user.id).then(res => setPostCount(res.total))
     Promise.all([getMyAnime(), getMyManga()])
       .then(([animes, mangas]) => {
         setWorkCount(animes.length + mangas.length)
       })
-  })
+    getFriends()
+      .then((res) => setFriendsCount(res.length))
+  }, [user.id])
 
 
   return (
@@ -77,7 +81,7 @@ export default function ProfilPage() {
               <BookOpen size={15} className="text-primary" /> {workCount} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
-              <Users size={15} className="text-primary" /> X amis
+              <Users size={15} className="text-primary" /> {friendsCount} amis
             </p>
             <p className="flex items-center gap-2">
               <BookOpen size={15} className="text-primary" /> {postCount} posts

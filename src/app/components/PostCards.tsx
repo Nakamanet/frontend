@@ -3,16 +3,20 @@
 import Image from 'next/image'
 import { CircleUser, Heart, MessageCircle, Bookmark } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { useAuth } from "../context/AuthContext"
 import { fr } from 'date-fns/locale'
 import { Post } from '../types/post'
 import { toggleLikePost } from '../lib/likes'
 import { useToast } from '../context/ToastContext'
 import { useState } from 'react'
+import { unsavePost, savePost } from "../lib/post"
 
 export default function PostCards({ post }: { post: Post }) {
+  const { user } = useAuth()
   const { showToast } = useToast()
   const [likeCount, setLikeCount] = useState(post.likes_count)
-  const [liked, setLiked] = useState(false)
+  const [liked, setLiked] = useState(post.likes.some(l => l.user_id === user?.id))
+  const [saved, setSaved] = useState(false)
 
   const handleLike = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -26,6 +30,18 @@ export default function PostCards({ post }: { post: Post }) {
       })
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       .catch(err => showToast('Erreur lors du like du post', 'error'))
+  }
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    saved 
+      ? unsavePost(post.id)
+        .then(() => { setSaved(false); showToast('Post retiré des sauvegardes', 'success') })
+        .catch(err => console.error(err))
+      : savePost(post.id)
+        .then(() => { setSaved(true); showToast('Post sauvegardé', 'success') })
+        .catch(err => console.error(err))
   }
 
   return (
@@ -62,8 +78,8 @@ export default function PostCards({ post }: { post: Post }) {
               <MessageCircle size={20} />
               <p>{post.comments_count}</p>
             </button>
-            <button className="btn btn-ghost flex gap-2 p-2">
-              <Bookmark size={20} />
+            <button className="btn btn-ghost flex gap-2 p-2" onClick={handleSave}>
+              <Bookmark size={20} className={saved ? 'text-black' : ""}/>
             </button>
           </div>
         </div>
