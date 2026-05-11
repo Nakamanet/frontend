@@ -10,7 +10,7 @@ export default function SupplementaireForm({ user }: { user: User }) {
   const { showToast } = useToast()
   const [birthdate, setBirthdate] = useState(user.birthdate)
   const [bio, setBio] = useState(user.bio)
-  const [privacy, setPrivacy] = useState(user.privacy)
+  const [privacy, setPrivacy] = useState(user.privacy ?? false)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})

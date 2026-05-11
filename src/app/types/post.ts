@@ -12,7 +12,7 @@ export interface Post {
   updated_at: string
   likes_count: number
   comments_count: number
-  likes: { user_id: number }[]
+  likes: { user_id: number }[] | null
   user: User
 }
 

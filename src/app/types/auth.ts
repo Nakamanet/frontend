@@ -10,6 +10,7 @@ export interface User {
   avatar_url?: string | null
   banner_url?: string | null
   theme_preference?: string | null
+  privacy?: boolean | null
   created_at: string
   updated_at: string
 }

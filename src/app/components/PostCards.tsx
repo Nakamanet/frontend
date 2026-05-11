@@ -15,7 +15,7 @@ export default function PostCards({ post }: { post: Post }) {
   const { user } = useAuth()
   const { showToast } = useToast()
   const [likeCount, setLikeCount] = useState(post.likes_count)
-  const [liked, setLiked] = useState(post.likes.some(l => l.user_id === user?.id))
+  const [liked, setLiked] = useState(post.likes?.some(l => l.user_id === user?.id) ?? false)
   const [saved, setSaved] = useState(false)
 
   const handleLike = async (e: React.FormEvent) => {
