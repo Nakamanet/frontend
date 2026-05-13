@@ -1,9 +1,29 @@
+'use client'
+
 import Image from 'next/image'
 import { User } from '../../types/auth'
 import Link from 'next/link'
 import { CircleUser, Users, Flame } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { getUserPosts } from '@/app/lib/user'
+import { getFriends } from '@/app/lib/friends'
+import { getMyAnime, getMyManga } from '@/app/lib/library'
 
 export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
+  const [friendsCount, setFriendsCount] = useState(0)
+  const [postCounts, setPostCount] = useState(0)
+  const [workCount, setWorkCount] = useState(0)
+
+  useEffect(() => {
+    if (user) {
+      getUserPosts(user.id).then((res) => setPostCount(res.total))
+      getFriends().then((res) => setFriendsCount(res.length))
+      Promise.all([getMyAnime(), getMyManga()]).then(([animes, mangas]) => {
+        setWorkCount(animes.length + mangas.length)
+      })
+    }
+  }, [user?.id])
+
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
       {isLoggedIn && user ? (
@@ -46,15 +66,15 @@ export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; use
             <div className="mt-2 p-2 rounded-[8px] bg-muted border border-border">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">{workCount}</p>
                   <p className="text-sm text-black/70">Oeuvres</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">{friendsCount}</p>
                   <p className="text-sm text-black/70">Amis</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">{postCounts}</p>
                   <p className="text-sm text-black/70">Posts</p>
                 </div>
               </div>

@@ -1,16 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
-import Chat from '../components/home/Chat'
-import Calendar from '../components/home/Calendar'
-import { useAuth } from '../context/AuthContext'
 import { getForums } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
-import { Paperclip, MessageSquare, Eye, Ellipsis, SlidersHorizontal } from 'lucide-react'
+import { Paperclip } from 'lucide-react'
 import CreateForum from './components/CreateForum'
-import { useToast } from '../context/ToastContext'
 import ForumCards from '../components/ForumCards'
+import AppLayout from '../components/layout/AppLayout'
 
 const CATEGORIES = [
   { id: '', label: 'Récents' },
@@ -22,32 +18,30 @@ const CATEGORIES = [
 ]
 
 export default function ForumPage() {
-  const { user } = useAuth()
-  const { showToast } = useToast()
   const [topics, setTopics] = useState<Forum[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string>('')
 
-  useEffect(() => {
-    const fetchTopics = async () => {
-      setIsLoading(true)
-      try {
-        const categoryParam = activeCategory !== '' ? (activeCategory as Forum['category']) : undefined
-        const forumsData = await getForums(1, categoryParam)
-        setTopics(forumsData.data || [])
-        showToast('Fil de discussion publié avec succès', 'success')
-      } catch (err) {
-        showToast('Echec lors de la publication du fil de discussion', 'error')
-      } finally {
-        setIsLoading(false)
-      }
+  const fetchTopics = async () => {
+    setIsLoading(true)
+    try {
+      const categoryParam = activeCategory !== '' ? (activeCategory as Forum['category']) : undefined
+      const forumsData = await getForums(1, categoryParam)
+      setTopics(forumsData.data || [])
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsLoading(false)
     }
+  }
+
+  useEffect(() => {
     fetchTopics()
   }, [activeCategory])
 
   return (
-    <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15 text-white">
-      <section className="flex flex-col gap-10 w-full h-full col-span-4 pr-6 overflow-y-auto scrollbar-hide">
+    <AppLayout>
+      <div className="flex flex-col gap-10 w-full h-full overflow-y-auto scrollbar-hide">
         <div className="flex justify-between items-center border border-border bg-accent rounded-full py-1 px-6 shrink-0">
           <div className="flex gap-5 overflow-x-auto scrollbar-hide">
             <button className="flex px-4 items-center gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts text-white">
@@ -77,7 +71,7 @@ export default function ForumPage() {
         <div className="flex flex-col lg:flex-row gap-10 items-start flex-1">
           <div className="w-full lg:w-[200px] shrink-0 flex flex-col gap-6">
             <div className="w-full">
-              <CreateForum />
+              <CreateForum onCreated={fetchTopics}/>
             </div>
             <div className="flex flex-col gap-2 p-4 bg-accent rounded-[15px] border border-border">
               {CATEGORIES.map((cat) => (
@@ -114,12 +108,7 @@ export default function ForumPage() {
             </div>
           </div>
         </div>
-      </section>
-
-      <section className="flex flex-col gap-5">
-        <Chat user={user} />
-        <Calendar user={user} />
-      </section>
-    </main>
+      </div>
+    </AppLayout>
   )
 }

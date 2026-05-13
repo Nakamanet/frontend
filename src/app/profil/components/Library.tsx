@@ -8,6 +8,12 @@ import { Anime, Manga } from '@/app/types/catalog'
 import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
 import Image from 'next/image'
 import Link from 'next/link'
+import FilterTab from '../../components/FilterTab'
+
+const FILTER_OPTIONS = [
+  { value: 'manga', label: 'Mangas', icon: <Book size={18} /> },
+  { value: 'anime', label: 'Animes', icon: <TvMinimalPlay size={18} /> },
+]
 
 export default function Library() {
   const [filter, setFilter] = useState('manga')
@@ -35,32 +41,7 @@ export default function Library() {
 
   return (
     <div className="flex flex-col gap-8 p-7">
-      <div className='flex justify-center border border-border bg-accent rounded-full py-1 px-6'>
-        <div className="flex gap-5">
-          <button
-            onClick={() => {
-              setFilter('manga')
-            }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'manga' ? 'bg-alerts text-white' : 'text-border'}`}
-          >
-            <Book size={18} />
-            <span className="hidden md:inline">Mangas</span>
-          </button>
-          <button
-            onClick={() => {
-              if (filter === 'anime') {
-                setFilter('manga')
-              } else {
-                setFilter('anime')
-              }
-            }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'anime' ? 'bg-alerts text-white' : 'text-border'}`}
-          >
-            <TvMinimalPlay size={18} />
-            <span className="hidden md:inline">Animes</span>
-          </button>
-        </div>
-      </div>
+      <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
 
       {filter === "manga" ? (
         <div>

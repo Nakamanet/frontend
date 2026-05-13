@@ -6,6 +6,14 @@ import { useEffect, useState } from 'react'
 import { Flame, ThumbsUp, Bookmark, Trash } from 'lucide-react'
 import { Post } from '../../types/post'
 import { getUserPosts } from '@/app/lib/user'
+import FilterTab from '../../components/FilterTab'
+
+const FILTER_OPTIONS = [
+  { value: 'mine', label: 'Mes Posts', icon: <Flame size={18} /> },
+  { value: 'save', label: 'Sauvegardés', icon: <Bookmark size={18} /> },
+  { value: 'liked', label: 'Liké', icon: <ThumbsUp size={18} /> },
+  { value: 'deleted', label: 'Archivés', icon: <Trash size={18} /> },
+]
 
 export default function Activity({ user }: { user: User }) {
   const [filter, setFilter] = useState('mine')
@@ -15,63 +23,11 @@ export default function Activity({ user }: { user: User }) {
     getUserPosts(user.id)
       .then(res => setPosts(res.data))
       .catch(err => console.error(err))
-
   }, [user.id])
 
   return (
     <div className="flex flex-col gap-8 p-7">
-      <div className="flex justify-center border border-border bg-accent rounded-full py-1 px-6">
-        <div className="flex gap-5">
-          <button
-            onClick={() => {
-                setFilter('mine')
-            }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'mine' ? 'bg-alerts text-white' : 'text-border'}`}
-          >
-            <Flame size={18} />
-            <span className="hidden md:inline">Mes Posts</span>
-          </button>
-          <button
-            onClick={() => {
-              if (filter === 'save') {
-                setFilter('mine')
-              } else {
-                setFilter('save')
-              }
-            }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'save' ? 'bg-alerts text-white' : 'text-border'}`}
-          >
-            <Bookmark size={18} />
-            <span className="hidden md:inline">Sauvegardés</span>
-          </button>
-          <button
-            onClick={() => {
-              if (filter === 'liked') {
-                setFilter('mine')
-              } else {
-                setFilter('liked')
-              }
-            }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'liked' ? 'bg-alerts text-white' : 'text-border'}`}
-          >
-            <ThumbsUp size={18} />
-            <span className="hidden md:inline">Liké</span>
-          </button>
-          <button
-            onClick={() => {
-              if (filter === 'deleted') {
-                setFilter('mine')
-              } else {
-                setFilter('deleted')
-              }
-            }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'deleted' ? 'bg-alerts text-white' : 'text-border'}`}
-          >
-            <Trash size={18} />
-            <span className="hidden md:inline">Archivés</span>
-          </button>
-        </div>
-      </div>
+      <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
       {posts && posts.length > 0 ? (
         <div className='flex flex-col gap-2'>
           {posts.map((post) => (
