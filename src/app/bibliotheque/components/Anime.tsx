@@ -1,27 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { getAnimes } from '../../lib/catalogue'
 import type { Anime } from '../../types/catalog'
 import { Loader2, Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 
 export default function Anime() {
-  const [animesList, setAnimesList] = useState<Anime[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['anime', { page: 1 }],
+    queryFn: () => getAnimes(),
+    staleTime: 5 * 60 * 1000,
+  })
 
-  useEffect(() => {
-    setIsLoading(true)
-    setError(null)
-    getAnimes()
-      .then((res) => setAnimesList(res.data))
-      .catch((err) =>
-        setError(err?.response?.data?.message ?? err?.message ?? 'Erreur lors du chargement du catalogue')
-      )
-      .finally(() => setIsLoading(false))
-  }, [])
+  const animesList: Anime[] = data?.data ?? []
 
   return (
     <div className="flex gap-4 overflow-x-auto scrollbar-hide">
@@ -29,9 +22,9 @@ export default function Anime() {
         <div className="flex justify-center items-center h-full mx-auto my-[90px]">
           <Loader2 className="animate-spin" />
         </div>
-      ) : error ? (
+      ) : isError ? (
         <div className="flex justify-center items-center h-full">
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500">{(error as Error)?.message ?? 'Erreur lors du chargement du catalogue'}</p>
         </div>
       ) : (
         <div className="flex gap-4">

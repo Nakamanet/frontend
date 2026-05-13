@@ -2,37 +2,36 @@
 
 import { getChapters, getEpisodes } from '@/app/lib/catalogue'
 import { Anime, Manga, Chapter, Episode } from '@/app/types/catalog'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import EpisodeModal from './EpisodeModal'
 import Pagination from '../../components/Pagination'
+import { useQuery } from '@tanstack/react-query'
 
 type EpisodeProps = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
 export default function EpisodePage({ type, item }: EpisodeProps) {
-  const [chapters, setChapters] = useState<Chapter[]>([])
-  const [episodes, setEpisodes] = useState<Episode[]>([])
   const [episodeModal, setEpisodeModal] = useState(false)
   const [detail, setDetail] = useState<{ type: 'anime'; item: Episode } | { type: 'manga'; item: Chapter }>()
   const [page, setPage] = useState(1)
-  const [lastPage, setLastPage] = useState(1)
   const limit = 10
 
-  useEffect(() => {
-    if (type === 'anime') {
-      getEpisodes(item.id, page, limit)
-        .then((res) => {
-          setEpisodes(res.data)
-          setLastPage(res.meta.lastPage)
-        })
-        .catch((err) => console.error(err))
-    }
-    if (type === 'manga') {
-      getChapters(item.id, page, limit)
-        .then((res) => setChapters(res.data))
-        .catch((err) => console.error(err))
-    }
-  }, [type, item, page, limit])
+  const { data: episodeData } = useQuery({
+    queryKey: ['anime', item.id, 'episodes', { page, limit }],
+    queryFn: () => getEpisodes(item.id, page, limit),
+    enabled: type === 'anime',
+    staleTime: 5 * 60 * 1000,
+  })
+  const { data: chapterData } = useQuery({
+    queryKey: ['manga', item.id, 'chapters', { page, limit }],
+    queryFn: () => getChapters(item.id, page, limit),
+    enabled: type === 'manga',
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const episodes: Episode[] = episodeData?.data ?? []
+  const chapters: Chapter[] = chapterData?.data ?? []
+  const lastPage = episodeData?.meta?.lastPage ?? 1
 
   return (
     <div className="border border-border bg-accent rounded-[15px] p-5 ">

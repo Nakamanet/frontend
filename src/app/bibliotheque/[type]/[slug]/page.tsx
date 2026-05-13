@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/app/context/AuthContext'
 import { useParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
 import { Anime, Manga } from '@/app/types/catalog'
 import Image from 'next/image'
@@ -16,66 +16,37 @@ import Information from './components/Information'
 import CharacterPage from './components/CharacterPage'
 import { addMyAnime, addMyManga } from '@/app/lib/library'
 import { useToast } from '@/app/context/ToastContext'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 export default function DetailPage() {
-  const { type } = useParams()
-  const { slug } = useParams()
+  const { type, slug } = useParams()
   const { user } = useAuth()
   const { showToast } = useToast()
-  const [item, setItem] = useState<Manga | Anime | null>(null)
+  const queryClient = useQueryClient()
   const [voirPlus, setVoirPlus] = useState(false)
   const [filter, setFilter] = useState('characters')
 
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
-  useEffect(() => {
-    if (!type || !slug) return
-    const load = async () => {
-      if (type === 'anime') {
-        getAnimeById(slug as string)
-          .then((res) => setItem(res))
-          .catch((err) => console.error(err))
-      } else if (type === 'manga') {
-        getMangaById(slug as string)
-          .then((res) => setItem(res))
-          .catch((err) => console.error(err))
-      }
-    }
-    load()
-  }, [type, slug])
-  
-  if(item === null ) return
+  const { data: item } = useQuery<Anime | Manga>({
+    queryKey: [type, slug],
+    queryFn: () => type === 'anime' ? getAnimeById(slug as string) : getMangaById(slug as string),
+    enabled: !!type && !!slug,
+    staleTime: 5 * 60 * 1000,
+  })
 
-  const handleSubmit = async (id: number) => {
-    try {
-      if (type === 'anime') {
-        const body = {
-          anime_id: id,
-          status: 'plan_to_watch',
-          progress: 1, 
-          rewatch_count: 0,
-          score: 1,
-          is_private: false
-        }
-        await addMyAnime(body)
-        showToast('Anime ajouté à votre bibliothèque avec succès', 'success')
-      }
-      if (type === 'manga') {
-        const body = {
-          manga_id: id,
-          status: 'plan_to_read',
-          progress: 1, 
-          reread_count: 0,
-          score: 1,
-          is_private: false
-        }
-        await addMyManga(body)
-        showToast('Manga ajouté à votre bibliothèque avec succès', 'success')
-      }
-    } catch (err) {
-      showToast((err as Error).message, 'error')
-    }
-  }
+  const { mutate: handleSubmit } = useMutation({
+    mutationFn: (id: number) => type === 'anime'
+      ? addMyAnime({ anime_id: id, status: 'plan_to_watch', progress: 1, rewatch_count: 0, score: 1, is_private: false })
+      : addMyManga({ manga_id: id, status: 'plan_to_read', progress: 1, reread_count: 0, score: 1, is_private: false }),
+    onSuccess: () => {
+      showToast(type === 'anime' ? 'Anime ajouté à votre bibliothèque avec succès' : 'Manga ajouté à votre bibliothèque avec succès', 'success')
+      queryClient.invalidateQueries({ queryKey: ['library', type as string] })
+    },
+    onError: (err) => showToast((err as Error).message, 'error'),
+  })
+
+  if (!item) return null
 
   return (
     <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">

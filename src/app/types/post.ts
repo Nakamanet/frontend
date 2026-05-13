@@ -10,6 +10,9 @@ export interface Post {
   is_spoiler: boolean
   created_at: string
   updated_at: string
+  likes_count: number
+  comments_count: number
+  likes: { user_id: number }[] | null
   user: User
 }
 

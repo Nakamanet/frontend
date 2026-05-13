@@ -1,27 +1,20 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { getMangas } from '../../lib/catalogue'
 import type { Manga } from '../../types/catalog'
 import { Loader2, Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 
 export default function Manga() {
-  const [mangasList, setMangasList] = useState<Manga[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['manga', { page: 1 }],
+    queryFn: () => getMangas(),
+    staleTime: 5 * 60 * 1000,
+  })
 
-  useEffect(() => {
-    setIsLoading(true)
-    setError(null)
-    getMangas()
-      .then((res) => setMangasList(res.data))
-      .catch((err) =>
-        setError(err?.response?.data?.message ?? err?.message ?? 'Erreur lors du chargement du catalogue')
-      )
-      .finally(() => setIsLoading(false))
-  }, [])
+  const mangasList: Manga[] = data?.data ?? []
 
   return (
     <div className="flex gap-4 overflow-x-auto scrollbar-hide">
@@ -29,9 +22,9 @@ export default function Manga() {
         <div className="flex justify-center items-center h-full mx-auto my-[90px]">
           <Loader2 className="animate-spin" />
         </div>
-      ) : error ? (
+      ) : isError ? (
         <div className="flex justify-center items-center h-full">
-          <p className="text-red-500">{error}</p>
+          <p className="text-red-500">{(error as Error)?.message ?? 'Erreur lors du chargement du catalogue'}</p>
         </div>
       ) : (
         <div className="flex gap-4">

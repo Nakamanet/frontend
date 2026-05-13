@@ -6,7 +6,7 @@ import type { Forum } from '@/app/types/forum'
 import { X } from 'lucide-react' // Ajout d'une icône pour fermer la modale
 import { useToast } from '@/app/context/ToastContext'
 
-export default function CreateForum() {
+export default function CreateForum({ onCreated }: { onCreated: () => void }) {
   const { showToast } = useToast()
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -35,7 +35,7 @@ export default function CreateForum() {
 
       showToast('Forum publié avec succès', 'success')
 
-      window.location.reload()
+      onCreated()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       showToast('Erreur lors de la publication du forum', 'error')

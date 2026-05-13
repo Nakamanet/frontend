@@ -1,9 +1,27 @@
+'use client'
+
 import Image from 'next/image'
 import { User } from '../../types/auth'
 import Link from 'next/link'
 import { CircleUser, Users, Flame } from 'lucide-react'
+import { getUserPosts } from '@/app/lib/user'
+import { getFriends } from '@/app/lib/friends'
+import { getMyAnime, getMyManga } from '@/app/lib/library'
+import { useQueries } from '@tanstack/react-query'
 
 export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
+  const results = useQueries({
+    queries: [
+      { queryKey: ['user', user?.id, 'posts'], queryFn: () => getUserPosts(user!.id), enabled: !!user },
+      { queryKey: ['library', 'anime'], queryFn: getMyAnime, enabled: !!user },
+      { queryKey: ['library', 'manga'], queryFn: getMyManga, enabled: !!user },
+      { queryKey: ['friends'], queryFn: getFriends, enabled: !!user },
+    ],
+  })
+  const postCounts = results[0]?.data?.total ?? 0
+  const workCount = (results[1]?.data?.length ?? 0) + (results[2]?.data?.length ?? 0)
+  const friendsCount = results[3]?.data?.length ?? 0
+
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
       {isLoggedIn && user ? (
@@ -46,15 +64,15 @@ export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; use
             <div className="mt-2 p-2 rounded-[8px] bg-muted border border-border">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">{workCount}</p>
                   <p className="text-sm text-black/70">Oeuvres</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">{friendsCount}</p>
                   <p className="text-sm text-black/70">Amis</p>
                 </div>
                 <div>
-                  <p className="text-xl font-bold">0</p>
+                  <p className="text-xl font-bold">{postCounts}</p>
                   <p className="text-sm text-black/70">Posts</p>
                 </div>
               </div>

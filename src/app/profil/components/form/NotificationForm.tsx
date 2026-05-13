@@ -25,15 +25,15 @@ export default function NotificationForm({ user }: { user: User }) {
     setIsSubmitting(true)
 
     try {
-      const payload: Record<string, string> = {
-        comment: comment ?? '',
-        friendsRequests: friendsRequests ?? '',
-        mentions: mentions ?? '',
-        newSorties: newSorties ?? '',
+      const payload: Record<string, boolean> = {
+        comment,
+        friendsRequests,
+        mentions,
+        newSorties,
       }
 
       const body = Object.fromEntries(
-        Object.entries(payload).filter(([, v]) => v !== undefined && v !== null && v !== '')
+        Object.entries(payload).filter(([, v]) => v !== undefined && v !== null)
       )
 
       await updateProfil(body)

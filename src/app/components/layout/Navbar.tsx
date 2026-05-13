@@ -51,7 +51,7 @@ export default function Navbar() {
                 </div>
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-1 mt-3 p-2 bg-accent shadow">
                   <li>
-                    <Link href="/profile">Profile</Link>
+                    <Link href="/profil">Profil</Link>
                   </li>
                   <li>
                     <button onClick={logout}>Déconnexion</button>

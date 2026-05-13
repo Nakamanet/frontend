@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 interface SearchModalProps {
   isOpen: boolean
@@ -11,6 +12,7 @@ interface SearchModalProps {
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts'>('all')
+  const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [results, setResults] = useState<any[]>([])
@@ -42,8 +44,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setLoading(true)
     setSkip(0)
     try {
+      const userIdParam = user?.id ? `&user_id=${user.id}` : ''
       const response = await fetch(
-        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=0&limit=20`
+        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=0&limit=20`
       )
       if (response.ok) {
         const data = await response.json()
@@ -67,8 +70,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setLoadingMore(true)
     const nextSkip = skip + 20
     try {
+      const userIdParam = user?.id ? `&user_id=${user.id}` : ''
       const response = await fetch(
-        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}&skip=${nextSkip}&limit=20`
+        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=${nextSkip}&limit=20`
       )
       if (response.ok) {
         const data = await response.json()
@@ -124,7 +128,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               onClick={() => setFilter(f as any)}
               className={`btn btn-sm rounded-full ${filter === f ? 'btn-primary' : 'btn-outline border-base-content/20'}`}
             >
-              {f === 'all' ? 'Toate (IA)' : f.charAt(0).toUpperCase() + f.slice(1)}
+              {f === 'all' ? 'Tout' : f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
         </div>
@@ -147,8 +151,24 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <div className="w-12 h-12 bg-base-300 rounded flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
                   {res.type}
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg">{res.title}</h3>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-lg">{res.title}</h3>
+                    {res.type === 'users' && (res.common_anime_count > 0 || res.common_manga_count > 0) && (
+                      <div className="flex gap-2">
+                        {res.common_anime_count > 0 && (
+                          <span className="badge badge-primary gap-1 font-bold shadow-sm">
+                            ⭐ {res.anime_comp_score} anime
+                          </span>
+                        )}
+                        {res.common_manga_count > 0 && (
+                          <span className="badge badge-secondary gap-1 font-bold shadow-sm border-none bg-pink-500 text-white">
+                            ⭐ {res.manga_comp_score} manga
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
                   <p className="text-sm text-base-content/70">{res.description}</p>
                 </div>
               </div>

@@ -2,32 +2,31 @@
 
 import { getAnimeCharacters, getMangaCharacters } from '@/app/lib/catalogue'
 import { Anime, AnimeCharacter, Manga, MangaCharacter } from '@/app/types/catalog'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import CharacterModal from './CharacterModal'
+import { useQuery } from '@tanstack/react-query'
 
 type Character = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
 export default function CharacterPage({ type, item }: Character) {
-  const [animeCharacters, setAnimeCharacters] = useState<AnimeCharacter[]>([])
-  const [mangaCharacters, setMangaCharacters] = useState<MangaCharacter[]>([])
   const [detail, setDetail] = useState<
     { type: 'anime'; item: AnimeCharacter } | { type: 'manga'; item: MangaCharacter }
   >()
   const [characterModal, setCharacterModal] = useState(false)
 
-  useEffect(() => {
-    if (type === 'anime') {
-      getAnimeCharacters(item.id)
-        .then((res) => setAnimeCharacters(res))
-        .catch((err) => console.error(err))
-    }
-    if (type === 'manga') {
-      getMangaCharacters(item.id)
-        .then((res) => setMangaCharacters(res))
-        .catch((err) => console.error(err))
-    }
-  }, [type, item])
+  const { data: animeCharacters = [] } = useQuery({
+    queryKey: ['anime', item.id, 'characters'],
+    queryFn: () => getAnimeCharacters(item.id),
+    enabled: type === 'anime',
+    staleTime: 5 * 60 * 1000,
+  })
+  const { data: mangaCharacters = [] } = useQuery({
+    queryKey: ['manga', item.id, 'characters'],
+    queryFn: () => getMangaCharacters(item.id),
+    enabled: type === 'manga',
+    staleTime: 5 * 60 * 1000,
+  })
 
   return (
     <div className="border border-border bg-accent rounded-[15px] p-5">

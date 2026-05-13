@@ -1,7 +1,9 @@
+'use client'
+
 import { Info } from 'lucide-react'
 import InformationModal from './InformationModal'
 import { Manga, Anime, Genre, Category, Production, AnimeStaff, MangaStaff } from '@/app/types/catalog'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   getAnimeCategories,
   getAnimeGenres,
@@ -11,42 +13,26 @@ import {
   getMangaStaffs,
   getMangaGenres,
 } from '@/app/lib/catalogue'
+import { useQueries } from '@tanstack/react-query'
 
 type InformationProps = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
 export default function Information({ type, item }: InformationProps) {
-  const [itemGenre, setItemGenre] = useState<Genre[]>([])
-  const [itemCategories, setItemCategories] = useState<Category[]>([])
-  const [itemProductions, setItemProductions] = useState<Production[]>([])
-  const [itemStaffs, setItemStaffs] = useState<AnimeStaff[] | MangaStaff[]>([])
   const [voirPlus, setVoirPlus] = useState(false)
 
-  useEffect(() => {
-    if (type === 'anime') {
-      getAnimeCategories(item.id)
-        .then((res) => setItemCategories(res))
-        .catch((err) => console.error(err))
-      getAnimeGenres(item.id)
-        .then((res) => setItemGenre(res))
-        .catch((err) => console.error(err))
-      getProductions(item.id)
-        .then((res) => setItemProductions(res))
-        .catch((err) => console.error(err))
-      getAnimeStaffs(item.id)
-        .then((res) => setItemStaffs(res))
-        .catch((err) => console.error(err))
-    } else if (type === 'manga') {
-      getMangaCategories(item.id)
-        .then((res) => setItemCategories(res))
-        .catch((err) => console.error(err))
-      getMangaGenres(item.id)
-        .then((res) => setItemGenre(res))
-        .catch((err) => console.error(err))
-      getMangaStaffs(item.id)
-        .then((res) => setItemStaffs(res))
-        .catch((err) => console.error(err))
-    }
-  }, [item, type])
+  const results = useQueries({
+    queries: [
+      { queryKey: [type, item.id, 'categories'], queryFn: () => type === 'anime' ? getAnimeCategories(item.id) : getMangaCategories(item.id), staleTime: 5 * 60 * 1000 },
+      { queryKey: [type, item.id, 'genres'], queryFn: () => type === 'anime' ? getAnimeGenres(item.id) : getMangaGenres(item.id), staleTime: 5 * 60 * 1000 },
+      { queryKey: ['anime', item.id, 'productions'], queryFn: () => getProductions(item.id), enabled: type === 'anime', staleTime: 5 * 60 * 1000 },
+      { queryKey: [type, item.id, 'staffs'], queryFn: () => type === 'anime' ? getAnimeStaffs(item.id) : getMangaStaffs(item.id), staleTime: 5 * 60 * 1000 },
+    ],
+  })
+
+  const itemCategories: Category[] = (results[0]?.data as Category[]) ?? []
+  const itemGenre: Genre[] = (results[1]?.data as Genre[]) ?? []
+  const itemProductions: Production[] = (results[2]?.data as Production[]) ?? []
+  const itemStaffs: AnimeStaff[] | MangaStaff[] = (results[3]?.data as AnimeStaff[] | MangaStaff[]) ?? []
 
   return (
     <div className="border border-border bg-accent rounded-[15px] p-5">

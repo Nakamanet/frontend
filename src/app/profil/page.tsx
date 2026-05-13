@@ -1,4 +1,5 @@
 'use client'
+
 import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
@@ -6,17 +7,33 @@ import { CircleUser, MapPin, Calendar, BookOpen, Users } from 'lucide-react'
 import { useState } from 'react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
+import MyTopics from './components/MyTopics'
 import Friends from './components/Friends'
 import Library from './components/Library'
 import Groups from './components/Groups'
+import { getUserPosts } from '../lib/user'
+import { getMyAnime, getMyManga } from '../lib/library'
+import { getFriends } from '../lib/friends'
+import { useQueries } from '@tanstack/react-query'
 
-export default function ProfilePage() {
+export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
   const { user } = useAuth()
 
-  const posts = []
-
   if (!user) redirect('/login')
+
+  const results = useQueries({
+    queries: [
+      { queryKey: ['user', user.id, 'posts'], queryFn: () => getUserPosts(user.id) },
+      { queryKey: ['library', 'anime'], queryFn: getMyAnime },
+      { queryKey: ['library', 'manga'], queryFn: getMyManga },
+      { queryKey: ['friends'], queryFn: getFriends },
+    ],
+  })
+  const postCount = results[0].data?.total ?? 0
+  const workCount = (results[1].data?.length ?? 0) + (results[2].data?.length ?? 0)
+  const friendsCount = results[3].data?.length ?? 0
+
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
@@ -61,23 +78,31 @@ export default function ProfilePage() {
               {new Date(user.created_at).toLocaleDateString()}
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> {posts.length} oeuvres suivies
+              <BookOpen size={15} className="text-primary" /> {workCount} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
-              <Users size={15} className="text-primary" /> X amis
+              <Users size={15} className="text-primary" /> {friendsCount} amis
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> X posts
+              <BookOpen size={15} className="text-primary" /> {postCount} posts
             </p>
           </div>
           <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
-            <ul>
+            <ul className='flex flex-col gap-1'>
               <li>
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`}
                   onClick={() => setActiveTab('activities')}
                 >
                   Posts
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'forum' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                  onClick={() => setActiveTab('forum')}
+                >
+                  Forum
                 </button>
               </li>
               <li>
@@ -106,8 +131,8 @@ export default function ProfilePage() {
               </li>
               <li>
                 <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'profile' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('profile')}
+                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'profil' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                  onClick={() => setActiveTab('profil')}
                 >
                   Paramètres
                 </button>
@@ -118,10 +143,12 @@ export default function ProfilePage() {
         {/* Contenu principal */}
         <div className="col-span-3 min-h-[70vh]">
           {activeTab === 'activities' && <Activity user={user} />}
+          {/* A faire plus tard */}
+          {activeTab === 'forum' && <MyTopics user={user} />}
           {activeTab === 'friends' && <Friends user={user} />}
-          {activeTab === 'library' && <Library user={user} />}
+          {activeTab === 'library' && <Library />}
           {activeTab === 'groups' && <Groups user={user} />}
-          {activeTab === 'profile' && <Profile user={user} />}
+          {activeTab === 'profil' && <Profile user={user} />}
         </div>
       </section>
     </main>
