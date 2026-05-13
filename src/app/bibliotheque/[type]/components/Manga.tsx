@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { getMangas } from '@/app/lib/catalogue'
-import { Manga } from '@/app/types/catalog'
 import { useAuth } from '@/app/context/AuthContext'
 import { ChevronRight, SlidersHorizontal } from 'lucide-react'
 import SearchBarPage from '../../components/SearchBar'
@@ -11,26 +10,22 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Chat from '@/app/components/home/Chat'
 import Calendar from '@/app/components/home/Calendar'
+import { useQuery } from '@tanstack/react-query'
 
 export default function MangaPage() {
   const { user } = useAuth()
-  const [manga, setManga] = useState<Manga[]>([])
-  const [limit, setLimit] = useState(20)
-  const [genre, setGenre] = useState<string | undefined>(undefined)
+  const [limit] = useState(20)
+  const [genre] = useState<string | undefined>(undefined)
   const [openModal, setOpenModal] = useState(false)
   const [page, setPage] = useState(1)
-  const [maxPage, setMaxPage] = useState(1)
 
-  useEffect(() => {
-    getMangas(page, limit, genre)
-      .then((res) => {
-        setManga(res.data)
-        setMaxPage(res.meta.lastPage)
-      })
-      .catch((err) => console.error(err))
-  }, [page, limit, genre])
-
-  console.log('manga', manga, 'page', page, 'limit', limit, 'genre', genre, 'openModal', openModal)
+  const { data } = useQuery({
+    queryKey: ['manga', { page, limit, genre }],
+    queryFn: () => getMangas(page, limit, genre),
+    staleTime: 5 * 60 * 1000,
+  })
+  const manga = data?.data ?? []
+  const maxPage = data?.meta?.lastPage ?? 1
 
   return (
     <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">

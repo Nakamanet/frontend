@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { CircleUser, MapPin, Calendar, BookOpen, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
 import MyTopics from './components/MyTopics'
@@ -14,25 +14,25 @@ import Groups from './components/Groups'
 import { getUserPosts } from '../lib/user'
 import { getMyAnime, getMyManga } from '../lib/library'
 import { getFriends } from '../lib/friends'
+import { useQueries } from '@tanstack/react-query'
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
-  const [postCount, setPostCount] = useState(0)
-  const [workCount, setWorkCount] = useState(0)
-  const [friendsCount, setFriendsCount] = useState(0)
   const { user } = useAuth()
 
   if (!user) redirect('/login')
 
-  useEffect(() => {
-    getUserPosts(user.id).then(res => setPostCount(res.total))
-    Promise.all([getMyAnime(), getMyManga()])
-      .then(([animes, mangas]) => {
-        setWorkCount(animes.length + mangas.length)
-      })
-    getFriends()
-      .then((res) => setFriendsCount(res.length))
-  }, [user.id])
+  const results = useQueries({
+    queries: [
+      { queryKey: ['user', user.id, 'posts'], queryFn: () => getUserPosts(user.id) },
+      { queryKey: ['library', 'anime'], queryFn: getMyAnime },
+      { queryKey: ['library', 'manga'], queryFn: getMyManga },
+      { queryKey: ['friends'], queryFn: getFriends },
+    ],
+  })
+  const postCount = results[0].data?.total ?? 0
+  const workCount = (results[1].data?.length ?? 0) + (results[2].data?.length ?? 0)
+  const friendsCount = results[3].data?.length ?? 0
 
 
   return (

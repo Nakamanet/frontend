@@ -2,26 +2,24 @@
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { CircleUser, MapPin, Calendar, BookOpen, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { User } from '../../types/auth'
+import { useState } from 'react'
 import { getUserPosts } from '../../lib/user'
 import Activity from '../components/Activity'
+import { useQuery } from '@tanstack/react-query'
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
   const { id } = useParams()
-  const [profileUser, setProfileUser] = useState<User | null>(null)
 
-  useEffect(() => {
-    if (!id) return
-    getUserPosts(Number(id))
-      .then(res => {
-        if (res.data.length > 0) setProfileUser(res.data[0].user)
-      })
-      .catch(err => console.error(err))
-  }, [id])
+  const { data, isLoading } = useQuery({
+    queryKey: ['user', Number(id), 'posts'],
+    queryFn: () => getUserPosts(Number(id)),
+    enabled: !!id,
+  })
+  const profileUser = data?.data?.[0]?.user ?? null
 
-  if (!profileUser) return <div className="flex justify-center p-10">Chargement...</div>
+  if (isLoading) return <div className="flex justify-center p-10">Chargement...</div>
+  if (!profileUser) return <div className="flex justify-center p-10">Utilisateur introuvable</div>
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">

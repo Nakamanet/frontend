@@ -2,11 +2,11 @@
 
 import PostCards from '../../components/PostCards'
 import { User } from '../../types/auth'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Flame, ThumbsUp, Bookmark, Trash } from 'lucide-react'
-import { Post } from '../../types/post'
 import { getUserPosts } from '@/app/lib/user'
 import FilterTab from '../../components/FilterTab'
+import { useQuery } from '@tanstack/react-query'
 
 const FILTER_OPTIONS = [
   { value: 'mine', label: 'Mes Posts', icon: <Flame size={18} /> },
@@ -17,18 +17,18 @@ const FILTER_OPTIONS = [
 
 export default function Activity({ user }: { user: User }) {
   const [filter, setFilter] = useState('mine')
-  const [posts, setPosts] = useState<Post[]>([])
 
-  useEffect(() => {
-    getUserPosts(user.id)
-      .then(res => setPosts(res.data))
-      .catch(err => console.error(err))
-  }, [user.id])
+  const { data } = useQuery({
+    queryKey: ['user', user.id, 'posts'],
+    queryFn: () => getUserPosts(user.id),
+  })
+
+  const posts = data?.data ?? []
 
   return (
     <div className="flex flex-col gap-8 p-7">
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
-      {posts && posts.length > 0 ? (
+      {posts.length > 0 ? (
         <div className='flex flex-col gap-2'>
           {posts.map((post) => (
             <PostCards key={post.id} post={post} />

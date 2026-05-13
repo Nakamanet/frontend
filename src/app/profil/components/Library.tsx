@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { getMyAnime, getMyManga } from '@/app/lib/library'
 import { Book, TvMinimalPlay } from 'lucide-react'
 import { MyAnime, MyManga } from '@/app/types/library'
@@ -9,6 +9,7 @@ import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
 import Image from 'next/image'
 import Link from 'next/link'
 import FilterTab from '../../components/FilterTab'
+import { useQuery, useQueries } from '@tanstack/react-query'
 
 const FILTER_OPTIONS = [
   { value: 'manga', label: 'Mangas', icon: <Book size={18} /> },
@@ -17,27 +18,38 @@ const FILTER_OPTIONS = [
 
 export default function Library() {
   const [filter, setFilter] = useState('manga')
-  const [animes, setAnimes] = useState<(MyAnime & { detail: Anime })[]>([])
-  const [mangas, setMangas] = useState<(MyManga & { detail: Manga })[]>([])
 
-  useEffect(() => {
-    getMyAnime()
-      .then(myAnimes => Promise.all(
-        myAnimes.map((entry: MyAnime) =>
-          getAnimeById(entry.anime_id).then(detail => ({ ...entry, detail }))
-        )
-      ))
-      .then(result => setAnimes(result))
-      .catch(err => console.error(err))
-    getMyManga()
-      .then(myMangas => Promise.all(
-        myMangas.map((entry: MyManga) =>
-          getMangaById(entry.manga_id).then(detail => ({ ...entry, detail }))
-        )
-      ))
-      .then(result => setMangas(result))
-      .catch(err => console.error(err))
-  }, [])
+  const { data: myAnimes = [] } = useQuery<MyAnime[]>({
+    queryKey: ['library', 'anime'],
+    queryFn: getMyAnime,
+  })
+  const { data: myMangas = [] } = useQuery<MyManga[]>({
+    queryKey: ['library', 'manga'],
+    queryFn: getMyManga,
+  })
+
+  const animeDetails = useQueries({
+    queries: myAnimes.map((entry) => ({
+      queryKey: ['anime', entry.anime_id],
+      queryFn: () => getAnimeById(entry.anime_id),
+      staleTime: 5 * 60 * 1000,
+    })),
+  })
+  const mangaDetails = useQueries({
+    queries: myMangas.map((entry) => ({
+      queryKey: ['manga', entry.manga_id],
+      queryFn: () => getMangaById(entry.manga_id),
+      staleTime: 5 * 60 * 1000,
+    })),
+  })
+
+  const animes: (MyAnime & { detail: Anime })[] = myAnimes
+    .map((entry, i) => animeDetails[i]?.data ? { ...entry, detail: animeDetails[i].data as Anime } : null)
+    .filter((x): x is MyAnime & { detail: Anime } => x !== null)
+
+  const mangas: (MyManga & { detail: Manga })[] = myMangas
+    .map((entry, i) => mangaDetails[i]?.data ? { ...entry, detail: mangaDetails[i].data as Manga } : null)
+    .filter((x): x is MyManga & { detail: Manga } => x !== null)
 
   return (
     <div className="flex flex-col gap-8 p-7">

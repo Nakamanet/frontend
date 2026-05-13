@@ -1,37 +1,21 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { getForumById } from '@/app/lib/forum'
-import type { Forum } from '@/app/types/forum'
 import ReplyForum from '../components/ReplyForum'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 
 export default function TopicDetailPage() {
   const params = useParams()
-  const [topic, setTopic] = useState<Forum | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(false)
-
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
 
-  useEffect(() => {
-    const fetchTopic = async () => {
-      try {
-        const data = await getForumById(Number(params.id))
-        setTopic(data)
-      } catch (err) {
-        console.error('Erreur de récupération du sujet:', err)
-        setError(true)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (params.id) {
-      fetchTopic()
-    }
-  }, [params.id])
+  const { data: topic, isLoading, isError } = useQuery({
+    queryKey: ['forums', Number(params.id)],
+    queryFn: () => getForumById(Number(params.id)),
+    enabled: !!params.id,
+  })
 
   if (isLoading) {
     return (
@@ -41,7 +25,7 @@ export default function TopicDetailPage() {
     )
   }
 
-  if (error || !topic) {
+  if (isError || !topic) {
     return (
       <div className="max-w-4xl mx-auto p-6 text-white text-center border border-white mt-8">
         Impossible de charger ce sujet.
@@ -81,14 +65,12 @@ export default function TopicDetailPage() {
                 {reply.parent_id && ' (Sous-réponse)'}
               </p>
               <div className="whitespace-pre-wrap mb-4">{reply.content}</div>
-
               <button
                 onClick={() => setReplyingTo(reply.id)}
                 className="px-3 py-1 text-sm font-bold border border-white"
               >
                 Répondre
               </button>
-
               {replyingTo === reply.id && (
                 <div className="mt-4">
                   <ReplyForum topicId={topic.id} parentId={reply.id} onCancel={() => setReplyingTo(null)} />

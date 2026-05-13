@@ -4,25 +4,23 @@ import Image from 'next/image'
 import { User } from '../../types/auth'
 import Link from 'next/link'
 import { CircleUser, Users, Flame } from 'lucide-react'
-import { useEffect, useState } from 'react'
 import { getUserPosts } from '@/app/lib/user'
 import { getFriends } from '@/app/lib/friends'
 import { getMyAnime, getMyManga } from '@/app/lib/library'
+import { useQueries } from '@tanstack/react-query'
 
 export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
-  const [friendsCount, setFriendsCount] = useState(0)
-  const [postCounts, setPostCount] = useState(0)
-  const [workCount, setWorkCount] = useState(0)
-
-  useEffect(() => {
-    if (user) {
-      getUserPosts(user.id).then((res) => setPostCount(res.total))
-      getFriends().then((res) => setFriendsCount(res.length))
-      Promise.all([getMyAnime(), getMyManga()]).then(([animes, mangas]) => {
-        setWorkCount(animes.length + mangas.length)
-      })
-    }
-  }, [user?.id])
+  const results = useQueries({
+    queries: [
+      { queryKey: ['user', user?.id, 'posts'], queryFn: () => getUserPosts(user!.id), enabled: !!user },
+      { queryKey: ['library', 'anime'], queryFn: getMyAnime, enabled: !!user },
+      { queryKey: ['library', 'manga'], queryFn: getMyManga, enabled: !!user },
+      { queryKey: ['friends'], queryFn: getFriends, enabled: !!user },
+    ],
+  })
+  const postCounts = results[0]?.data?.total ?? 0
+  const workCount = (results[1]?.data?.length ?? 0) + (results[2]?.data?.length ?? 0)
+  const friendsCount = results[3]?.data?.length ?? 0
 
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">

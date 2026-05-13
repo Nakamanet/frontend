@@ -10,6 +10,7 @@ import { toggleLikePost } from '../lib/likes'
 import { useToast } from '../context/ToastContext'
 import { useState } from 'react'
 import { unsavePost, savePost } from "../lib/post"
+import { useMutation } from '@tanstack/react-query'
 
 export default function PostCards({ post }: { post: Post }) {
   const { user } = useAuth()
@@ -18,31 +19,25 @@ export default function PostCards({ post }: { post: Post }) {
   const [liked, setLiked] = useState(post.likes?.some(l => l.user_id === user?.id) ?? false)
   const [saved, setSaved] = useState(false)
 
-  const handleLike = async (e: React.FormEvent) => {
-    e.preventDefault()
-    
-    await toggleLikePost(post.id)
-      .then(res => { 
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        res.liked ? showToast('Post liké', 'success') : showToast('Post delike', 'success'); 
-        setLikeCount(prev => res.liked ? prev + 1 : prev - 1); 
-        setLiked(res.liked)
-      })
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .catch(err => showToast('Erreur lors du like du post', 'error'))
-  }
+  const { mutate: like } = useMutation({
+    mutationFn: () => toggleLikePost(post.id),
+    onSuccess: (res) => {
+      res.liked ? showToast('Post liké', 'success') : showToast('Post deliké', 'success')
+      setLikeCount(prev => res.liked ? prev + 1 : prev - 1)
+      setLiked(res.liked)
+    },
+    onError: () => showToast('Erreur lors du like du post', 'error'),
+  })
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    saved 
-      ? unsavePost(post.id)
-        .then(() => { setSaved(false); showToast('Post retiré des sauvegardes', 'success') })
-        .catch(err => console.error(err))
-      : savePost(post.id)
-        .then(() => { setSaved(true); showToast('Post sauvegardé', 'success') })
-        .catch(err => console.error(err))
-  }
+  const { mutate: toggleSave } = useMutation({
+    mutationFn: () => saved ? unsavePost(post.id) : savePost(post.id),
+    onSuccess: () => {
+      saved
+        ? showToast('Post retiré des sauvegardes', 'success')
+        : showToast('Post sauvegardé', 'success')
+      setSaved(prev => !prev)
+    },
+  })
 
   return (
     <div key={post.id} className="bg-accent shadow-sm w-full border border-border rounded-[15px] p-6">
@@ -70,7 +65,10 @@ export default function PostCards({ post }: { post: Post }) {
           </div>
           <p>{post.content}</p>
           <div className="flex">
-            <button className='btn btn-ghost flex gap-2 p-2' onClick={handleLike}>
+            <button
+              className='btn btn-ghost flex gap-2 p-2'
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); like() }}
+            >
               <Heart size={20} className={liked ? 'fill-red-500 text-red-500' : ''}/>
               <p>{likeCount}</p>
             </button>
@@ -78,7 +76,10 @@ export default function PostCards({ post }: { post: Post }) {
               <MessageCircle size={20} />
               <p>{post.comments_count}</p>
             </button>
-            <button className="btn btn-ghost flex gap-2 p-2" onClick={handleSave}>
+            <button
+              className="btn btn-ghost flex gap-2 p-2"
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); toggleSave() }}
+            >
               <Bookmark size={20} className={saved ? 'text-black' : ""}/>
             </button>
           </div>

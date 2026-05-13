@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { getForums } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
 import { Paperclip } from 'lucide-react'
 import CreateForum from './components/CreateForum'
 import ForumCards from '../components/ForumCards'
 import AppLayout from '../components/layout/AppLayout'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 const CATEGORIES = [
   { id: '', label: 'Récents' },
@@ -18,26 +19,17 @@ const CATEGORIES = [
 ]
 
 export default function ForumPage() {
-  const [topics, setTopics] = useState<Forum[]>([])
-  const [isLoading, setIsLoading] = useState(true)
   const [activeCategory, setActiveCategory] = useState<string>('')
+  const queryClient = useQueryClient()
 
-  const fetchTopics = async () => {
-    setIsLoading(true)
-    try {
+  const { data, isLoading } = useQuery({
+    queryKey: ['forums', { category: activeCategory }],
+    queryFn: () => {
       const categoryParam = activeCategory !== '' ? (activeCategory as Forum['category']) : undefined
-      const forumsData = await getForums(1, categoryParam)
-      setTopics(forumsData.data || [])
-    } catch (err) {
-      console.error(err)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchTopics()
-  }, [activeCategory])
+      return getForums(1, categoryParam)
+    },
+  })
+  const topics = data?.data ?? []
 
   return (
     <AppLayout>
@@ -71,7 +63,7 @@ export default function ForumPage() {
         <div className="flex flex-col lg:flex-row gap-10 items-start flex-1">
           <div className="w-full lg:w-[200px] shrink-0 flex flex-col gap-6">
             <div className="w-full">
-              <CreateForum onCreated={fetchTopics}/>
+              <CreateForum onCreated={() => queryClient.invalidateQueries({ queryKey: ['forums'] })} />
             </div>
             <div className="flex flex-col gap-2 p-4 bg-accent rounded-[15px] border border-border">
               {CATEGORIES.map((cat) => (

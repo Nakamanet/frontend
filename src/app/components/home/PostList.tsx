@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
   Flame,
   Clock,
@@ -13,43 +13,41 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { User } from '../../types/auth'
-import { Post } from '../../types/post'
 import PostCards from '../PostCards'
-import { getPosts } from '@/app/lib/post'
-import { createPost } from '@/app/lib/post'
+import { getPosts, createPost } from '@/app/lib/post'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
   const [filter, setFilter] = useState('all')
-  const [posts, setPosts] = useState<Post[]>([])
   const [content, setContent] = useState('')
   const { showToast } = useToast()
+  const queryClient = useQueryClient()
 
-  useEffect(() => {
-    getPosts()
-      .then((res) => setPosts(res.data))
-      .catch((err) => console.error(err))
-  }, [])
+  const { data } = useQuery({
+    queryKey: ['posts'],
+    queryFn: () => getPosts(),
+  })
+  const posts = data?.data ?? []
 
-  const postPosts = async () => {
-    try {
-      await createPost({
-        content,
-        related_anime_id: null,
-        related_manga_id: null,
-        image_urls: null,
-        is_spoiler: false,
-      })
+  const { mutate: postPosts } = useMutation({
+    mutationFn: () => createPost({
+      content,
+      related_anime_id: null,
+      related_manga_id: null,
+      image_urls: null,
+      is_spoiler: false,
+    }),
+    onSuccess: () => {
       setContent('')
       showToast('Post publié avec succès', 'success')
-      getPosts().then((res) => setPosts(res.data))
-    } catch (err) {
+      queryClient.invalidateQueries({ queryKey: ['posts'] })
+    },
+    onError: () => {
       showToast('Echec lors de la publication du post', 'error')
-    }
-  }
-
-  console.log('posts : ', content)
+    },
+  })
 
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
@@ -87,7 +85,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                   <Smile size={20} />
                 </div>
                 <button
-                  onClick={postPosts}
+                  onClick={() => postPosts()}
                   className="btn btn-ghost px-4 border border-border text-border rounded-[15px]"
                 >
                   <SendHorizonal size={17} />
