@@ -16,7 +16,8 @@ export default function PostCards({ post }: { post: Post }) {
   const { user } = useAuth()
   const { showToast } = useToast()
   const [likeCount, setLikeCount] = useState(post.likes_count)
-  const [liked, setLiked] = useState(post.likes?.some(l => l.user_id === user?.id) ?? false)
+  const [likedOverride, setLikedOverride] = useState<boolean | null>(null)
+  const liked = likedOverride ?? (post.likes?.some(l => l.user_id === user?.id) ?? false)
   const [saved, setSaved] = useState(false)
 
   const { mutate: like } = useMutation({
@@ -24,7 +25,7 @@ export default function PostCards({ post }: { post: Post }) {
     onSuccess: (res) => {
       res.liked ? showToast('Post liké', 'success') : showToast('Post deliké', 'success')
       setLikeCount(prev => res.liked ? prev + 1 : prev - 1)
-      setLiked(res.liked)
+      setLikedOverride(res.liked)
     },
     onError: () => showToast('Erreur lors du like du post', 'error'),
   })
