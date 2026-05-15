@@ -26,7 +26,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
   const queryClient = useQueryClient()
 
   const { data } = useQuery({
-    queryKey: ['posts'],
+    queryKey: ['posts', { userId: user?.id }],
     queryFn: () => getPosts(),
   })
   const posts = data?.data ?? []
@@ -42,7 +42,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
     onSuccess: () => {
       setContent('')
       showToast('Post publié avec succès', 'success')
-      queryClient.invalidateQueries({ queryKey: ['posts'] })
+      queryClient.invalidateQueries({ queryKey: ['posts', { userId: user?.id }] })
     },
     onError: () => {
       showToast('Echec lors de la publication du post', 'error')
