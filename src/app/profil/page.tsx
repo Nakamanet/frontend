@@ -3,7 +3,7 @@
 import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
-import { CircleUser, MapPin, Calendar, BookOpen, Users } from 'lucide-react'
+import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
@@ -11,10 +11,8 @@ import MyTopics from './components/MyTopics'
 import Friends from './components/Friends'
 import Library from './components/Library'
 import Groups from './components/Groups'
-import { getUserPosts } from '../lib/user'
-import { getMyAnime, getMyManga } from '../lib/library'
-import { getFriends } from '../lib/friends'
-import { useQueries } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import { getUserProfil } from '../lib/user'
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
@@ -22,18 +20,11 @@ export default function ProfilPage() {
 
   if (!user) redirect('/login')
 
-  const results = useQueries({
-    queries: [
-      { queryKey: ['user', user.id, 'posts'], queryFn: () => getUserPosts(user.id) },
-      { queryKey: ['library', 'anime'], queryFn: getMyAnime },
-      { queryKey: ['library', 'manga'], queryFn: getMyManga },
-      { queryKey: ['friends'], queryFn: getFriends },
-    ],
+  const { data, isLoading } = useQuery({
+    queryKey: ['user', user.id, 'profile'],
+    queryFn: () => getUserProfil(user.id),
+    enabled: !!user.id,
   })
-  const postCount = results[0].data?.total ?? 0
-  const workCount = (results[1].data?.length ?? 0) + (results[2].data?.length ?? 0)
-  const friendsCount = results[3].data?.length ?? 0
-
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
@@ -78,13 +69,13 @@ export default function ProfilPage() {
               {new Date(user.created_at).toLocaleDateString()}
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> {workCount} oeuvres suivies
+              <BookOpen size={15} className="text-primary" /> {data?.library_count} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
-              <Users size={15} className="text-primary" /> {friendsCount} amis
+              <Users size={15} className="text-primary" /> {data?.friends_count} amis
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> {postCount} posts
+              <MessageSquare size={15} className="text-primary" /> {data?.posts_count} posts
             </p>
           </div>
           <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">

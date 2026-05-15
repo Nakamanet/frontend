@@ -10,7 +10,10 @@ export interface User {
   avatar_url?: string | null
   banner_url?: string | null
   theme_preference?: string | null
-  privacy?: boolean | null
+  profile_visibility: 'public' | 'friends_only' | 'private'
+  friends_count : number
+  posts_count: number
+  library_count: number
   created_at: string
   updated_at: string
 }

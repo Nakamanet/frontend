@@ -5,12 +5,12 @@ import { useAuth } from '../../../context/AuthContext'
 import { User } from '../../../types/auth'
 import { updateProfil } from '@/app/lib/user'
 import { useToast } from '@/app/context/ToastContext'
+import { Info } from 'lucide-react'
 
 export default function SupplementaireForm({ user }: { user: User }) {
   const { showToast } = useToast()
   const [birthdate, setBirthdate] = useState(user.birthdate)
   const [bio, setBio] = useState(user.bio)
-  const [privacy, setPrivacy] = useState(user.privacy ?? false)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -25,7 +25,6 @@ export default function SupplementaireForm({ user }: { user: User }) {
     try {
       const payload: Record<string, string> = {
         birthdate: birthdate ?? '',
-        // privacy: privacy ?? false,
         bio: bio ?? '',
       }
 
@@ -47,10 +46,18 @@ export default function SupplementaireForm({ user }: { user: User }) {
   return (
     <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
       <h3 className="text-2xl font-bold">Informations supplémentaires</h3>
-      <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitSupplementaire}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmitSupplementaire}>
         <div className="flex flex-col gap-2">
           <div className="flex flex-col">
-            <label htmlFor="birthdate">Date de naissance</label>
+            <div className='flex gap-2 items-center'>
+              <label htmlFor="birthdate">Date de naissance</label>
+              <div className='tooltip'>
+                <div className='tooltip-content'>
+                  <div>Ce champs permet de modérer les accès a certain type de contenue</div>
+                </div>
+                <Info size={17}/>
+              </div>
+            </div>
             <input
               type="date"
               id="birthdate"
@@ -62,50 +69,17 @@ export default function SupplementaireForm({ user }: { user: User }) {
           </div>
           {fieldErrors.birthdate && <p className="text-sm text-alerts">{fieldErrors.birthdate}</p>}
         </div>
-        <div className="grid row-span-2">
-          <div className="flex flex-col">
-            <label htmlFor="bio">Bio</label>
-            <textarea
-              id="bio"
-              name="bio"
-              className="textarea textarea-ghost bg-border rounded-[15px] min-h-[120px]"
-              value={bio || ''}
-              onChange={(e) => setBio(e.target.value)}
-            />
-          </div>
-          {fieldErrors.bio && <p className="text-sm text-alerts">{fieldErrors.bio}</p>}
+        <div className="flex flex-col">
+          <label htmlFor="bio">Bio</label>
+          <textarea
+            id="bio"
+            name="bio"
+            className="textarea textarea-ghost bg-border rounded-[15px] min-h-[120px] w-full"
+            value={bio || ''}
+            onChange={(e) => setBio(e.target.value)}
+          />
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <div className="flex flex-col">
-              <p>Profil privé</p>
-              <p className="text-sm text-border">Seul vos amis peuvent voir votre profil</p>
-            </div>
-
-            <label className={`toggle text-base-content rounded-full ${privacy ? 'bg-primary' : 'bg-border'}`}>
-              <input type="checkbox" checked={privacy} onChange={() => setPrivacy(!privacy)} />
-              <svg
-                aria-label="disabled"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-              </svg>
-              <svg aria-label="enabled" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="4" fill="none" stroke="currentColor">
-                  <path d="M20 6 9 17l-5-5"></path>
-                </g>
-              </svg>
-            </label>
-          </div>
-          {fieldErrors.privacy && <p className="text-sm text-alerts">{fieldErrors.privacy}</p>}
-        </div>
+        {fieldErrors.bio && <p className="text-sm text-alerts">{fieldErrors.bio}</p>}
 
         <button
           type="submit"

@@ -8,10 +8,8 @@ import { useToast } from '@/app/context/ToastContext'
 
 export default function PersonnalForm({ user }: { user: User }) {
   const { showToast } = useToast()
-  const [username, setUsername] = useState(user.username)
   const [email, setEmail] = useState(user.email)
-  const [password, setPassword] = useState('')
-  const [password_confirmation, setPassword_confirmation] = useState('')
+  const [username, setUsername] = useState(user.username)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -27,20 +25,6 @@ export default function PersonnalForm({ user }: { user: User }) {
       const payload: Record<string, string> = {
         username,
         email,
-        password: password ?? '',
-        password_confirmation: password_confirmation ?? '',
-      }
-
-      if (password && password_confirmation && password !== password_confirmation) {
-        setFieldErrors({ password: 'Les mots de passe ne correspondent pas' })
-        setIsSubmitting(false)
-        return
-      }
-
-      if ((password && !password_confirmation) || (!password && password_confirmation)) {
-        setFieldErrors({ password: 'Les deux champs doivent être remplis' })
-        setIsSubmitting(false)
-        return
       }
 
       const body = Object.fromEntries(
@@ -61,8 +45,8 @@ export default function PersonnalForm({ user }: { user: User }) {
   return (
     <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
       <h3 className="text-2xl font-bold">Informations personnelles</h3>
-      <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitPersonal}>
-        <div className="flex flex-col gap-2">
+      <form className="flex flex-col gap-4" onSubmit={handleSubmitPersonal}>
+        <div className="flex gap-2">
           <div className="flex flex-col">
             <label htmlFor="username">Nom d&apos;utilisateur</label>
             <input
@@ -88,35 +72,6 @@ export default function PersonnalForm({ user }: { user: User }) {
             />
           </div>
           {fieldErrors.email && <p className="text-sm text-alerts">{fieldErrors.email}</p>}
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col">
-            <label htmlFor="password">Mot de passe</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              className="input input-ghost bg-border rounded-full"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          {fieldErrors.password && <p className="text-sm text-alerts">{fieldErrors.password}</p>}
-
-          <div className="flex flex-col">
-            <label htmlFor="password_confirmation">Confirmation mot de passe</label>
-            <input
-              type="password"
-              id="password_confirmation"
-              name="password_confirmation"
-              className="input input-ghost bg-border rounded-full"
-              value={password_confirmation}
-              onChange={(e) => setPassword_confirmation(e.target.value)}
-            />
-          </div>
-          {fieldErrors.password_confirmation && (
-            <p className="text-sm text-alerts">{fieldErrors.password_confirmation}</p>
-          )}
         </div>
 
         <button

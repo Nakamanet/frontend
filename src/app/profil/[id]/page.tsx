@@ -1,25 +1,27 @@
 'use client'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
-import { CircleUser, MapPin, Calendar, BookOpen, Users } from 'lucide-react'
+import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
-import { getUserPosts } from '../../lib/user'
+import { getUserProfil } from '../../lib/user'
 import Activity from '../components/Activity'
 import { useQuery } from '@tanstack/react-query'
+import Friends from '../components/Friends'
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
   const { id } = useParams()
 
   const { data, isLoading } = useQuery({
-    queryKey: ['user', Number(id), 'posts'],
-    queryFn: () => getUserPosts(Number(id)),
+    queryKey: ['user', Number(id), 'profile'],
+    queryFn: () => getUserProfil(Number(id)),
     enabled: !!id,
   })
-  const profileUser = data?.data?.[0]?.user ?? null
+  const profileUser = data ?? null
 
   if (isLoading) return <div className="flex justify-center p-10">Chargement...</div>
   if (!profileUser) return <div className="flex justify-center p-10">Utilisateur introuvable</div>
+  const hasAccess = !!profileUser.role
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
@@ -58,13 +60,16 @@ export default function ProfilPage() {
             </p>
             <p className="flex items-center gap-2">
               <Calendar size={15} className="text-primary" /> Membre depuis le{' '}
-              {new Date(profileUser.created_at).toLocaleDateString()}
+              {new Date(profileUser.created_at!).toLocaleDateString()}
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> — oeuvres suivies
+              <BookOpen size={15} className="text-primary" /> {profileUser.library_count} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
-              <Users size={15} className="text-primary" /> — amis
+              <Users size={15} className="text-primary" /> {profileUser.friends_count} amis
+            </p>
+            <p className="flex items-center gap-2">
+              <MessageSquare size={15} className="text-primary" /> {profileUser.posts_count} posts
             </p>
           </div>
           <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
@@ -73,6 +78,7 @@ export default function ProfilPage() {
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`}
                   onClick={() => setActiveTab('activities')}
+                  disabled={!hasAccess}
                 >
                   Posts
                 </button>
@@ -81,16 +87,42 @@ export default function ProfilPage() {
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'forum' ? 'bg-primary text-primary-content' : 'text-border'}`}
                   onClick={() => setActiveTab('forum')}
+                  disabled={!hasAccess}
                 >
                   Forum
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'friends' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                  onClick={() => setActiveTab('friends')}
+                  disabled={!hasAccess}
+                >
+                  Amis
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                  onClick={() => setActiveTab('library')}
+                  disabled={!hasAccess}
+                >
+                  Bibliothèque
                 </button>
               </li>
             </ul>
           </div>
         </div>
         <div className="col-span-3 min-h-[70vh]">
-          {activeTab === 'activities' && <Activity user={profileUser} />}
-          {activeTab === 'forum' && <p className="p-7">Forum à venir</p>}
+          {!hasAccess 
+            ? <p>Ce profil est en privé...</p>
+            : <>
+                {activeTab === 'activities' && <Activity user={profileUser} />}
+                {activeTab === 'forum' && <p className="p-7">Forum à venir</p>}
+                {activeTab === 'friends' && <Friends user={profileUser} />}
+                {activeTab === 'library' && <p className="p-7">Bibliothèque</p>}
+              </>
+          }
         </div>
       </section>
     </main>
