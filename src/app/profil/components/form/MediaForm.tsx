@@ -2,105 +2,138 @@
 
 import { useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
-import { User } from '../../../types/auth'
-import { updateProfil } from '@/app/lib/user'
 import { useToast } from '@/app/context/ToastContext'
+import { getCroppedImage, uploadAvatar, uploadBanner } from '@/app/lib/upload'
+import { X } from 'lucide-react'
+import Cropper from 'react-easy-crop'
 
-export default function MediaForm({ user }: { user: User }) {
+export default function MediaForm() {
   const { showToast } = useToast()
-  const [avatar_url, setAvatar_url] = useState(user.avatar_url)
-  const [banner_url, setBanner_url] = useState(user.banner_url)
-  const [theme_preference, setTheme_preference] = useState(user.theme_preference ?? 'system')
-
+  const [isOpen, setIsOpen] = useState(false)
+  const [file, setFile] = useState<File | null>(null)
+  const [preview, setPreview] = useState<string | null>(null)
+  const [step, setStep] = useState<1 | 2>(1)
+  const [cropType, setCropType] = useState<'avatar' | 'banner' | null>(null)
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<{x: number, y: number, width: number, height: number} | null>(null)  
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
-
   const { refreshUser } = useAuth()
 
-  const handleSubmitMedias = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setFieldErrors({})
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0]
+    if (selected) {
+      setFile(selected)
+      setPreview(URL.createObjectURL(selected))
+    }
+  }
+
+  const handleSubmitAvatar = async () => {
     setIsSubmitting(true)
 
     try {
-      const payload: Record<string, string> = {
-        avatar_url: avatar_url ?? '',
-        banner_url: banner_url ?? '',
-        theme_preference: theme_preference ?? 'system',
-      }
-
-      const body = Object.fromEntries(
-        Object.entries(payload).filter(([, v]) => v !== undefined && v !== null && v !== '')
-      )
-
-      await updateProfil(body)
-      showToast('Profil modifié avec succès', 'success')
+      const blob = await getCroppedImage(preview!, croppedAreaPixels!, 400, 400)
+      await uploadAvatar(blob)
+      showToast('Avatar upload avec succès', 'success')
       await refreshUser()
+      resetModal()
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      showToast('Erreur lors de la modification du profil', 'error')
+      showToast("Erreur lors de l'upload de l'avatar", 'error')
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const handleSubmitBanner = async () => {
+    setIsSubmitting(true)
+
+    try {
+      const blob = await getCroppedImage(preview!, croppedAreaPixels!, 1500, 500)
+      await uploadBanner(blob)
+      showToast('Bannière upload avec succès', 'success')
+      await refreshUser()
+      resetModal()
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (err) {
+      showToast("Erreur lors de l'upload de la bannière", 'error')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const resetModal = () => {
+    setIsOpen(false)
+    setPreview(null)
+    setFile(null)
+    setStep(1)
+    setCropType(null)
+    setCrop({ x: 0, y: 0 })
+    setZoom(1)
+    setCroppedAreaPixels(null)
+  }
+
   return (
     <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
-      <h3 className="text-2xl font-bold">Médias</h3>
-      <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitMedias}>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col">
-            <label htmlFor="avatar_url">URL de l&apos;avatar</label>
-            <input
-              type="text"
-              id="avatar_url"
-              name="avatar_url"
-              className="input input-ghost bg-border rounded-full"
-              value={avatar_url ?? ''}
-              onChange={(e) => setAvatar_url(e.target.value)}
-            />
-          </div>
-          {fieldErrors.avatar_url && <p className="text-sm text-alerts">{fieldErrors.avatar_url}</p>}
+      <button 
+        onClick={() => setIsOpen(true)} 
+        className='btn btn-ghost border-none bg-primary text-primary-content'
+      >
+        Ajouter un média
+      </button>
+
+      {isOpen && (
+      <dialog className="modal modal-open">
+        <div className="modal-box flex flex-col gap-4">
+          {step === 1 && (
+            <div>
+              <h3 className="font-bold text-lg">Choisir un média</h3>
+              <input type="file" accept="image/*" onChange={handleFileChange} />
+              {preview && <img src={preview} alt="" className="rounded-[15px]" />}
+              {file && (
+                <div className="modal-action">
+                  <button 
+                    onClick={() => { setCropType('avatar'); setStep(2) }} 
+                    disabled={isSubmitting} 
+                    className="btn btn-primary"
+                  >Avatar</button>
+                  <button 
+                    onClick={() => { setCropType('banner'); setStep(2) }} 
+                    disabled={isSubmitting} 
+                    className="btn"
+                  >Bannière</button>
+                </div>
+              )}
+            </div>
+          )}
+          {step === 2 && (
+            <div className='flex flex-col gap-4'> 
+              <div className='relative h-70 w-full'>
+                <Cropper
+                  image={preview!}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={cropType === 'avatar' ? 1 : 3}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onCropComplete={(_, croppedPixels) => setCroppedAreaPixels(croppedPixels)}
+                />
+              </div>
+              <button 
+                className='btn btn-primary'
+                onClick={() => cropType === 'avatar' ? handleSubmitAvatar() : handleSubmitBanner()}
+              >
+                Confirmer
+              </button>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col">
-            <label htmlFor="banner_url">URL de la bannière</label>
-            <input
-              type="text"
-              id="banner_url"
-              name="banner_url"
-              className="input input-ghost bg-border rounded-full"
-              value={banner_url ?? ''}
-              onChange={(e) => setBanner_url(e.target.value)}
-            />
-          </div>
-          {fieldErrors.banner_url && <p className="text-sm text-alerts">{fieldErrors.banner_url}</p>}
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col">
-            <label htmlFor="theme_preference">Préférence de thème</label>
-            <select
-              id="theme_preference"
-              name="theme_preference"
-              className="input input-ghost bg-border rounded-full"
-              value={theme_preference || ''}
-              onChange={(e) => setTheme_preference(e.target.value)}
-            >
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-              <option value="system">System</option>
-            </select>
-          </div>
-          {fieldErrors.theme_preference && <p className="text-sm text-alerts">{fieldErrors.theme_preference}</p>}
-        </div>
-        <button
-          type="submit"
-          className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-        </button>
-      </form>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={() => resetModal()}><X /></button>
+        </form>
+      </dialog>
+    )}
     </div>
   )
 }

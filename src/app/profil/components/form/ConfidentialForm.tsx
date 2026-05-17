@@ -32,27 +32,25 @@ export default function ConfidentialForm({ user }: { user: User }) {
   return (
     <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
       <h3 className='text-2xl font-bold'>Confidentialité</h3>
-      <form onSubmit={handleSubmitConfidential} >
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col justify-between items-center">
-            <div className="flex flex-col">
-              <p>Profil privé</p>
-              <p className="text-sm text-border">Seul vos amis peuvent voir votre profil</p>
-            </div>
-
-            <label>
-              <select value={privacy} className='select' onChange={(e) => setPrivacy(e.target.value as 'public' | 'private' | 'friends_only')}>
-              <option value='public'>Public</option>
-              <option value='friends_only'>Amis uniquement</option>
-              <option value='private'>Privé</option>                
-              </select>
-            </label>
+      <form onSubmit={handleSubmitConfidential} className='flex flex-col w-full gap-4' >
+        <div className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <p>Profil privé</p>
+            <p className="text-sm text-border">Seul vos amis peuvent voir votre profil</p>
           </div>
+
+          <label>
+            <select value={privacy} className='select' onChange={(e) => setPrivacy(e.target.value as 'public' | 'private' | 'friends_only')}>
+            <option value='public'>Public</option>
+            <option value='friends_only'>Amis uniquement</option>
+            <option value='private'>Privé</option>                
+            </select>
+          </label>
         </div>
 
         <button
           type="submit"
-          className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"
+          className="btn btn-ghost border-none bg-primary text-primary-content"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}

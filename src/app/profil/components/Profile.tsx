@@ -8,6 +8,7 @@ import NotificationForm from './form/NotificationForm'
 import ConfidentialForm from './form/ConfidentialForm'
 import PasswordForm from './form/PasswordForm'
 import DeleteForm from './form/DeleteForm'
+import ThemeForm from './form/ThemeForm'
 
 export default function profil({ user }: { user: User }) {
   return (
@@ -20,7 +21,8 @@ export default function profil({ user }: { user: User }) {
       <div className="flex flex-col gap-6 w-full">
         <NotificationForm user={user} />
         <ConfidentialForm user={user} />
-        <MediaForm user={user} />
+        <MediaForm />
+        <ThemeForm user={user} />
       </div>
       <div className="col-span-2">
         <DeleteForm user={user} />
