@@ -1,8 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { replyToForum } from '@/app/lib/forum'
 import { useToast } from '@/app/context/ToastContext'
+import { useAuth } from '@/app/context/AuthContext'
 
 interface ReplyForumProps {
   topicId: number
@@ -12,11 +14,17 @@ interface ReplyForumProps {
 
 export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumProps) {
   const { showToast } = useToast()
+  const { isLoggedIn } = useAuth()
+  const router = useRouter()
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isLoggedIn) {
+      router.push('/login')
+      return
+    }
     setLoading(true)
 
     try {
@@ -30,6 +38,20 @@ export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumPr
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 border border-border bg-accent rounded-[15px] p-6 text-center">
+        <p className="text-[15px] text-border">Vous devez être connecté pour participer à la discussion.</p>
+        <button
+          onClick={() => router.push('/login')}
+          className="btn bg-alerts hover:bg-alerts/90 rounded-full px-6 py-2 font-bold text-white border-none"
+        >
+          Se connecter
+        </button>
+      </div>
+    )
   }
 
   return (

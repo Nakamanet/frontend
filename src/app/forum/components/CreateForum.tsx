@@ -1,13 +1,17 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createForum } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
-import { X } from 'lucide-react' // Ajout d'une icône pour fermer la modale
+import { X } from 'lucide-react'
 import { useToast } from '@/app/context/ToastContext'
+import { useAuth } from '@/app/context/AuthContext'
 
 export default function CreateForum({ onCreated }: { onCreated: () => void }) {
   const { showToast } = useToast()
+  const { isLoggedIn } = useAuth()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
@@ -48,7 +52,7 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
     <div className="w-full">
       {/* BOUTON PRINCIPAL */}
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => isLoggedIn ? setIsOpen(true) : router.push('/login')}
         className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-3 font-bold text-white border-none w-full"
       >
         Créer un sujet
