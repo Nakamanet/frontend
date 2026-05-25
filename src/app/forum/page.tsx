@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { getForums } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
 import { Paperclip } from 'lucide-react'
@@ -20,13 +20,20 @@ const CATEGORIES = [
 
 export default function ForumPage() {
   const [activeCategory, setActiveCategory] = useState<string>('')
+  const [searchInput, setSearchInput] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const queryClient = useQueryClient()
 
+  useEffect(() => {
+    const timer = setTimeout(() => setSearchQuery(searchInput), 300)
+    return () => clearTimeout(timer)
+  }, [searchInput])
+
   const { data, isLoading } = useQuery({
-    queryKey: ['forums', { category: activeCategory }],
+    queryKey: ['forums', { category: activeCategory, search: searchQuery }],
     queryFn: () => {
       const categoryParam = activeCategory !== '' ? (activeCategory as Forum['category']) : undefined
-      return getForums(1, categoryParam)
+      return getForums(1, categoryParam, searchQuery || undefined)
     },
   })
   const topics = data?.data ?? []
@@ -56,6 +63,8 @@ export default function ForumPage() {
             <input
               className="input input-bordered w-full bg-border rounded-full border-none focus:outline-none"
               placeholder="Rechercher dans le forum"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
             />
           </div>
         </div>
@@ -90,7 +99,7 @@ export default function ForumPage() {
                 </div>
               ) : topics.length === 0 ? (
                 <div className="flex justify-center items-center p-10 text-border text-[15px] flex-1 border border-border bg-accent rounded-[15px]">
-                  Aucun sujet trouvé dans cette catégorie.
+                  Aucun sujet trouvé.
                 </div>
               ) : (
                 topics.map((topic) => (

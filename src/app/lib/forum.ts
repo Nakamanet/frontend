@@ -1,9 +1,9 @@
 import api from './axios'
 import type { Forum, ForumReply, PaginatedForums } from '../types/forum'
 
-export async function getForums(page = 1, category?: Forum['category']): Promise<PaginatedForums> {
+export async function getForums(page = 1, category?: Forum['category'], search?: string): Promise<PaginatedForums> {
   const { data } = await api.get<PaginatedForums>('/forum/topics', {
-    params: { page, ...(category && { category }) },
+    params: { page, ...(category && { category }), ...(search && { search }) },
   })
   return data
 }
