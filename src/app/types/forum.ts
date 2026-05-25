@@ -24,6 +24,7 @@ export interface Forum {
   created_at: string
   updated_at: string
   replies_count: number
+  views_count: number
   user: User
   replies?: ForumReply[]
 }
