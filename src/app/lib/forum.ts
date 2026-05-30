@@ -31,3 +31,13 @@ export async function replyToForum(id: number, content: string, parent_id?: numb
   })
   return data
 }
+
+export async function voteOnTopic(id: number): Promise<{ votes_count: number; user_has_voted: boolean }> {
+  const { data } = await api.post(`/forum/topics/${id}/vote`)
+  return data
+}
+
+export async function voteOnReply(id: number): Promise<{ votes_count: number; user_has_voted: boolean }> {
+  const { data } = await api.post(`/forum/replies/${id}/vote`)
+  return data
+}

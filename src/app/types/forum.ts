@@ -6,6 +6,8 @@ export interface ForumReply {
   user_id: number
   parent_id: number | null
   content: string
+  votes_count: number
+  user_has_voted: boolean
   created_at: string
   updated_at: string
   user: User
@@ -25,6 +27,8 @@ export interface Forum {
   updated_at: string
   replies_count: number
   views_count: number
+  votes_count: number
+  user_has_voted: boolean
   user: User
   replies?: ForumReply[]
 }

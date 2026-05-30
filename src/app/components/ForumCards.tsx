@@ -1,6 +1,6 @@
 import { Forum } from "../types/forum";
 import Link from "next/link";
-import { MessageSquare, Eye } from "lucide-react";
+import { MessageSquare, Eye, ThumbsUp } from "lucide-react";
 
 export default function ForumCards({ topic }: { topic: Forum}) {
     return (
@@ -28,6 +28,9 @@ export default function ForumCards({ topic }: { topic: Forum}) {
                 </span>
                 <span className="flex items-center gap-1.5 transition-colors">
                     <Eye size={16} />{topic.views_count ?? 0}
+                </span>
+                <span className="flex items-center gap-1.5 transition-colors">
+                    <ThumbsUp size={16} />{topic.votes_count ?? 0}
                 </span>
                 </div>
             </div>
