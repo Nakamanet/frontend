@@ -12,7 +12,7 @@ import { useAuth } from '@/app/context/AuthContext'
 import type { ForumReply } from '@/app/types/forum'
 
 function groupReplies(replies: ForumReply[]): ForumReply[] {
-  const topLevel = replies.filter(r => !r.parent_id)
+  const topLevel = replies.filter(r => !r.parent_id).sort((a, b) => (b.votes_count ?? 0) - (a.votes_count ?? 0))
   const byParent = new Map<number, ForumReply[]>()
   for (const r of replies) {
     if (r.parent_id != null) {
