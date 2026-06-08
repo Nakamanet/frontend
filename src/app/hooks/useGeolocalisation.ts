@@ -23,7 +23,6 @@ export function useGeolocation() {
 
           if (data.location) setLocation(data.location)
           else setError('Localisation introuvable')
-          console.log(data.location)
         } catch {
           setError('Erreur lors de la récupération')
         } finally {
