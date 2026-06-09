@@ -28,11 +28,21 @@ export default function CharacterPage({ type, item }: Character) {
     staleTime: 5 * 60 * 1000,
   })
 
+  const sortedAnimeCharacters = [...animeCharacters].sort((a, b) => {
+    const rank = (r: string) => r.toLowerCase() === 'main' ? 0 : 1
+    return rank(a.role) - rank(b.role) || a.character.name.localeCompare(b.character.name)
+  })
+
+  const sortedMangaCharacters = [...mangaCharacters].sort((a, b) => {
+    const rank = (r: string | null) => r?.toLowerCase() === 'main' ? 0 : 1
+    return rank(a.role) - rank(b.role) || a.character.name.localeCompare(b.character.name)
+  })
+
   return (
     <div className="border border-border bg-accent rounded-[15px] p-5">
       {type === 'anime' && (
         <ul className="flex flex-wrap gap-2 justify-center">
-          {animeCharacters.map((ac) => (
+          {sortedAnimeCharacters.map((ac) => (
             <button
               key={ac.characterId}
               onClick={() => {
@@ -74,7 +84,7 @@ export default function CharacterPage({ type, item }: Character) {
       )}
       {type === 'manga' && (
         <ul className="flex flex-wrap gap-2 justify-center">
-          {mangaCharacters.map((mc) => (
+          {sortedMangaCharacters.map((mc) => (
             <button
               key={mc.characterId}
               onClick={() => {

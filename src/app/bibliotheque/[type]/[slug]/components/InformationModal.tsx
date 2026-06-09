@@ -48,8 +48,8 @@ export default function InformationModal({
         {/* Header */}
         <div className="p-4 border-b border-border flex items-center justify-between">
           <div className="flex flex-col gap-2">
-            <h2 className="font-bold text-lg">{item.titleEn}</h2>
-            <p className="text-sm text-base-content/70">{item.titleJp}</p>
+            <h2 className="font-bold text-lg">{item.titleEn || item.titleJp}</h2>
+            {item.titleEn && <p className="text-sm text-base-content/70">{item.titleJp}</p>}
           </div>
           <button className="btn btn-sm btn-circle btn-ghost" onClick={onClose}>
             <X size={20} />

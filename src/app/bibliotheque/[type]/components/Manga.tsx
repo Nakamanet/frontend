@@ -52,23 +52,27 @@ export default function MangaPage() {
               key={item.id}
               className="card bg-accent border border-border rounded-[15px] h-[450px] flex flex-col overflow-hidden"
             >
-              {item.posterImage ? (
-                <Link href={`/bibliotheque/manga/${item.slug}`} className="flex flex-col h-full min-h-0">
-                  <figure className="h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
+              <Link href={`/bibliotheque/manga/${item.slug}`} className="flex flex-col h-full min-h-0">
+                <figure className="h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
+                  {item.posterImage || item.coverImage ? (
                     <Image
-                      src={item.posterImage}
-                      alt={item.titleEn}
+                      src={(item.posterImage || item.coverImage)!}
+                      alt={item.titleEn || item.titleJp || ''}
                       width={250}
                       height={350}
                       className="h-full w-full object-cover"
                       priority
                     />
-                  </figure>
-                  <div className="card-body flex-1 min-h-[100px] flex flex-col items-center justify-center py-3">
-                    <h2 className="card-title text-center line-clamp-2">{item.titleEn}</h2>
-                  </div>
-                </Link>
-              ) : null}
+                  ) : (
+                    <div className="h-full w-full bg-base-200 flex items-center justify-center">
+                      <span className="text-base-content/30 text-sm">Pas d&apos;image</span>
+                    </div>
+                  )}
+                </figure>
+                <div className="card-body flex-1 min-h-[100px] flex flex-col items-center justify-center py-3">
+                  <h2 className="card-title text-center line-clamp-2">{item.titleEn || item.titleJp}</h2>
+                </div>
+              </Link>
             </div>
           ))}
         </div>

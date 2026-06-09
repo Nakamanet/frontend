@@ -111,8 +111,8 @@ export default function DetailPage() {
           </div>
           <div className="w-3/4 min-w-0 flex flex-col gap-10 overflow-hidden">
             <div className="min-w-0">
-              <p className="text-2xl font-bold">{item?.titleEn}</p>
-              <p className="text-lg">{item?.titleJp || 'N/A'}</p>
+              <p className="text-2xl font-bold">{item?.titleEn || item?.titleJp}</p>
+              {item?.titleEn && <p className="text-lg">{item.titleJp || 'N/A'}</p>}
             </div>
             <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden">
               <p className="text-xl">Synopsis</p>
