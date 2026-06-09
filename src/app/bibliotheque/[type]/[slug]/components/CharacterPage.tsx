@@ -1,7 +1,7 @@
 'use client'
 
 import { getAnimeCharacters, getMangaCharacters } from '@/app/lib/catalogue'
-import { Anime, AnimeCharacter, Manga, MangaCharacter } from '@/app/types/catalog'
+import { Anime, AnimeCharacter, Manga, MangaCharacter, Person } from '@/app/types/catalog'
 import { useState } from 'react'
 import Image from 'next/image'
 import CharacterModal from './CharacterModal'
@@ -9,9 +9,13 @@ import { useQuery } from '@tanstack/react-query'
 
 type Character = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
+export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> & {
+  persons: Person[]
+}
+
 export default function CharacterPage({ type, item }: Character) {
   const [detail, setDetail] = useState<
-    { type: 'anime'; item: AnimeCharacter } | { type: 'manga'; item: MangaCharacter }
+    { type: 'anime'; item: GroupedAnimeCharacter } | { type: 'manga'; item: MangaCharacter }
   >()
   const [characterModal, setCharacterModal] = useState(false)
 
@@ -28,10 +32,20 @@ export default function CharacterPage({ type, item }: Character) {
     staleTime: 5 * 60 * 1000,
   })
 
-  const sortedAnimeCharacters = [...animeCharacters].sort((a, b) => {
-    const rank = (r: string) => r.toLowerCase() === 'main' ? 0 : 1
-    return rank(a.role) - rank(b.role) || a.character.name.localeCompare(b.character.name)
-  })
+  const groupedAnimeCharacters = animeCharacters
+    .reduce<GroupedAnimeCharacter[]>((acc, ac) => {
+      const existing = acc.find(g => g.characterId === ac.characterId)
+      if (existing) {
+        existing.persons.push(ac.person)
+      } else {
+        acc.push({ animeId: ac.animeId, characterId: ac.characterId, role: ac.role, character: ac.character, persons: [ac.person] })
+      }
+      return acc
+    }, [])
+    .sort((a, b) => {
+      const rank = (r: string) => r.toLowerCase() === 'main' ? 0 : 1
+      return rank(a.role) - rank(b.role) || a.character.name.localeCompare(b.character.name)
+    })
 
   const sortedMangaCharacters = [...mangaCharacters].sort((a, b) => {
     const rank = (r: string | null) => r?.toLowerCase() === 'main' ? 0 : 1
@@ -42,7 +56,7 @@ export default function CharacterPage({ type, item }: Character) {
     <div className="border border-border bg-accent rounded-[15px] p-5">
       {type === 'anime' && (
         <ul className="flex flex-wrap gap-2 justify-center">
-          {sortedAnimeCharacters.map((ac) => (
+          {groupedAnimeCharacters.map((ac) => (
             <button
               key={ac.characterId}
               onClick={() => {
@@ -51,7 +65,7 @@ export default function CharacterPage({ type, item }: Character) {
               }}
               className="flex gap-4 border border-border w-[170px] rounded-[15px] bg-muted hover:bg-accent p-3"
             >
-              <li className="flex flex-col gap-3 justify-between w-[170px]">
+              <li className="flex flex-col gap-3 w-[170px]">
                 <div className="flex flex-col items-center gap-3">
                   <div className="relative w-30 h-[187px] rounded-[15px] overflow-hidden shrink-0">
                     <Image
@@ -62,17 +76,6 @@ export default function CharacterPage({ type, item }: Character) {
                     />
                   </div>
                   <p>{ac.character.name}</p>
-                </div>
-                <div className="flex gap-2  bg-accent rounded-[15px] overflow-hidden">
-                  {ac.person.imageUrl && (
-                    <Image
-                      src={ac.person.imageUrl}
-                      alt={ac.person.name}
-                      width={40}
-                      height={60}
-                    />
-                  )}
-                  <p className="flex items-center">{ac.person.name}</p>
                 </div>
               </li>
             </button>
