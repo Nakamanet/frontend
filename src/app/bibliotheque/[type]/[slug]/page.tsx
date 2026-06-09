@@ -123,11 +123,15 @@ export default function DetailPage() {
               {item?.synopsis ? (
                 <>
                   {voirPlus ? (
-                    <p className="min-w-0 ">{item?.synopsis}</p>
+                    <p className="min-w-0">{item?.synopsis}</p>
                   ) : (
-                    <p>{item?.synopsis.length > 300 ? item?.synopsis.substring(0, 300) + '...' : item?.synopsis}</p>
+                    <p>{item?.synopsis.split(/\s+/).length > 50 ? item?.synopsis.split(/\s+/).slice(0, 50).join(' ') + '...' : item?.synopsis}</p>
                   )}
-                  <button onClick={() => setVoirPlus(!voirPlus)}>{voirPlus ? 'Voir moins' : 'Voir plus'}</button>
+                  {item?.synopsis.split(/\s+/).length > 50 && (
+                    <div className="flex justify-end">
+                      <button onClick={() => setVoirPlus(!voirPlus)}>{voirPlus ? 'Voir moins' : 'Voir plus'}</button>
+                    </div>
+                  )}
                 </>
               ) : null}
             </div>

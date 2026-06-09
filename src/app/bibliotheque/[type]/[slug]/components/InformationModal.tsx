@@ -85,6 +85,10 @@ export default function InformationModal({
                 <td className="text-base-content/60">Date de début</td>
                 <td>{item.startDate ? new Date(item.startDate).toLocaleDateString('fr-FR') : 'N/A'}</td>
               </tr>
+              <tr>
+                <td className="text-base-content/60">Classification</td>
+                <td>{item.ageRating ?? 'PG'}</td>
+              </tr>
               {item.status !== 'ongoing' && (
                 <tr>
                   <td className="text-base-content/60">Date de fin</td>
