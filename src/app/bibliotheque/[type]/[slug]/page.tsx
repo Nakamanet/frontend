@@ -2,19 +2,19 @@
 
 import { useAuth } from '@/app/context/AuthContext'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
-import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
+import { useState, useEffect, useRef } from 'react'
+import { getAnimeById, getMangaById, getAnimeCharacters, getMangaCharacters, getEpisodes, getChapters } from '@/app/lib/catalogue'
 import { Anime, Manga } from '@/app/types/catalog'
 import Image from 'next/image'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, ChevronDown, Check, Trash2 } from 'lucide-react'
 import Chat from '@/app/components/home/Chat'
 import Calendar from '@/app/components/home/Calendar'
 import EpisodePage from './components/EpisodePage'
 import Thread from './components/Thread'
 import Information from './components/Information'
 import CharacterPage from './components/CharacterPage'
-import { addMyAnime, addMyManga } from '@/app/lib/library'
+import { addMyAnime, addMyManga, deleteMyAnime, deleteMyManga, getMyAnime, getMyManga } from '@/app/lib/library'
 import { useToast } from '@/app/context/ToastContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -35,13 +35,84 @@ export default function DetailPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const { mutate: handleSubmit } = useMutation({
-    mutationFn: (id: number) => type === 'anime'
-      ? addMyAnime({ anime_id: id, status: 'plan_to_watch', progress: 1, rewatch_count: 0, score: 1, is_private: false })
-      : addMyManga({ manga_id: id, status: 'plan_to_read', progress: 1, reread_count: 0, score: 1, is_private: false }),
+  const { data: characters = [], isFetched: charactersFetched } = useQuery({
+    queryKey: [type === 'anime' ? 'anime' : 'manga', item?.id, 'characters'],
+    queryFn: () => type === 'anime' ? getAnimeCharacters(item!.id) : getMangaCharacters(item!.id),
+    enabled: !!item?.id,
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const { data: episodeData, isFetched: episodesFetched } = useQuery({
+    queryKey: ['anime', item?.id, 'episodes', { page: 1, limit: 1 }],
+    queryFn: () => getEpisodes(item!.id, 1, 1),
+    enabled: !!item?.id && type === 'anime',
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const { data: chapterData, isFetched: chaptersFetched } = useQuery({
+    queryKey: ['manga', item?.id, 'chapters', { page: 1, limit: 1 }],
+    queryFn: () => getChapters(item!.id, 1, 1),
+    enabled: !!item?.id && type === 'manga',
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const hasCharacters = characters.length > 0
+  const hasEpisodes = type === 'anime' ? (episodeData?.meta.total ?? 0) > 0 : (chapterData?.meta.total ?? 0) > 0
+  const contentFetched = charactersFetched && (type === 'anime' ? episodesFetched : chaptersFetched)
+  const defaultFilterSet = useRef(false)
+
+  useEffect(() => {
+    if (contentFetched && !defaultFilterSet.current) {
+      defaultFilterSet.current = true
+      if (!hasCharacters) {
+        setFilter(hasEpisodes ? 'episode' : 'thread')
+      }
+    }
+  }, [contentFetched, hasCharacters, hasEpisodes])
+
+  const ANIME_STATUSES = [
+    { value: 'plan_to_watch', label: 'À regarder' },
+    { value: 'watching',      label: 'En cours' },
+    { value: 'completed',     label: 'Terminé' },
+    { value: 'on_hold',       label: 'En pause' },
+    { value: 'dropped',       label: 'Abandonné' },
+  ]
+  const MANGA_STATUSES = [
+    { value: 'plan_to_read', label: 'À lire' },
+    { value: 'reading',      label: 'En cours' },
+    { value: 'completed',    label: 'Terminé' },
+    { value: 'on_hold',      label: 'En pause' },
+    { value: 'dropped',      label: 'Abandonné' },
+  ]
+  const statuses = type === 'anime' ? ANIME_STATUSES : MANGA_STATUSES
+
+  const { data: myLibrary = [] } = useQuery<Array<{ anime_id?: number; manga_id?: number; status: string }>>({
+    queryKey: ['library', type as string],
+    queryFn: () => type === 'anime' ? getMyAnime() : getMyManga(),
+    enabled: !!user,
+    staleTime: 2 * 60 * 1000,
+  })
+
+  const myEntry = item
+    ? myLibrary.find((e) => type === 'anime' ? e.anime_id === item.id : e.manga_id === item.id)
+    : undefined
+
+  const { mutate: setStatus } = useMutation({
+    mutationFn: (status: string) => type === 'anime'
+      ? addMyAnime({ anime_id: item!.id, status, progress: null, rewatch_count: null, score: null, is_private: false })
+      : addMyManga({ manga_id: item!.id, status, progress: null, reread_count: null, score: null, is_private: false }),
     onSuccess: () => {
-      showToast(type === 'anime' ? 'Anime ajouté à votre bibliothèque avec succès' : 'Manga ajouté à votre bibliothèque avec succès', 'success')
       queryClient.invalidateQueries({ queryKey: ['library', type as string] })
+      if (!myEntry) showToast(type === 'anime' ? 'Anime ajouté à votre liste' : 'Manga ajouté à votre liste', 'success')
+    },
+    onError: (err) => showToast((err as Error).message, 'error'),
+  })
+
+  const { mutate: removeEntry } = useMutation({
+    mutationFn: () => type === 'anime' ? deleteMyAnime(item!.id) : deleteMyManga(item!.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['library', type as string] })
+      showToast('Retiré de votre liste', 'success')
     },
     onError: (err) => showToast((err as Error).message, 'error'),
   })
@@ -111,12 +182,43 @@ export default function DetailPage() {
                 <p className="text-3xl font-bold drop-shadow-md">{item?.titleEn || item?.titleJp}</p>
                 {item?.titleEn && <p className="text-xl drop-shadow-md">{item.titleJp || 'N/A'}</p>}
               </div>
-              <button
-                onClick={() => handleSubmit(item.id)}
-                className="btn btn-ghost border-none rounded-full bg-primary text-primary-content shrink-0"
-              >
-                Ajouter à ma liste
-              </button>
+              {user && myEntry ? (
+                <div className="dropdown dropdown-end shrink-0">
+                  <button tabIndex={0} className="btn btn-ghost border-none rounded-full bg-primary text-primary-content flex items-center gap-2">
+                    {statuses.find(s => s.value === myEntry.status)?.label ?? myEntry.status}
+                    <ChevronDown size={16} />
+                  </button>
+                  <ul tabIndex={0} className="dropdown-content z-50 mt-1 w-44 bg-base-100 border border-border rounded-xl shadow-lg overflow-hidden">
+                    {statuses.map((s) => (
+                      <li key={s.value}>
+                        <button
+                          onClick={() => setStatus(s.value)}
+                          className="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-accent"
+                        >
+                          {s.label}
+                          {myEntry.status === s.value && <Check size={14} />}
+                        </button>
+                      </li>
+                    ))}
+                    <li className="border-t border-border">
+                      <button
+                        onClick={() => removeEntry()}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-accent"
+                      >
+                        <Trash2 size={14} />
+                        Supprimer
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              ) : user ? (
+                <button
+                  onClick={() => setStatus(type === 'anime' ? 'plan_to_watch' : 'plan_to_read')}
+                  className="btn btn-ghost border-none rounded-full bg-primary text-primary-content shrink-0"
+                >
+                  Ajouter à ma liste
+                </button>
+              ) : null}
             </div>
             <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
               <p className="text-xl">Synopsis</p>
@@ -133,7 +235,9 @@ export default function DetailPage() {
                     </div>
                   )}
                 </>
-              ) : null}
+              ) : (
+                <p className="text-border italic">Pas de synopsis pour le moment.</p>
+              )}
             </div>
           </div>
         </div>
@@ -141,34 +245,24 @@ export default function DetailPage() {
         <div className="flex flex-col gap-5">
           <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-6">
             <div className="flex gap-5 items-center justify-center w-full">
+              {hasCharacters && (
+                <button
+                  onClick={() => setFilter('characters')}
+                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
+                >
+                  <span className="hidden md:inline">Personnages</span>
+                </button>
+              )}
+              {hasEpisodes && (
+                <button
+                  onClick={() => setFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
+                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
+                >
+                  <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
+                </button>
+              )}
               <button
-                onClick={() => {
-                  setFilter('characters')
-                }}
-                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
-              >
-                <span className="hidden md:inline">Personnages</span>
-              </button>
-              <button
-                onClick={() => {
-                  if (filter === 'episode') {
-                    setFilter('characters')
-                  } else {
-                    setFilter('episode')
-                  }
-                }}
-                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
-              >
-                <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
-              </button>
-              <button
-                onClick={() => {
-                  if (filter === 'thread') {
-                    setFilter('characters')
-                  } else {
-                    setFilter('thread')
-                  }
-                }}
+                onClick={() => setFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
                 className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'thread' ? 'bg-alerts text-white' : 'text-border'}`}
               >
                 <span className="hidden md:inline">Fil de discussion</span>

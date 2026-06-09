@@ -7,10 +7,10 @@ import Image from 'next/image'
 import { format, parseISO } from 'date-fns'
 
 type EpisodeModalProps =
-  | { isOpen: boolean; onClose: () => void; type: 'anime'; item: Episode }
-  | { isOpen: boolean; onClose: () => void; type: 'manga'; item: Chapter }
+  | { isOpen: boolean; onClose: () => void; type: 'anime'; item: Episode; coverImage: string | null }
+  | { isOpen: boolean; onClose: () => void; type: 'manga'; item: Chapter; coverImage: string | null }
 
-export default function EpisodeModal({ isOpen, onClose, type, item }: EpisodeModalProps) {
+export default function EpisodeModal({ isOpen, onClose, type, item, coverImage }: EpisodeModalProps) {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -32,45 +32,49 @@ export default function EpisodeModal({ isOpen, onClose, type, item }: EpisodeMod
         onClick={(e) => e.stopPropagation()}
       >
         {type === 'anime' && (
-          <div className="flex justify-between">
-            {item.thumbnailUrl && (
-              <Image src={item.thumbnailUrl} alt={item.title} width="200" height="200" className="m-6" />
-            )}
-            <div className="flex flex-col gap-2 my-6">
-              <h1>
-                {item.number}. {item.title}
-              </h1>
-              <p className="font-medium text-gray-400">
-                {format(parseISO(item.airdate), 'dd/MM/yyyy')} - {item.length} min
-              </p>
-              <p>Description de l&apos;épisode/chapitre quand disponible</p>
+          <div className="flex gap-4 p-4">
+            <div className="relative shrink-0 w-40 h-25 rounded-[10px] overflow-hidden bg-primary">
+              <Image
+                src={item.thumbnailUrl ?? coverImage ?? '/bg.png'}
+                alt={item.title}
+                fill
+                sizes="160px"
+                className="object-cover"
+              />
             </div>
-            <button className="btn btn-sm btn-circle btn-ghost m-2" onClick={onClose}>
+            <div className="flex flex-col gap-2 flex-1 min-w-0">
+              <p className="font-bold truncate">{item.number}. {item.title}</p>
+              <p className="text-sm text-gray-400">
+                {item.airdate ? format(parseISO(item.airdate), 'dd/MM/yyyy') : 'Date inconnue'}
+                {item.length ? ` — ${item.length} min` : ''}
+              </p>
+              <p className="text-sm text-border">Description de l&apos;épisode non disponible</p>
+            </div>
+            <button className="btn btn-sm btn-circle btn-ghost shrink-0 self-start" onClick={onClose}>
               <X size={20} />
             </button>
           </div>
         )}
         {type === 'manga' && (
-          <div className="flex justify-between">
-            {/* {item.thumbnailUrl && (
-                    <Image 
-                        src={item.thumbnailUrl}
-                        alt={item.title}
-                        width="200"
-                        height="200"
-                        className='m-6'
-                    />
-                )} */}
-            <div className="flex flex-col gap-2 my-6">
-              <h1>
-                {item.number}. {item.title}
-              </h1>
-              <p className="font-medium text-gray-400">
-                {item.releaseDate ? format(parseISO(item.releaseDate), 'dd/MM/yyyy') : null} - {item.volumeNumber} pages
-              </p>
-              <p>Description de l&apos;épisode/chapitre quand disponible</p>
+          <div className="flex gap-4 p-4">
+            <div className="relative shrink-0 w-40 h-25 rounded-[10px] overflow-hidden bg-primary">
+              <Image
+                src={coverImage ?? '/bg.png'}
+                alt={item.title ?? `Chapitre ${item.number}`}
+                fill
+                sizes="160px"
+                className="object-cover"
+              />
             </div>
-            <button className="btn btn-sm btn-circle btn-ghost m-2" onClick={onClose}>
+            <div className="flex flex-col gap-2 flex-1 min-w-0">
+              <p className="font-bold truncate">{item.number}. {item.title ?? `Chapitre ${item.number}`}</p>
+              <p className="text-sm text-gray-400">
+                {item.releaseDate ? format(parseISO(item.releaseDate), 'dd/MM/yyyy') : 'Date inconnue'}
+                {item.volumeNumber ? ` — Volume ${item.volumeNumber}` : ''}
+              </p>
+              <p className="text-sm text-border">Description du chapitre non disponible</p>
+            </div>
+            <button className="btn btn-sm btn-circle btn-ghost shrink-0 self-start" onClick={onClose}>
               <X size={20} />
             </button>
           </div>

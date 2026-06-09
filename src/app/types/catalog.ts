@@ -93,8 +93,8 @@ export interface Episode {
   animeId: number
   number: number
   title: string
-  airdate: string
-  length: number
+  airdate: string | null
+  length: number | null
   thumbnailUrl: string | null
 }
 
