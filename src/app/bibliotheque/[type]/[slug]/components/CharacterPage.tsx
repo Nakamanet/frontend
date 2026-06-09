@@ -53,17 +53,14 @@ export default function CharacterPage({ type, item }: Character) {
             >
               <li className="flex flex-col gap-3 justify-between w-[170px]">
                 <div className="flex flex-col items-center gap-3">
-                  {ac.character.imageUrl ? (
-                    <Image 
-                      src={ac.character.imageUrl} 
-                      alt={ac.character.name} 
-                      width={120} 
-                      height={100} 
-                      className='rounded-[15px] overflow-hidden'
+                  <div className="relative w-30 h-[187px] rounded-[15px] overflow-hidden shrink-0">
+                    <Image
+                      src={ac.character.imageUrl || '/logo.png'}
+                      alt={ac.character.name}
+                      fill
+                      className="object-cover"
                     />
-                  ) : (
-                    <span className="border border-accent w-[120px] h-[187px] bg-accent"></span>
-                  )}
+                  </div>
                   <p>{ac.character.name}</p>
                 </div>
                 <div className="flex gap-2  bg-accent rounded-[15px] overflow-hidden">
@@ -95,17 +92,14 @@ export default function CharacterPage({ type, item }: Character) {
             >
               <li className="flex flex-col gap-3 justify-between w-[170px]">
                 <div className="flex flex-col items-center gap-3">
-                  {mc.character.imageUrl ? (
-                    <Image 
-                      src={mc.character.imageUrl} 
-                      alt={mc.character.name} 
-                      width={120} 
-                      height={100} 
-                      className='rounded-[15px] overflow-hidden'
+                  <div className="relative w-30 h-[187px] rounded-[15px] overflow-hidden shrink-0">
+                    <Image
+                      src={mc.character.imageUrl || '/logo.png'}
+                      alt={mc.character.name}
+                      fill
+                      className="object-cover"
                     />
-                  ) : (
-                    <span className="border border-accent w-[120px] h-[187px] bg-accent"></span>
-                  )}
+                  </div>
                   <p>{mc.character.name}</p>
                 </div>
               </li>

@@ -1,6 +1,7 @@
 import { AnimeCharacter, MangaCharacter } from '@/app/types/catalog'
 import { useEffect } from 'react'
 import Image from 'next/image'
+import CharacterDescription from './CharacterDescription'
 
 type CharacterModalProps =
   | { isOpen: boolean; onClose: () => void; type: 'anime'; item: AnimeCharacter }
@@ -32,21 +33,18 @@ export default function CharacterModal({ isOpen, onClose, type, item }: Characte
                 className="grid grid-cols-6 gap-4 p-4"
             >
                 <div className="col-span-2 flex justify-center gap-3 m-2">
-                    {item.character.imageUrl ? (
-                        <Image 
-                            src={item.character.imageUrl} 
-                            alt={item.character.name} 
-                            width={200} 
-                            height={140} 
-                            className='rounded-[15px]'
+                    <div className="relative w-50 h-70 rounded-[15px] overflow-hidden shrink-0">
+                        <Image
+                            src={item.character.imageUrl || '/logo.png'}
+                            alt={item.character.name}
+                            fill
+                            className="object-cover"
                         />
-                    ) : (
-                        <span className="border border-accent w-[200px] h-[250px] bg-accent"></span>
-                    )}
+                    </div>
                 </div>
                 <div className='col-span-4 flex flex-col gap-4'>
                     <p>{item.character.name}</p>
-                    <p>{item.character.description}</p>
+                    <CharacterDescription text={item.character.description} />
                     {type === 'anime' && (
                         <div className='flex bg-accent gap-5 rounded-[15px] overflow-hidden'>
                             {item.person.imageUrl ? (
