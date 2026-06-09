@@ -68,23 +68,25 @@ export default function DetailPage() {
             </Link>
           </div>
           {/* Fond */}
-          <div className="w-full h-40 shrink-0 rounded-[15px] overflow-hidden bg-primary">
+          <div className="relative w-full h-64 shrink-0 rounded-[15px] overflow-hidden bg-primary z-0">
             {item?.coverImage ? (
               <Image
                 src={item.coverImage}
                 alt="Bannière"
-                width={100}
-                height={100}
-                className="object-cover w-full h-full"
+                fill
+                sizes="(max-width: 768px) 100vw, 80vw"
+                className="object-cover"
+                priority
               />
             ) : (
-              <Image src="/bg.png" alt="Bannière" width={100} height={100} className="object-cover w-full h-full" />
+              <Image src="/bg.png" alt="Bannière" fill sizes="(max-width: 768px) 100vw, 80vw" className="object-cover" priority />
             )}
+            <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/60" />
           </div>
         </div>
         {/* Section Content */}
-        <div className="flex w-full px-5 gap-5" style={{ marginTop: '-80px', marginBottom: '30px' }}>
-          <div className="w-1/4 shrink-0 self-start gap-4 flex flex-col items-center">
+        <div className="relative z-10 grid grid-cols-4 w-full px-5 gap-5" style={{ marginTop: '-80px', marginBottom: '30px' }}>
+          <div className="col-span-1 shrink-0 gap-4 flex flex-col items-center">
             {item?.posterImage ? (
               <Image
                 src={item.posterImage}
@@ -102,19 +104,21 @@ export default function DetailPage() {
                 className="object-cover w-full h-full rounded-[15px]"
               />
             )}
-            <button  
-              onClick={() => handleSubmit(item.id)}
-              className="btn btn-ghost border-none rounded-full bg-primary text-primary-content"
-            >
-              Ajouter à ma liste
-            </button>
           </div>
-          <div className="w-3/4 min-w-0 flex flex-col gap-10 overflow-hidden">
-            <div className="min-w-0">
-              <p className="text-2xl font-bold">{item?.titleEn || item?.titleJp}</p>
-              {item?.titleEn && <p className="text-lg">{item.titleJp || 'N/A'}</p>}
+          <div className="col-span-3 min-w-0 flex flex-col gap-10 overflow-hidden">
+            <div className="flex items-end justify-between gap-4 min-w-0">
+              <div className="min-w-0">
+                <p className="text-3xl font-bold drop-shadow-md">{item?.titleEn || item?.titleJp}</p>
+                {item?.titleEn && <p className="text-xl drop-shadow-md">{item.titleJp || 'N/A'}</p>}
+              </div>
+              <button
+                onClick={() => handleSubmit(item.id)}
+                className="btn btn-ghost border-none rounded-full bg-primary text-primary-content shrink-0"
+              >
+                Ajouter à ma liste
+              </button>
             </div>
-            <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden">
+            <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
               <p className="text-xl">Synopsis</p>
               {item?.synopsis ? (
                 <>
