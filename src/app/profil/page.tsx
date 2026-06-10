@@ -68,15 +68,16 @@ export default function ProfilPage() {
               sizes="(max-width: 1200px) 100vw, 1500px"
             />
           ) : null}
+          <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/60" />
         </div>
         <div className="relative z-10 flex items-end p-5 h-full gap-4">
-          <p className="absolute -bottom-3 left-10 bg-accent p-1 rounded-[15px]">
+          <div className="absolute -bottom-6 left-10 w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center overflow-hidden z-10 text-base-content/70">
             {user.avatar_url ? (
-              <Image src={user.avatar_url} alt="Avatar" width={60} height={60} />
+              <Image src={user.avatar_url} alt="Avatar" width={65} height={65} className="w-full h-full object-cover" />
             ) : (
-              <CircleUser size={50} strokeWidth={1.5} className="p-3" />
+              <CircleUser size={50} strokeWidth={1.5} />
             )}
-          </p>
+          </div>
           <div className="flex flex-col absolute bottom-1 left-30">
             <p className="text-lg">{user.username}</p>
             <p className="text-border">@{user.username}</p>
