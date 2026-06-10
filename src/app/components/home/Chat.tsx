@@ -94,14 +94,14 @@ export default function Chat({ user }: { user: User | null }) {
             })}
           </div>
           <div className="flex items-center gap-2 mx-2 mt-2 p-2 bg-muted rounded-full border border-border">
-            <Smile size={20} className="text-border shrink-0" />
+            <Smile size={20} className="text-text/50 shrink-0 hover:text-primary transition-colors cursor-pointer" />
             <input
               type="text"
               placeholder="Envoyer un message"
-              className="input input-ghost w-full bg-transparent text-sm text-border focus:outline-none"
+              className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"
             />
-            <button type="button" className="btn btn-circle btn-ghost btn-sm bg-primary shrink-0">
-              <SendHorizonal size={18} className="text-primary-content" />
+            <button type="button" className="btn btn-circle btn-ghost btn-sm bg-primary hover:bg-primary/80 shrink-0 transition-colors">
+              <SendHorizonal size={18} className="text-white" />
             </button>
           </div>
         </div>

@@ -24,9 +24,9 @@ export default function Navbar() {
 
         {/* Nav links - desktop only */}
         <div className="hidden md:flex gap-20">
-          <Link href="/bibliotheque">Bibliothèque</Link>
-          <Link href="/forum">Forum</Link>
-          <Link href="/chat">Chat</Link>
+          <Link href="/bibliotheque" className="hover:text-primary transition-colors">Bibliothèque</Link>
+          <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
+          <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
         </div>
 
         {/* Right side */}
@@ -38,7 +38,7 @@ export default function Navbar() {
                 className="hidden md:block cursor-pointer hover:text-primary transition-colors"
                 onClick={() => setSearchModalOpen(true)}
               />
-              <Bell size={27} className="hidden md:block" />
+              <Bell size={27} className="hidden md:block cursor-pointer hover:text-primary transition-colors" />
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                   <div className="w-10 rounded-full">

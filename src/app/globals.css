@@ -31,6 +31,10 @@
   --font-montserrat: var(--font-montserrat);
 }
 
+html {
+  background: var(--bg);
+}
+
 body {
   background: var(--bg);
   color: var(--text);

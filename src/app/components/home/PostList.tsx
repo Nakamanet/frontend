@@ -76,17 +76,22 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Partage ton avis sur un manga, un anime, etc"
                   maxLength={500}
-                  className="input text-border input-ghost w-full h-10"
+                  className="input text-text placeholder:text-text/40 input-ghost w-full h-10"
                 />
               </div>
               <div className="flex justify-between gap-2">
                 <div className="flex gap-2 pt-2">
-                  <ImageIcon size={20} />
-                  <Smile size={20} />
+                  <ImageIcon size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
+                  <Smile size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
                 </div>
                 <button
                   onClick={() => postPosts()}
-                  className="btn btn-ghost px-4 border border-border text-border rounded-[15px]"
+                  disabled={!content.trim()}
+                  className={`btn px-4 rounded-[15px] transition-all duration-200 ${
+                    content.trim()
+                      ? 'btn-ghost border border-primary text-primary hover:bg-primary hover:text-white'
+                      : 'btn-ghost border border-border text-text/30 cursor-not-allowed'
+                  }`}
                 >
                   <SendHorizonal size={17} />
                   Poster
@@ -107,7 +112,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 setFilter('trends')
               }
             }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'trends' ? 'bg-alerts text-white' : 'text-border'}`}
+            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'trends' ? 'bg-primary text-white' : 'text-text/70 hover:bg-primary/20 hover:text-text'}`}
           >
             <Flame size={18} />
             <span className="hidden md:inline">Tendances</span>
@@ -120,7 +125,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 setFilter('recent')
               }
             }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'recent' ? 'bg-alerts text-white' : 'text-border'}`}
+            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'recent' ? 'bg-primary text-white' : 'text-text/70 hover:bg-primary/20 hover:text-text'}`}
           >
             <Clock size={18} />
             <span className="hidden md:inline">Récents</span>
@@ -133,16 +138,16 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 setFilter('friends')
               }
             }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'friends' ? 'bg-alerts text-white' : 'text-border'}`}
+            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'friends' ? 'bg-primary text-white' : 'text-text/70 hover:bg-primary/20 hover:text-text'}`}
           >
             <Users size={18} />
             <span className="hidden md:inline">Amis</span>
           </button>
         </div>
-        <div className="flex px-4 gap-2">
+        <button className="flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal text-text/70 hover:text-text transition-colors rounded-full">
           <SlidersHorizontal size={20} />
           <p className="hidden md:inline">Filtres</p>
-        </div>
+        </button>
       </div>
       {/* Zone des posts */}
       {posts.length > 0 ? (

@@ -41,7 +41,7 @@ export default function PostCards({ post }: { post: Post }) {
   })
 
   return (
-    <div key={post.id} className="bg-accent shadow-sm w-full border border-border rounded-[15px] p-6">
+    <div key={post.id} className="bg-accent shadow-sm w-full border border-border hover:border-primary/50 rounded-[15px] p-6 transition-colors cursor-pointer">
       <div className="flex gap-3">
         <div>
           {post.user.avatar_url ? (
@@ -61,27 +61,27 @@ export default function PostCards({ post }: { post: Post }) {
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
             <p className="font-bold">{post.user.username}</p>
-            <p className="text-sm text-border">@{post.user.username}</p>
-            <p className="text-sm text-border">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
+            <p className="text-sm text-text/60">@{post.user.username}</p>
+            <p className="text-sm text-text/60">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
           </div>
           <p>{post.content}</p>
           <div className="flex">
             <button
-              className='btn btn-ghost flex gap-2 p-2'
+              className='btn btn-ghost flex gap-2 p-2 hover:text-red-400 transition-colors'
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); like() }}
             >
-              <Heart size={20} className={liked ? 'fill-red-500 text-red-500' : ''}/>
+              <Heart size={20} className={liked ? 'fill-red-500 text-red-500' : 'text-text/70'}/>
               <p>{likeCount}</p>
             </button>
-            <button className="btn btn-ghost flex gap-2 p-2">
+            <button className="btn btn-ghost flex gap-2 p-2 text-text/70 hover:text-primary transition-colors">
               <MessageCircle size={20} />
               <p>{post.comments_count}</p>
             </button>
             <button
-              className="btn btn-ghost flex gap-2 p-2"
+              className="btn btn-ghost flex gap-2 p-2 hover:text-primary transition-colors"
               onClick={(e) => { e.stopPropagation(); e.preventDefault(); toggleSave() }}
             >
-              <Bookmark size={20} className={saved ? 'text-black' : ""}/>
+              <Bookmark size={20} className={saved ? 'fill-primary text-primary' : 'text-text/70'}/>
             </button>
           </div>
         </div>

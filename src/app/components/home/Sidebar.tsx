@@ -9,7 +9,7 @@ import { getFriends } from '@/app/lib/friends'
 import { getMyAnime, getMyManga } from '@/app/lib/library'
 import { useQueries } from '@tanstack/react-query'
 
-export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
+export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { isLoggedIn: boolean; isAuthLoading?: boolean; user: User | null }) {
   const results = useQueries({
     queries: [
       { queryKey: ['user', user?.id, 'posts'], queryFn: () => getUserPosts(user!.id), enabled: !!user },
@@ -24,7 +24,7 @@ export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; use
 
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
-      {isLoggedIn && user ? (
+      {!isAuthLoading && isLoggedIn && user ? (
         <div className="card w-full bg-accent shadow-sm border border-border overflow-hidden rounded-[15px]">
           {/* Bloc identité de l'utilisateur */}
           {/* Bannière : image ou fond rouge */}
@@ -57,7 +57,7 @@ export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; use
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-bold text-base truncate">{user.username}</p>
-                <p className="text-sm text-border">@{user.username}</p>
+                <p className="text-sm text-white/60">@{user.username}</p>
               </div>
             </div>
             {/* Stats : Oeuvres, Amis, Posts */}
@@ -65,15 +65,15 @@ export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; use
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
                   <p className="text-xl font-bold">{workCount}</p>
-                  <p className="text-sm text-black/70">Oeuvres</p>
+                  <p className="text-sm text-white/60">Oeuvres</p>
                 </div>
                 <div>
                   <p className="text-xl font-bold">{friendsCount}</p>
-                  <p className="text-sm text-black/70">Amis</p>
+                  <p className="text-sm text-white/60">Amis</p>
                 </div>
                 <div>
                   <p className="text-xl font-bold">{postCounts}</p>
-                  <p className="text-sm text-black/70">Posts</p>
+                  <p className="text-sm text-white/60">Posts</p>
                 </div>
               </div>
             </div>
@@ -83,7 +83,7 @@ export default function SideBar({ isLoggedIn, user }: { isLoggedIn: boolean; use
       {/* Bloc Activité des amis a remplir quand l'API fonctionnera*/}
       <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-[15px]">
         <div className="card-body flex justify-center w-full">
-          {isLoggedIn ? (
+          {isAuthLoading ? null : isLoggedIn ? (
             <div className="flex gap-2">
               <Users size={20} />
               <p className="text-sm"> Activité amis</p>

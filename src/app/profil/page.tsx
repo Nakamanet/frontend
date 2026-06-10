@@ -35,7 +35,7 @@ const TAB_TO_HASH: Record<string, string> = {
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
-  const { user } = useAuth()
+  const { user, isAuthLoading } = useAuth()
 
   useEffect(() => {
     const hash = window.location.hash.replace('#', '')
@@ -47,23 +47,28 @@ export default function ProfilPage() {
     window.history.replaceState(null, '', `#${TAB_TO_HASH[tab]}`)
   }
 
-  if (!user) redirect('/login')
-
   const { data } = useQuery({
-    queryKey: ['user', user.id, 'profile'],
-    queryFn: () => getUserProfil(user.id),
-    enabled: !!user.id,
+    queryKey: ['user', user?.id ?? 0, 'profile'],
+    queryFn: () => getUserProfil(user!.id),
+    enabled: !!user?.id,
   })
 
   const results = useQueries({
     queries: [
-      { queryKey: ['user', user.id, 'posts'], queryFn: () => getUserPosts(user.id), enabled: !!user.id },
-      { queryKey: ['library', 'anime'], queryFn: getMyAnime, enabled: !!user.id },
-      { queryKey: ['library', 'manga'], queryFn: getMyManga, enabled: !!user.id },
+      { queryKey: ['user', user?.id ?? 0, 'posts'], queryFn: () => getUserPosts(user!.id), enabled: !!user?.id },
+      { queryKey: ['library', 'anime'], queryFn: getMyAnime, enabled: !!user?.id },
+      { queryKey: ['library', 'manga'], queryFn: getMyManga, enabled: !!user?.id },
     ],
   })
   const postsCount = results[0]?.data?.total ?? 0
   const libraryCount = (results[1]?.data?.length ?? 0) + (results[2]?.data?.length ?? 0)
+
+  if (isAuthLoading) return (
+    <div className="flex items-center justify-center min-h-[80vh]">
+      <span className="loading loading-spinner loading-lg text-primary" />
+    </div>
+  )
+  if (!user) redirect('/login')
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">

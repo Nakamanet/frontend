@@ -14,15 +14,15 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, sidebar = false }: AppLayoutProps) {
-  const { isLoggedIn, user } = useAuth()
+  const { isLoggedIn, isAuthLoading, user } = useAuth()
   const pathname = usePathname()
 
   if (sidebar) {
     return (
       <>
-        <main className="md:grid md:grid-cols-5 md:place-items-center md:h-screen px-4 md:px-15 py-5 md:py-10 max-w-[1500px] mx-auto pb-20 md:pb-10">
+        <main className="md:grid md:grid-cols-5 md:place-items-center md:h-full px-4 md:px-15 py-5 md:py-10 max-w-[1500px] mx-auto pb-20 md:pb-10">
           <section className="hidden md:flex flex-col w-full h-full gap-5">
-            <SideBar isLoggedIn={isLoggedIn} user={user} />
+            <SideBar isLoggedIn={isLoggedIn} isAuthLoading={isAuthLoading} user={user} />
           </section>
           <section className="flex flex-col md:col-span-3 w-full h-full min-h-0 md:px-6 gap-3 overflow-y-auto scrollbar-hide">
             {children}

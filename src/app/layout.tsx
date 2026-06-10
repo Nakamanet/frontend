@@ -13,12 +13,12 @@ const montserrat = Montserrat({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="fr">
-      <body className={montserrat.className}>
+      <body className={`${montserrat.className} md:flex md:flex-col md:h-dvh md:overflow-hidden`}>
         <QueryProvider>
           <AuthProvider>
             <ToastProvider>
               <Navbar />
-              <main>{children}</main>
+              <main className="md:flex-1 md:min-h-0">{children}</main>
             </ToastProvider>
           </AuthProvider>
         </QueryProvider>
