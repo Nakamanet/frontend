@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
 import MyTopics from './components/MyTopics'
@@ -14,9 +14,37 @@ import Groups from './components/Groups'
 import { useQuery } from '@tanstack/react-query'
 import { getUserProfil } from '../lib/user'
 
+const HASH_TO_TAB: Record<string, string> = {
+  activities:   'activities',
+  forum:        'forum',
+  amis:         'friends',
+  bibliotheque: 'library',
+  groupes:      'groups',
+  parametres:   'profil',
+}
+
+const TAB_TO_HASH: Record<string, string> = {
+  activities: 'activities',
+  forum:      'forum',
+  friends:    'amis',
+  library:    'bibliotheque',
+  groups:     'groupes',
+  profil:     'parametres',
+}
+
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
   const { user } = useAuth()
+
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '')
+    if (hash && HASH_TO_TAB[hash]) setActiveTab(HASH_TO_TAB[hash])
+  }, [])
+
+  const switchTab = (tab: string) => {
+    setActiveTab(tab)
+    window.history.replaceState(null, '', `#${TAB_TO_HASH[tab]}`)
+  }
 
   if (!user) redirect('/login')
 
@@ -83,7 +111,7 @@ export default function ProfilPage() {
               <li>
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('activities')}
+                  onClick={() => switchTab('activities')}
                 >
                   Posts
                 </button>
@@ -91,7 +119,7 @@ export default function ProfilPage() {
               <li>
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'forum' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('forum')}
+                  onClick={() => switchTab('forum')}
                 >
                   Forum
                 </button>
@@ -99,7 +127,7 @@ export default function ProfilPage() {
               <li>
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'friends' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('friends')}
+                  onClick={() => switchTab('friends')}
                 >
                   Amis
                 </button>
@@ -107,7 +135,7 @@ export default function ProfilPage() {
               <li>
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('library')}
+                  onClick={() => switchTab('library')}
                 >
                   Bibliothèque
                 </button>
@@ -115,7 +143,7 @@ export default function ProfilPage() {
               <li>
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'groups' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('groups')}
+                  onClick={() => switchTab('groups')}
                 >
                   Groupes
                 </button>
@@ -123,7 +151,7 @@ export default function ProfilPage() {
               <li>
                 <button
                   className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'profil' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('profil')}
+                  onClick={() => switchTab('profil')}
                 >
                   Paramètres
                 </button>

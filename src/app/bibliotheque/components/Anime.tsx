@@ -6,6 +6,7 @@ import { Loader2, Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
+import ScrollableRow from './ScrollableRow'
 
 export default function Anime() {
   const { data, isLoading, isError, error } = useQuery({
@@ -17,7 +18,7 @@ export default function Anime() {
   const animesList: Anime[] = data?.data ?? []
 
   return (
-    <div className="flex gap-4 overflow-x-auto scrollbar-hide">
+    <ScrollableRow>
       {isLoading ? (
         <div className="flex justify-center items-center h-full mx-auto my-[90px]">
           <Loader2 className="animate-spin" />
@@ -54,6 +55,6 @@ export default function Anime() {
           </Link>
         </div>
       )}
-    </div>
+    </ScrollableRow>
   )
 }
