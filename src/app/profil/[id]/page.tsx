@@ -3,7 +3,7 @@ import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare } from 'lucide-react'
 import { useState } from 'react'
-import { getUserProfil } from '../../lib/user'
+import { getUserProfil, getUserPosts } from '../../lib/user'
 import Activity from '../components/Activity'
 import { useQuery } from '@tanstack/react-query'
 import Friends from '../components/Friends'
@@ -18,6 +18,14 @@ export default function ProfilPage() {
     enabled: !!id,
   })
   const profileUser = data ?? null
+
+  const { data: postsData } = useQuery({
+    queryKey: ['user', Number(id), 'posts'],
+    queryFn: () => getUserPosts(Number(id)),
+    enabled: !!id,
+  })
+  const postsCount = postsData?.total ?? 0
+  const libraryCount = profileUser?.library_count ?? 0
 
   if (isLoading) return <div className="flex justify-center p-10">Chargement...</div>
   if (!profileUser) return <div className="flex justify-center p-10">Utilisateur introuvable</div>
@@ -64,13 +72,13 @@ export default function ProfilPage() {
               {new Date(profileUser.created_at!).toLocaleDateString()}
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> {profileUser.library_count} oeuvres suivies
+              <BookOpen size={15} className="text-primary" /> {libraryCount} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
               <Users size={15} className="text-primary" /> {profileUser.friends_count} amis
             </p>
             <p className="flex items-center gap-2">
-              <MessageSquare size={15} className="text-primary" /> {profileUser.posts_count} posts
+              <MessageSquare size={15} className="text-primary" /> {postsCount} posts
             </p>
           </div>
           <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">

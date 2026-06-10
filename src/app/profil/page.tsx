@@ -11,8 +11,9 @@ import MyTopics from './components/MyTopics'
 import Friends from './components/Friends'
 import Library from './components/Library'
 import Groups from './components/Groups'
-import { useQuery } from '@tanstack/react-query'
-import { getUserProfil } from '../lib/user'
+import { useQuery, useQueries } from '@tanstack/react-query'
+import { getUserProfil, getUserPosts } from '../lib/user'
+import { getMyAnime, getMyManga } from '../lib/library'
 
 const HASH_TO_TAB: Record<string, string> = {
   activities:   'activities',
@@ -48,11 +49,21 @@ export default function ProfilPage() {
 
   if (!user) redirect('/login')
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ['user', user.id, 'profile'],
     queryFn: () => getUserProfil(user.id),
     enabled: !!user.id,
   })
+
+  const results = useQueries({
+    queries: [
+      { queryKey: ['user', user.id, 'posts'], queryFn: () => getUserPosts(user.id), enabled: !!user.id },
+      { queryKey: ['library', 'anime'], queryFn: getMyAnime, enabled: !!user.id },
+      { queryKey: ['library', 'manga'], queryFn: getMyManga, enabled: !!user.id },
+    ],
+  })
+  const postsCount = results[0]?.data?.total ?? 0
+  const libraryCount = (results[1]?.data?.length ?? 0) + (results[2]?.data?.length ?? 0)
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
@@ -98,13 +109,13 @@ export default function ProfilPage() {
               {new Date(user.created_at).toLocaleDateString()}
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> {data?.library_count} oeuvres suivies
+              <BookOpen size={15} className="text-primary" /> {libraryCount} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
               <Users size={15} className="text-primary" /> {data?.friends_count} amis
             </p>
             <p className="flex items-center gap-2">
-              <MessageSquare size={15} className="text-primary" /> {data?.posts_count} posts
+              <MessageSquare size={15} className="text-primary" /> {postsCount} posts
             </p>
           </div>
           <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
