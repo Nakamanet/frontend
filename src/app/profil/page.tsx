@@ -95,8 +95,8 @@ export default function ProfilPage() {
             )}
           </div>
           <div className="flex flex-col absolute bottom-1 left-30">
-            <p className="text-lg">{user.username}</p>
-            <p className="text-border">@{user.username}</p>
+            <p className="text-lg text-white font-bold">{user.username}</p>
+            <p className="text-white/70">@{user.username}</p>
           </div>
         </div>
       </section>
