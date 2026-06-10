@@ -25,7 +25,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
   const { showToast } = useToast()
   const queryClient = useQueryClient()
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['posts', { userId: user?.id }],
     queryFn: () => getPosts(),
   })
@@ -150,14 +150,18 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
         </button>
       </div>
       {/* Zone des posts */}
-      {posts.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      ) : posts.length > 0 ? (
         posts.map((post) => (
           <Link href={`/post/${post.id}`} key={post.id}>
             <PostCards key={post.id} post={post} />
           </Link>
         ))
       ) : (
-        <p>Aucun post trouvé</p>
+        <p className="text-text/60 text-center py-10">Aucun post trouvé</p>
       )}
     </div>
   )

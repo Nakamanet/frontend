@@ -8,14 +8,18 @@ import { User2 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 
 export default function Friends({ user }: { user: User }) {
-  const { data: friends = [] } = useQuery<Friendship[]>({
+  const { data: friends = [], isLoading } = useQuery<Friendship[]>({
     queryKey: ['friends'],
     queryFn: getFriends,
   })
 
   return (
     <div>
-      {friends.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center p-10 m-8 border border-border bg-accent rounded-[15px]">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      ) : friends.length > 0 ? (
         <div className='flex flex-col gap-8 p-5 m-8 bg-accent border border-border rounded-[15px]'>
           {friends.map((f) => {
             const friend = f.requester_id === user.id ? f.addressee : f.requester

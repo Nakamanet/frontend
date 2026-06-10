@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Loader2, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import { useAuth } from '../../context/AuthContext'
 import Link from 'next/link'
@@ -18,7 +18,7 @@ export default function FriendList() {
         <>
           {isLoading ? (
             <div className="flex justify-center items-center h-full mx-auto my-[90px]">
-              <Loader2 className="animate-spin" />
+              <span className="loading loading-spinner loading-lg text-primary"></span>
             </div>
           ) : error ? (
             <div className="flex justify-center items-center h-full">

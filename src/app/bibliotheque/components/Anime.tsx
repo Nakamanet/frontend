@@ -2,7 +2,7 @@
 
 import { getAnimes } from '../../lib/catalogue'
 import type { Anime } from '../../types/catalog'
-import { Loader2, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
@@ -21,7 +21,7 @@ export default function Anime() {
     <ScrollableRow>
       {isLoading ? (
         <div className="flex justify-center items-center h-full mx-auto my-[90px]">
-          <Loader2 className="animate-spin" />
+          <span className="loading loading-spinner loading-lg text-primary"></span>
         </div>
       ) : isError ? (
         <div className="flex justify-center items-center h-full">

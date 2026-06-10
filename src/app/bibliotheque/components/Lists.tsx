@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useAuth } from '../../context/AuthContext'
@@ -67,7 +67,7 @@ export default function Lists() {
     <ScrollableRow>
       {isLoading ? (
         <div className="flex justify-center items-center mx-auto my-[90px]">
-          <Loader2 className="animate-spin" />
+          <span className="loading loading-spinner loading-lg text-primary"></span>
         </div>
       ) : (
         <div className="flex gap-4">

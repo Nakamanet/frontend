@@ -49,7 +49,7 @@ export default function Navbar() {
                     )}
                   </div>
                 </div>
-                <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-1 mt-3 p-2 bg-accent shadow">
+                <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-1 mt-3 p-2 bg-accent border border-border shadow">
                   <li>
                     <Link href="/profil">Profil</Link>
                   </li>

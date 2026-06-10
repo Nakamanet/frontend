@@ -19,14 +19,15 @@ const FILTER_OPTIONS = [
 export default function Library() {
   const [filter, setFilter] = useState('manga')
 
-  const { data: myAnimes = [] } = useQuery<MyAnime[]>({
+  const { data: myAnimes = [], isLoading: loadingAnime } = useQuery<MyAnime[]>({
     queryKey: ['library', 'anime'],
     queryFn: getMyAnime,
   })
-  const { data: myMangas = [] } = useQuery<MyManga[]>({
+  const { data: myMangas = [], isLoading: loadingManga } = useQuery<MyManga[]>({
     queryKey: ['library', 'manga'],
     queryFn: getMyManga,
   })
+  const isLoading = loadingAnime || loadingManga
 
   const animeDetails = useQueries({
     queries: myAnimes.map((entry) => ({
@@ -55,7 +56,11 @@ export default function Library() {
     <div className="flex flex-col gap-8 p-7">
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
 
-      {filter === "manga" ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      ) : filter === "manga" ? (
         <div>
           {mangas && mangas.length > 0 ? (
             <div className='flex gap-2'>
@@ -110,10 +115,10 @@ export default function Library() {
               ))}
             </div>
           ) : (
-            <p>Vous n&apos;avez pas encore d&apos;anime ajouté dans votre bibliothèque</p>
+            <p className="text-text/60">Vous n&apos;avez pas encore d&apos;anime ajouté dans votre bibliothèque</p>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   )
 }

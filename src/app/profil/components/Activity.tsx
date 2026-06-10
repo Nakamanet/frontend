@@ -18,7 +18,7 @@ const FILTER_OPTIONS = [
 export default function Activity({ user }: { user: User }) {
   const [filter, setFilter] = useState('mine')
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['user', user.id, 'posts'],
     queryFn: () => getUserPosts(user.id),
   })
@@ -28,14 +28,18 @@ export default function Activity({ user }: { user: User }) {
   return (
     <div className="flex flex-col gap-8 p-7">
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
-      {posts.length > 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
+          <span className="loading loading-spinner loading-lg text-primary"></span>
+        </div>
+      ) : posts.length > 0 ? (
         <div className='flex flex-col gap-2'>
           {posts.map((post) => (
             <PostCards key={post.id} post={post} />
           ))}
         </div>
       ) : (
-        <p>Vous n&apos;avez pas encore de posts</p>
+        <p className="text-text/60">Vous n&apos;avez pas encore de posts</p>
       )}
     </div>
   )
