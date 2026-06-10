@@ -144,12 +144,14 @@ export default function TopicDetailPage() {
                     <ThumbsUp size={14} />
                     {reply.votes_count ?? 0}
                   </button>
-                  <button
-                    onClick={() => setReplyingTo(reply.id)}
-                    className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts/20 text-alerts"
-                  >
-                    Répondre
-                  </button>
+                  {!reply.parent_id && (
+                    <button
+                      onClick={() => setReplyingTo(reply.id)}
+                      className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts/20 text-alerts"
+                    >
+                      Répondre
+                    </button>
+                  )}
                 </div>
                 {replyingTo === reply.id && (
                   <div className="mt-4">

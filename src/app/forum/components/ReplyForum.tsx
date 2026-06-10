@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { replyToForum } from '@/app/lib/forum'
 import { useToast } from '@/app/context/ToastContext'
 import { useAuth } from '@/app/context/AuthContext'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface ReplyForumProps {
   topicId: number
@@ -16,28 +17,29 @@ export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumPr
   const { showToast } = useToast()
   const { isLoggedIn } = useAuth()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [content, setContent] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const { mutate, isPending: loading } = useMutation({
+    mutationFn: () => replyToForum(topicId, content, parentId),
+    onSuccess: () => {
+      setContent('')
+      showToast('Réponse au forum publié avec succès', 'success')
+      queryClient.invalidateQueries({ queryKey: ['forums', topicId] })
+      onCancel?.()
+    },
+    onError: () => {
+      showToast('Erreur lors de la réponse au forum', 'error')
+    },
+  })
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!isLoggedIn) {
       router.push('/login')
       return
     }
-    setLoading(true)
-
-    try {
-      await replyToForum(topicId, content, parentId)
-      setContent('')
-      showToast('Réponse au forum publié avec succès', 'success')
-      window.location.reload()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      showToast('Erreur lors de la réponse au forum', 'error')
-    } finally {
-      setLoading(false)
-    }
+    if (content.trim()) mutate()
   }
 
   if (!isLoggedIn) {

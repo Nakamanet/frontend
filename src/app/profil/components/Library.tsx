@@ -118,7 +118,7 @@ export default function Library() {
             <p className="text-text/60">Vous n&apos;avez pas encore d&apos;anime ajouté dans votre bibliothèque</p>
           )}
         </div>
-      ) : null}
+      )}
     </div>
   )
 }
