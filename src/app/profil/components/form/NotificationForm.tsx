@@ -32,14 +32,12 @@ export default function NotificationForm({ user }: { user: User }) {
         newSorties,
       }
 
-      const body = Object.fromEntries(
-        Object.entries(payload).filter(([, v]) => v !== undefined && v !== null)
-      )
+      const body = Object.fromEntries(Object.entries(payload).filter(([, v]) => v !== undefined && v !== null))
 
       await updateProfil(body)
       showToast('Profil modifié avec succès', 'success')
       await refreshUser()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       showToast('Erreur lors de la modification des préférences de notifications', 'error')
     } finally {
@@ -50,7 +48,7 @@ export default function NotificationForm({ user }: { user: User }) {
   return (
     <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
       <h3 className="text-2xl font-bold">Notifications</h3>
-      <form className="grid grid-cols-2 gap-4" onSubmit={handleSubmitMedias}>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmitMedias}>
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
@@ -58,7 +56,7 @@ export default function NotificationForm({ user }: { user: User }) {
               <p className="text-xs text-border">Quelqu&apos;un commente un de tes posts</p>
             </div>
 
-            <label className={`toggle text-base-content rounded-full ${comment ? 'bg-primary' : 'bg-border'}`}>
+            <label className={`toggle w-8 text-base-content rounded-full ${comment ? 'bg-primary' : 'bg-border'}`}>
               <input type="checkbox" checked={comment} onChange={() => setComment(!comment)} />
               <svg
                 aria-label="disabled"
@@ -90,7 +88,9 @@ export default function NotificationForm({ user }: { user: User }) {
               <p className="text-xs text-border">Quelqu&apos;un vous envoie une demande d&apos;ami</p>
             </div>
 
-            <label className={`toggle text-base-content rounded-full ${friendsRequests ? 'bg-primary' : 'bg-border'}`}>
+            <label
+              className={`toggle w-8 text-base-content rounded-full ${friendsRequests ? 'bg-primary' : 'bg-border'}`}
+            >
               <input type="checkbox" checked={friendsRequests} onChange={() => setFriendsRequests(!friendsRequests)} />
               <svg
                 aria-label="disabled"
@@ -122,7 +122,7 @@ export default function NotificationForm({ user }: { user: User }) {
               <p className="text-xs text-border">Quand vous etes mentionné</p>
             </div>
 
-            <label className={`toggle text-base-content rounded-full ${mentions ? 'bg-primary' : 'bg-border'}`}>
+            <label className={`toggle w-8 text-base-content rounded-full ${mentions ? 'bg-primary' : 'bg-border'}`}>
               <input type="checkbox" checked={mentions} onChange={() => setMentions(!mentions)} />
               <svg
                 aria-label="disabled"
@@ -154,7 +154,7 @@ export default function NotificationForm({ user }: { user: User }) {
               <p className="text-xs text-border">Nouveau chapitre/tome de vos oeuvres suivies</p>
             </div>
 
-            <label className={`toggle text-base-content rounded-full ${newSorties ? 'bg-primary' : 'bg-border'}`}>
+            <label className={`toggle w-8 text-base-content rounded-full ${newSorties ? 'bg-primary' : 'bg-border'}`}>
               <input type="checkbox" checked={newSorties} onChange={() => setNewSorties(!newSorties)} />
               <svg
                 aria-label="disabled"
@@ -181,7 +181,7 @@ export default function NotificationForm({ user }: { user: User }) {
 
         <button
           type="submit"
-          className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"
+          className="btn btn-ghost border-none bg-primary text-primary-content"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}

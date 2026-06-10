@@ -3,7 +3,6 @@
 import { User } from '../../types/auth'
 import PersonnalForm from './form/PersonnalForm'
 import SupplementaireForm from './form/SupplementaireForm'
-import MediaForm from './form/MediaForm'
 import NotificationForm from './form/NotificationForm'
 import ConfidentialForm from './form/ConfidentialForm'
 import PasswordForm from './form/PasswordForm'
@@ -21,7 +20,6 @@ export default function profil({ user }: { user: User }) {
       <div className="flex flex-col gap-6 w-full">
         <NotificationForm user={user} />
         <ConfidentialForm user={user} />
-        <MediaForm />
         <ThemeForm user={user} />
       </div>
       <div className="col-span-2">
