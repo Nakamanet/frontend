@@ -11,7 +11,7 @@ import ThemeForm from './form/ThemeForm'
 
 export default function profil({ user }: { user: User }) {
   return (
-    <div className="grid grid-cols-2 gap-6 mt-7 ml-6">
+    <div className="grid grid-cols-2 gap-6 mt-7 ml-6 items-start">
       <div className="flex flex-col gap-6 w-full">
         <PersonnalForm user={user} />
         <PasswordForm />
