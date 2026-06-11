@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Search, X, Loader2 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import Link from 'next/link'
 
 interface SearchModalProps {
   isOpen: boolean
@@ -94,6 +95,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [filter])
 
+  const getResultHref = (res: any): string => {
+    if (res.type === 'anime') return `/bibliotheque/anime/${res.slug}`
+    if (res.type === 'manga') return `/bibliotheque/manga/${res.slug}`
+    if (res.type === 'users') return `/profil/${res.user_id}`
+    if (res.type === 'posts') return `/post/${res.post_id}`
+    return '#'
+  }
+
   if (!isOpen) return null
 
   return (
@@ -144,18 +153,20 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
           {results.length > 0 &&
             results.map((res) => (
-              <div
+              <Link
                 key={res.id}
-                className="flex gap-4 p-3 rounded-lg hover:bg-base-200 cursor-pointer transition-colors border border-transparent hover:border-border"
+                href={getResultHref(res)}
+                onClick={onClose}
+                className="flex gap-4 p-3 rounded-lg hover:bg-base-200 transition-colors border border-transparent hover:border-border"
               >
-                <div className="w-12 h-12 bg-base-300 rounded flex-shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
-                  {res.type}
+                <div className="w-12 h-12 bg-base-300 rounded shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
+                  {res.type === 'users' ? 'user' : res.type}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-bold text-lg">{res.title}</h3>
+                    <h3 className="font-bold text-lg truncate">{res.title}</h3>
                     {res.type === 'users' && (res.common_anime_count > 0 || res.common_manga_count > 0) && (
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 shrink-0">
                         {res.common_anime_count > 0 && (
                           <span className="badge badge-primary gap-1 font-bold shadow-sm">
                             ⭐ {res.anime_comp_score} anime
@@ -169,9 +180,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-base-content/70">{res.description}</p>
+                  <p className="text-sm text-base-content/70 line-clamp-2">{res.description}</p>
                 </div>
-              </div>
+              </Link>
             ))}
 
           {hasMore && (

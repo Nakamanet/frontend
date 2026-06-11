@@ -97,7 +97,7 @@ export default function DetailPage() {
     ? myLibrary.find((e) => type === 'anime' ? e.anime_id === item.id : e.manga_id === item.id)
     : undefined
 
-  const { mutate: setStatus } = useMutation({
+  const { mutate: setStatus, isPending: isStatusPending } = useMutation({
     mutationFn: (status: string) => type === 'anime'
       ? addMyAnime({ anime_id: item!.id, status, progress: null, rewatch_count: null, score: null, is_private: false })
       : addMyManga({ manga_id: item!.id, status, progress: null, reread_count: null, score: null, is_private: false }),
@@ -108,7 +108,7 @@ export default function DetailPage() {
     onError: (err) => showToast((err as Error).message, 'error'),
   })
 
-  const { mutate: removeEntry } = useMutation({
+  const { mutate: removeEntry, isPending: isRemovePending } = useMutation({
     mutationFn: () => type === 'anime' ? deleteMyAnime(item!.id) : deleteMyManga(item!.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['library', type as string] })
@@ -116,6 +116,8 @@ export default function DetailPage() {
     },
     onError: (err) => showToast((err as Error).message, 'error'),
   })
+
+  const isMutating = isStatusPending || isRemovePending
 
   if (!item) return null
 
@@ -184,16 +186,19 @@ export default function DetailPage() {
               </div>
               {user && myEntry ? (
                 <div className="dropdown dropdown-end shrink-0">
-                  <button tabIndex={0} className="btn btn-ghost border-none rounded-full bg-primary text-primary-content flex items-center gap-2">
-                    {statuses.find(s => s.value === myEntry.status)?.label ?? myEntry.status}
-                    <ChevronDown size={16} />
+                  <button tabIndex={0} disabled={isMutating} className="btn btn-ghost border-none rounded-full bg-primary text-primary-content flex items-center gap-2 disabled:opacity-70">
+                    {isMutating
+                      ? <span className="loading loading-spinner loading-xs" />
+                      : <>{statuses.find(s => s.value === myEntry.status)?.label ?? myEntry.status}<ChevronDown size={16} /></>
+                    }
                   </button>
                   <ul tabIndex={0} className="dropdown-content z-50 mt-1 w-44 bg-base-100 border border-border rounded-xl shadow-lg overflow-hidden">
                     {statuses.map((s) => (
                       <li key={s.value}>
                         <button
                           onClick={() => setStatus(s.value)}
-                          className="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-accent"
+                          disabled={isMutating}
+                          className="flex items-center justify-between w-full px-4 py-2 text-sm hover:bg-accent disabled:opacity-50"
                         >
                           {s.label}
                           {myEntry.status === s.value && <Check size={14} />}
@@ -203,7 +208,8 @@ export default function DetailPage() {
                     <li className="border-t border-border">
                       <button
                         onClick={() => removeEntry()}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-accent"
+                        disabled={isMutating}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-accent disabled:opacity-50"
                       >
                         <Trash2 size={14} />
                         Supprimer
@@ -214,9 +220,10 @@ export default function DetailPage() {
               ) : user ? (
                 <button
                   onClick={() => setStatus(type === 'anime' ? 'plan_to_watch' : 'plan_to_read')}
-                  className="btn btn-ghost border-none rounded-full bg-primary text-primary-content shrink-0"
+                  disabled={isMutating}
+                  className="btn btn-ghost border-none rounded-full bg-primary text-primary-content shrink-0 disabled:opacity-70"
                 >
-                  Ajouter à ma liste
+                  {isMutating ? <span className="loading loading-spinner loading-xs" /> : 'Ajouter à ma liste'}
                 </button>
               ) : null}
             </div>

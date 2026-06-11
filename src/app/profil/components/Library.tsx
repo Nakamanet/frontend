@@ -16,6 +16,16 @@ const FILTER_OPTIONS = [
   { value: 'anime', label: 'Animes', icon: <TvMinimalPlay size={18} /> },
 ]
 
+const STATUS_LABELS: Record<string, string> = {
+  plan_to_watch: 'À regarder',
+  watching:      'En cours',
+  plan_to_read:  'À lire',
+  reading:       'En cours',
+  completed:     'Terminé',
+  on_hold:       'En pause',
+  dropped:       'Abandonné',
+}
+
 export default function Library() {
   const [filter, setFilter] = useState('manga')
 
@@ -65,18 +75,23 @@ export default function Library() {
           {mangas && mangas.length > 0 ? (
             <div className='flex gap-2'>
               {mangas.map((manga) => (
-                <div 
-                  key={manga.manga_id} 
+                <div
+                  key={manga.manga_id}
                   className='card bg-accent border border-border rounded-[15px] h-[450px] w-[250px] flex flex-col overflow-hidden'
                 >
                   <Link href={`/bibliotheque/manga/${manga.detail.slug}`} className="flex flex-col h-full min-h-0">
-                    <figure className="h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
+                    <figure className="relative h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
                       <Image
                         src={manga.detail.posterImage || './bg.png'}
                         alt={manga.detail.titleEn}
                         width={250}
                         height={350}
                       />
+                      {manga.status && (
+                        <span className="absolute top-2 right-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
+                          {STATUS_LABELS[manga.status] ?? manga.status}
+                        </span>
+                      )}
                     </figure>
                     <div className="card-body flex-1 min-h-[100px] flex flex-col items-center justify-center py-3">
                       <h2 className="card-title text-center line-clamp-2">{manga.detail.titleEn}</h2>
@@ -94,18 +109,23 @@ export default function Library() {
           {animes && animes.length > 0 ? (
             <div className='flex gap-2'>
               {animes.map((anime) => (
-                <div 
-                  key={anime.anime_id} 
+                <div
+                  key={anime.anime_id}
                   className='card bg-accent border border-border rounded-[15px] h-[450px] w-[250px] flex flex-col overflow-hidden'
                 >
                   <Link href={`/bibliotheque/anime/${anime.detail.slug}`} className="flex flex-col h-full min-h-0">
-                    <figure className="h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
+                    <figure className="relative h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
                       <Image
                         src={anime.detail.posterImage || './bg.png'}
                         alt={anime.detail.titleEn}
                         width={250}
                         height={350}
                       />
+                      {anime.status && (
+                        <span className="absolute top-2 right-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
+                          {STATUS_LABELS[anime.status] ?? anime.status}
+                        </span>
+                      )}
                     </figure>
                     <div className="card-body flex-1 min-h-[100px] flex flex-col items-center justify-center py-3">
                       <h2 className="card-title text-center line-clamp-2">{anime.detail.titleEn}</h2>
