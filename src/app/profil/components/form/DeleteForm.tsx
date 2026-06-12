@@ -41,6 +41,7 @@ export default function DeleteForm({ user }: { user: User }) {
         await deleteAccount(id)
         showToast('Compte supprimé avec succès', 'success')
         setTimeout(() => router.push('/'), 1000)
+        await logout()
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (err) {
         showToast('Erreur lors de la suppression du compte', 'error')
