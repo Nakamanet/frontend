@@ -10,10 +10,11 @@ import { useChat } from '@/app/hooks/useChat'
 export default function Chat({ user }: { user: User | null }) {
   const { messages, connected, sendMessage } = useChat()
   const [input, setInput] = useState('')
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    const container = messagesContainerRef.current
+    if (container) container.scrollTop = container.scrollHeight
   }, [messages])
 
   const handleSend = () => {
@@ -35,7 +36,7 @@ export default function Chat({ user }: { user: User | null }) {
           </p>
         </div>
         <div>
-          <div className="flex flex-col gap-2 max-h-[280px] h-[280px] px-2 pb-2 overflow-y-auto scrollbar-hide">
+          <div ref={messagesContainerRef} className="flex flex-col gap-2 max-h-[280px] h-[280px] px-2 pb-2 overflow-y-auto scrollbar-hide">
             {messages.map((message) => {
               const isMe = user && message.username === user.username
               return (
@@ -65,7 +66,6 @@ export default function Chat({ user }: { user: User | null }) {
                 </div>
               )
             })}
-            <div ref={bottomRef} />
           </div>
           <div className="flex items-center gap-2 mx-2 mt-2 p-2 bg-muted rounded-full border border-border">
             <Smile size={20} className="text-text/50 shrink-0 hover:text-primary transition-colors cursor-pointer" />
