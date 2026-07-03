@@ -69,7 +69,7 @@ export default function Navbar() {
                 className="hidden md:block cursor-pointer hover:text-primary transition-colors"
                 onClick={() => setSearchModalOpen(true)}
               />
-              <div className='dropdown dropdown-end relative hidden md:block'>
+              <div className='dropdown dropdown-end relative hidden md:block z-20'>
                 <div tabIndex={0} role='button' className='relative'>
                   <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
                   {unreadCount > 0 && (
@@ -88,7 +88,7 @@ export default function Navbar() {
                       notificationsList.map((n) => (
                         <li key={n.id}>
                           <div
-                            className={!n.is_read ? 'font-semibold' : ''}
+                            className= {`cursor-pointer border broder-border ${!n.is_read ? 'bg-bg' : ''}`}
                             onClick={() => { markAsReadMutation.mutate(n.id); router.push('/profil#amis') } }
                           >
                             {n.type === 'friend_request' && (
