@@ -74,7 +74,7 @@ export default function Navbar() {
                     <span className='absolute -top-1 -right-1 bg-alerts text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
                 </div>
-                <ul tabIndex={1} className='menu menu-lg dropdown-content w-80 rounded-box z-1 mt-3 p-3 bg-accent border-border shadow'>
+                <ul tabIndex={-1} className='menu menu-lg dropdown-content w-80 rounded-box z-1 mt-3 p-3 bg-accent border-border shadow'>
                   <li className='flex flex-row justify-between px-2'>
                     <span className='font-bold'>Notifications</span>
                     <button className='text-xs text-primary' onClick={() => markAllAsReadMutation.mutate()}>Tout marquer comme lu</button>
