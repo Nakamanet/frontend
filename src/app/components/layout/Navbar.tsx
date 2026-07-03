@@ -6,12 +6,41 @@ import { Search, Bell } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { CircleUser } from 'lucide-react'
 import { useState } from 'react'
+import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
+import { getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/app/lib/notifications'
 import SearchModal from '../SearchModal'
 
 export default function Navbar() {
   const { isLoggedIn, logout, user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
+  const queryClient = useQueryClient()
+  const { data: unreadCount = 0 } = useQuery({
+    queryKey: ['notifications', 'unread-count'],
+    queryFn: getUnreadCount,
+    refetchInterval: 30000,
+  })
+
+  const { data: notifications } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: getNotifications
+  })
+
+  const notificationsList = notifications?.data ?? []
+
+  const invalidateNotifications = () => {
+    queryClient.invalidateQueries({ queryKey: ['notifications']})
+  }
+
+  const markAsReadMutation = useMutation({
+    mutationFn: markAsRead,
+    onSuccess: invalidateNotifications
+  })
+
+  const markAllAsReadMutation = useMutation({
+    mutationFn: markAllAsRead,
+    onSuccess: invalidateNotifications
+  })
 
   return (
     <header className="w-full border-b border-border bg-accent">
@@ -38,7 +67,34 @@ export default function Navbar() {
                 className="hidden md:block cursor-pointer hover:text-primary transition-colors"
                 onClick={() => setSearchModalOpen(true)}
               />
-              <Bell size={27} className="hidden md:block cursor-pointer hover:text-primary transition-colors" />
+              <div className='dropdown dropdown-end relative hidden md:block'>
+                <div tabIndex={0} role='button' className='relative'>
+                  <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
+                  {unreadCount > 0 && (
+                    <span className='absolute -top-1 -right-1 bg-alerts text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
+                  )}
+                </div>
+                <ul tabIndex={1} className='menu menu-lg dropdown-content w-80 rounded-box z-1 mt-3 p-3 bg-accent border-border shadow'>
+                  <li className='flex flex-row justify-between px-2'>
+                    <span className='font-bold'>Notifications</span>
+                    <button className='text-xs text-primary' onClick={() => markAllAsReadMutation.mutate()}>Tout marquer comme lu</button>
+                  </li>
+                  {notificationsList.length === 0 ? (
+                    <li><span className='text-border'>Aucune notifications</span></li>
+                  ) : (
+                    notificationsList.map((n) => (
+                      <li key={n.id}>
+                        <button
+                          className={!n.is_read ? 'font-semibold' : ''}
+                          onClick={() => markAsReadMutation.mutate(n.id)}
+                        >
+                          {n.type === 'friend_request' && `${n.sender.username} vous a envoyé une demande d'ami`}
+                        </button>
+                      </li>
+                    ))
+                  )}
+                </ul>
+              </div>
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                   <div className="w-10 rounded-full">
