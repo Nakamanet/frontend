@@ -9,12 +9,14 @@ import { useState } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/app/lib/notifications'
 import SearchModal from '../SearchModal'
+import { useRouter } from 'next/navigation'
 
 export default function Navbar() {
   const { isLoggedIn, logout, user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const queryClient = useQueryClient()
+  const router = useRouter()
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: getUnreadCount,
@@ -74,26 +76,33 @@ export default function Navbar() {
                     <span className='absolute -top-1 -right-1 bg-alerts text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
                 </div>
-                <ul tabIndex={-1} className='menu menu-lg dropdown-content w-80 rounded-box z-1 mt-3 p-3 bg-accent border-border shadow'>
-                  <li className='flex flex-row justify-between px-2'>
+                <div tabIndex={-1} className='dropdown-content w-100 rounded-box z-1 mt-3 p-3 bg-accent border-border shadow'>
+                  <div className='flex justify-between items-center gap-2 p-3'>
                     <span className='font-bold'>Notifications</span>
-                    <button className='text-xs text-primary' onClick={() => markAllAsReadMutation.mutate()}>Tout marquer comme lu</button>
-                  </li>
-                  {notificationsList.length === 0 ? (
-                    <li><span className='text-border'>Aucune notifications</span></li>
-                  ) : (
-                    notificationsList.map((n) => (
-                      <li key={n.id}>
-                        <button
-                          className={!n.is_read ? 'font-semibold' : ''}
-                          onClick={() => markAsReadMutation.mutate(n.id)}
-                        >
-                          {n.type === 'friend_request' && `${n.sender.username} vous a envoyé une demande d'ami`}
-                        </button>
-                      </li>
-                    ))
-                  )}
-                </ul>
+                    <button className='btn btn-ghost text-xs text-primary' onClick={() => markAllAsReadMutation.mutate()}>Tout marquer comme lu</button>
+                  </div>
+                  <ul className='menu menu-lg p-2 pt-0'>
+                    {notificationsList.length === 0 ? (
+                      <li><span className='text-border'>Aucune notifications</span></li>
+                    ) : (
+                      notificationsList.map((n) => (
+                        <li key={n.id}>
+                          <div
+                            className={!n.is_read ? 'font-semibold' : ''}
+                            onClick={() => { markAsReadMutation.mutate(n.id); router.push('/profil#amis') } }
+                          >
+                            {n.type === 'friend_request' && (
+                              <div className='flex'>
+                                <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
+                                <p> vous a envoyé une demande d&apos;ami</p>
+                              </div>
+                            )}
+                          </div>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
               </div>
               <div className="dropdown dropdown-end">
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
