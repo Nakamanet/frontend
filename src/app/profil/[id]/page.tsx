@@ -1,23 +1,57 @@
 'use client'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
-import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare } from 'lucide-react'
+import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare, EllipsisVertical } from 'lucide-react'
 import { useState } from 'react'
 import { getUserProfil, getUserPosts } from '../../lib/user'
 import Activity from '../components/Activity'
-import { useQuery } from '@tanstack/react-query'
+import { blockFriend, removeFriend, sendFriendRequest, unblockFriend } from '@/app/lib/friends'
 import Friends from '../components/Friends'
+import { User } from '@/app/types/auth'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
   const { id } = useParams()
+  const profileKey = ['user', Number(id), 'profile']
+  const queryClient = useQueryClient()
 
   const { data, isLoading } = useQuery({
-    queryKey: ['user', Number(id), 'profile'],
+    queryKey: profileKey,
     queryFn: () => getUserProfil(Number(id)),
     enabled: !!id,
   })
   const profileUser = data ?? null
+
+  const sendRequestMutation = useMutation({
+    mutationFn: () => sendFriendRequest(profileUser!.id!),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+  })
+
+  const unblockMutation = useMutation({
+    mutationFn: () => unblockFriend(profileUser!.friendship_id!),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+  })
+
+  const blockMutation = useMutation({
+    mutationFn: () => blockFriend(profileUser!.id!),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+  })
+
+  const handleBlock = () => {
+    const confirmed = confirm('Voulez-vous vraiment bloquer cet utilisateur ?')
+    if (confirmed) blockMutation.mutate()
+  }
+
+  const removeMutation = useMutation({
+    mutationFn: () => removeFriend(profileUser!.friendship_id!),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+  })
+
+  const handleRemove = () => {
+    const confirmed = confirm('Voulez-vous vraiment supprimer cet ami ?')
+    if (confirmed) removeMutation.mutate()
+  }
 
   const { data: postsData } = useQuery({
     queryKey: ['user', Number(id), 'posts'],
@@ -54,6 +88,55 @@ export default function ProfilPage() {
               <CircleUser size={50} strokeWidth={1.5} />
             )}
           </div>
+          <div className="absolute bottom-2 right-10 flex items-center justify-center z-10 text-base-content/70">
+            {profileUser.friendship_status === 'none' && (
+              <div className='dropdown dropdown-end'>
+                <div tabIndex={0} role="button" className="btn btn-ghost border-none hover:bg-transparent hover:border-none focus:bg-transparent focus:border-none">
+                  <EllipsisVertical size={20} />
+                </div>
+                <ul tabIndex={-1} className="menu menu-lg dropdown-content w-auto rounded-box z-1 mt-3 p-2 bg-accent border border-border shadow">
+                  <li>
+                    <button className="btn btn-ghost text-sm border-none rounded-full" onClick={() => sendRequestMutation.mutate()}>
+                      Demande d&apos;ami
+                    </button>
+                  </li>
+                  <li>
+                    <button className="btn btn-ghost text-sm border-none rounded-full" onClick={handleBlock}>
+                      Bloquer
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+            {profileUser.friendship_status === 'friends' && (
+              <div className='dropdown dropdown-end'>
+                <div tabIndex={0} role="button" className="btn btn-ghost border-none hover:bg-transparent hover:border-none focus:bg-transparent focus:border-none">
+                  <p><Users size={15} /> Amis</p>
+                </div>
+                <ul tabIndex={-1} className="menu menu-lg dropdown-content w-auto rounded-box z-1 mt-3 p-2 bg-accent border border-border shadow">
+                  <li>
+                    <button className="btn btn-ghost text-sm border-none rounded-full" onClick={handleRemove}>
+                      Supprimer l&apos;ami
+                    </button>
+                  </li>
+                  <li>
+                    <button className="btn btn-ghost text-sm border-none rounded-full" onClick={handleBlock}>
+                      Bloquer
+                    </button>
+                  </li>
+                </ul>
+              </div>
+            )}
+            {profileUser.friendship_status === 'pending_sent' && (
+              <p>Invitation envoyée</p>
+            )}
+            {profileUser.friendship_status === 'pending_received' && (
+              <p>Invitation reçue</p>
+            )}
+            {profileUser.friendship_status === 'blocked' && (
+              <button className="btn btn-ghost border-none hover:bg-transparent hover:border-none focus:bg-transparent focus:border-none rounded-full" onClick={() => unblockMutation.mutate()}>Débloquer</button>
+            )}
+          </div>
           <div className="flex flex-col absolute bottom-1 left-30">
             <p className="text-lg">{profileUser.username}</p>
             <p className="text-border">@{profileUser.username}</p>
@@ -81,54 +164,52 @@ export default function ProfilPage() {
               <MessageSquare size={15} className="text-primary" /> {postsCount} posts
             </p>
           </div>
-          <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
-            <ul className='flex flex-col gap-1'>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('activities')}
-                  disabled={!hasAccess}
-                >
-                  Posts
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'forum' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('forum')}
-                  disabled={!hasAccess}
-                >
-                  Forum
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'friends' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('friends')}
-                  disabled={!hasAccess}
-                >
-                  Amis
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => setActiveTab('library')}
-                  disabled={!hasAccess}
-                >
-                  Bibliothèque
-                </button>
-              </li>
-            </ul>
-          </div>
+          {hasAccess && (
+            <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
+              <ul className='flex flex-col gap-1'>
+                <li>
+                  <button
+                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                    onClick={() => setActiveTab('activities')}
+                  >
+                    Posts
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'forum' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                    onClick={() => setActiveTab('forum')}
+                  >
+                    Forum
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'friends' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                    onClick={() => setActiveTab('friends')}
+                  >
+                    Amis
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`}
+                    onClick={() => setActiveTab('library')}
+                  >
+                    Bibliothèque
+                  </button>
+                </li>
+              </ul>
+            </div>
+          )}
         </div>
         <div className="col-span-3 min-h-[70vh]">
           {!hasAccess 
-            ? <p>Ce profil est en privé...</p>
+            ? <p className="text-text/60">Ce profil est en privé...</p>
             : <>
-                {activeTab === 'activities' && <Activity user={profileUser} />}
+                {activeTab === 'activities' && <Activity user={profileUser as User} />}
                 {activeTab === 'forum' && <p className="p-7">Forum à venir</p>}
-                {activeTab === 'friends' && <Friends user={profileUser} />}
+                {activeTab === 'friends' && <Friends user={profileUser as User} />}
                 {activeTab === 'library' && <p className="p-7">Bibliothèque</p>}
               </>
           }
