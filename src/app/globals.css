@@ -10,6 +10,7 @@
   --accent: #1f2937;
   --border: #535871;
   --alerts: #e11048;
+  --error: #e11048;
 
   /* Rétrocompatibilité / alias */
   --background: var(--bg);

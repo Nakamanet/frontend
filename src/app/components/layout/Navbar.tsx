@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search, Bell } from 'lucide-react'
+import { Search, Bell, User } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { CircleUser } from 'lucide-react'
 import { useState } from 'react'
@@ -10,6 +10,8 @@ import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/app/lib/notifications'
 import SearchModal from '../SearchModal'
 import { useRouter } from 'next/navigation'
+import { useToast } from '@/app/context/ToastContext'
+import { acceptFriend } from '@/app/lib/friends'
 
 export default function Navbar() {
   const { isLoggedIn, logout, user } = useAuth()
@@ -17,6 +19,9 @@ export default function Navbar() {
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
+  const { showToast } = useToast()
+  const DAY_MS = 24 * 60 * 60 * 1000
+
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: getUnreadCount,
@@ -25,24 +30,45 @@ export default function Navbar() {
 
   const { data: notifications } = useQuery({
     queryKey: ['notifications'],
-    queryFn: getNotifications
+    queryFn: getNotifications,
+    select: (data) => ({
+      ...data,
+      data: data.data.filter(
+        (n) => !n.is_read || Date.now() - new Date(n.updated_at).getTime() < DAY_MS
+      )
+    }),
+    refetchInterval: 30000,
   })
 
   const notificationsList = notifications?.data ?? []
 
   const invalidateNotifications = () => {
     queryClient.invalidateQueries({ queryKey: ['notifications']})
+    showToast("Notification marqué comme lu", "success")
   }
+
+  const acceptMutation = useMutation({
+    mutationFn: acceptFriend,
+    onSuccess:() => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: ['friends'] })
+      showToast("Invitation accepté.", "success")
+    },
+    onError: () => showToast("Erreur lors de l'acceptation.", "error")
+  })
 
   const markAsReadMutation = useMutation({
     mutationFn: markAsRead,
-    onSuccess: invalidateNotifications
+    onSuccess: invalidateNotifications,
+    onError: () => showToast("Erreur lors de la lecture des notifications", "error")
   })
 
   const markAllAsReadMutation = useMutation({
     mutationFn: markAllAsRead,
-    onSuccess: invalidateNotifications
+    onSuccess: invalidateNotifications,
+    onError: () => showToast("Erreur lors de la lecture des notifications", "error")
   })
+
 
   return (
     <header className="w-full border-b border-border bg-accent">
@@ -69,7 +95,7 @@ export default function Navbar() {
                 className="hidden md:block cursor-pointer hover:text-primary transition-colors"
                 onClick={() => setSearchModalOpen(true)}
               />
-              <div className='dropdown dropdown-end relative hidden md:block'>
+              <div className='dropdown dropdown-end relative hidden md:block z-20'>
                 <div tabIndex={0} role='button' className='relative'>
                   <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
                   {unreadCount > 0 && (
@@ -88,13 +114,27 @@ export default function Navbar() {
                       notificationsList.map((n) => (
                         <li key={n.id}>
                           <div
-                            className={!n.is_read ? 'font-semibold' : ''}
+                            className= {`flex justify-center items-center cursor-pointer mb-1 ${!n.is_read ? 'bg-border' : 'bg-bg'}`}
                             onClick={() => { markAsReadMutation.mutate(n.id); router.push('/profil#amis') } }
                           >
                             {n.type === 'friend_request' && (
-                              <div className='flex'>
-                                <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
-                                <p> vous a envoyé une demande d&apos;ami</p>
+                              <div className='flex text-base'>
+                                {n.sender.avatar_url ? (
+                                  <Image
+                                    src={n.sender.avatar_url}
+                                    alt='pp'
+                                    width={55}
+                                    height={20}
+                                    className='rounded-full m-2'
+                                  />
+                                ) : (
+                                  <User size={40} className='rounded-full m-2' />
+                                )}
+                                <p className=''>
+                                  <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
+                                {" "} vous a envoyé une demande d&apos;ami
+                                </p>
+                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number)}}>Accepter</button>
                               </div>
                             )}
                           </div>

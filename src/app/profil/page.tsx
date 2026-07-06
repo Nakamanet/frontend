@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
 import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare } from 'lucide-react'
-import { useState, useEffect } from 'react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
 import MyTopics from './components/MyTopics'
@@ -14,6 +13,22 @@ import Groups from './components/Groups'
 import { useQuery, useQueries } from '@tanstack/react-query'
 import { getUserProfil, getUserPosts } from '../lib/user'
 import { getMyAnime, getMyManga } from '../lib/library'
+import { useSyncExternalStore } from 'react'
+
+function useHash() {
+  return useSyncExternalStore(
+    (onChange) => {
+      window.addEventListener('hashchange', onChange)
+      window.addEventListener('popstate', onChange)
+      return () => {
+        window.removeEventListener('hashchange', onChange)
+        window.removeEventListener('popstate', onChange)
+      }
+    },
+    () => window.location.hash.replace('#', ''),
+    () => '',
+  )
+}
 
 const HASH_TO_TAB: Record<string, string> = {
   activities:   'activities',
@@ -34,17 +49,12 @@ const TAB_TO_HASH: Record<string, string> = {
 }
 
 export default function ProfilPage() {
-  const [activeTab, setActiveTab] = useState('activities')
   const { user, isAuthLoading } = useAuth()
-
-  useEffect(() => {
-    const hash = window.location.hash.replace('#', '')
-    if (hash && HASH_TO_TAB[hash]) setActiveTab(HASH_TO_TAB[hash])
-  }, [])
+  const hash = useHash()
+  const activeTab = HASH_TO_TAB[hash] ?? 'activities'
 
   const switchTab = (tab: string) => {
-    setActiveTab(tab)
-    window.history.replaceState(null, '', `#${TAB_TO_HASH[tab]}`)
+    window.location.hash = TAB_TO_HASH[tab]
   }
 
   const { data } = useQuery({

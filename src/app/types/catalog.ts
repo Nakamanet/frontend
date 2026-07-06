@@ -31,6 +31,7 @@ export interface Manga {
   chapterCount: number | null
   startDate: string | null
   endDate: string | null
+  ageRating?: string | null
   posterImage: string | null
   coverImage: string | null
   createdAt: string | null
