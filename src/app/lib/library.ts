@@ -40,3 +40,19 @@ export async function deleteMyManga(id: number) {
     const { data } = await api.delete(`/library/manga/${id}`)
     return data
 }
+
+export interface FriendsExploreEntry {
+  anime_id?: number
+  manga_id?: number
+  friends_count: number
+}
+
+export interface FriendsExploreResponse {
+  anime: FriendsExploreEntry[]
+  manga: FriendsExploreEntry[]
+}
+
+export async function getFriendsExplore(): Promise<FriendsExploreResponse> {
+  const res = await api.get('/library/explore/friends') // adjust to your axios instance import
+  return res.data
+}
