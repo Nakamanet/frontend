@@ -129,12 +129,12 @@ export default function Information({ type, item }: InformationProps) {
                             : 'N/A'}
                 </td>
               </tr>
-              {item.ageRating && (
+              {/* {item.ageRating && (
                 <tr>
                   <td>Classification</td>
                   <td>{item.ageRating}</td>
                 </tr>
-              )}
+              )} */}
               <tr>
                 <td>Date de publication</td>
                 <td>{item.startDate ? new Date(item.startDate).toLocaleDateString('fr-FR') : 'N/A'}</td>

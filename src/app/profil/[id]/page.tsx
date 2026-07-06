@@ -9,12 +9,25 @@ import { blockFriend, removeFriend, sendFriendRequest, unblockFriend } from '@/a
 import Friends from '../components/Friends'
 import { User } from '@/app/types/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useToast } from '@/app/context/ToastContext'
+
+function ProfilAccessNotice({ status }: { status: User['friendship_status'] | undefined}) {
+  switch (status) {
+    case 'blocked_by':
+      return <p className="text-text/60">Ce compte est restreint</p>
+    case 'blocked':
+      return <p className="text-text/60">Vous avez bloqué cet utilisateur</p>
+    default:
+      return <p className="text-text/60">Ce profil est en privé...</p>
+  }
+}
 
 export default function ProfilPage() {
   const [activeTab, setActiveTab] = useState('activities')
   const { id } = useParams()
   const profileKey = ['user', Number(id), 'profile']
   const queryClient = useQueryClient()
+  const { showToast } = useToast()
 
   const { data, isLoading } = useQuery({
     queryKey: profileKey,
@@ -25,17 +38,29 @@ export default function ProfilPage() {
 
   const sendRequestMutation = useMutation({
     mutationFn: () => sendFriendRequest(profileUser!.id!),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: profileKey })
+      showToast("Utilisateur invité.", "success")
+    },
+    onError: () => showToast("Echec de l'invitation", "error")
   })
 
   const unblockMutation = useMutation({
     mutationFn: () => unblockFriend(profileUser!.friendship_id!),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: profileKey })
+      showToast("Utilisateur débloqué.", "success")
+    },
+    onError: () => showToast("Echec du débloquage", "error")
   })
 
   const blockMutation = useMutation({
     mutationFn: () => blockFriend(profileUser!.id!),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: profileKey })
+      showToast("Utilisateur bloqué.", "success")
+    },
+    onError: () => showToast("Echec du bloquage", "error")
   })
 
   const handleBlock = () => {
@@ -45,7 +70,11 @@ export default function ProfilPage() {
 
   const removeMutation = useMutation({
     mutationFn: () => removeFriend(profileUser!.friendship_id!),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: profileKey }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: profileKey })
+      showToast("Ami supprimé.", "success")
+    },
+    onError: () => showToast("Echec de la suppression de l'ami", "error")
   })
 
   const handleRemove = () => {
@@ -63,7 +92,7 @@ export default function ProfilPage() {
 
   if (isLoading) return <div className="flex justify-center p-10">Chargement...</div>
   if (!profileUser) return <div className="flex justify-center p-10">Utilisateur introuvable</div>
-  const hasAccess = !!profileUser.role
+  const hasAccess = !!profileUser.role && profileUser.friendship_status !== 'blocked' && profileUser.friendship_status !== 'blocked_by'
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
@@ -204,8 +233,8 @@ export default function ProfilPage() {
           )}
         </div>
         <div className="col-span-3 min-h-[70vh]">
-          {!hasAccess 
-            ? <p className="text-text/60">Ce profil est en privé...</p>
+          {!hasAccess
+            ? <ProfilAccessNotice status={profileUser.friendship_status} />
             : <>
                 {activeTab === 'activities' && <Activity user={profileUser as User} />}
                 {activeTab === 'forum' && <p className="p-7">Forum à venir</p>}

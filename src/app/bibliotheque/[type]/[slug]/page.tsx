@@ -2,9 +2,9 @@
 
 import { useAuth } from '@/app/context/AuthContext'
 import { useParams } from 'next/navigation'
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { getAnimeById, getMangaById, getAnimeCharacters, getMangaCharacters, getEpisodes, getChapters } from '@/app/lib/catalogue'
-import { Anime, Manga } from '@/app/types/catalog'
+import { Anime, AnimeCharacter, Manga, MangaCharacter } from '@/app/types/catalog'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronRight, ChevronDown, Check, Trash2 } from 'lucide-react'
@@ -24,7 +24,7 @@ export default function DetailPage() {
   const { showToast } = useToast()
   const queryClient = useQueryClient()
   const [voirPlus, setVoirPlus] = useState(false)
-  const [filter, setFilter] = useState('characters')
+  const [userFilter, setUserFilter] = useState<string | null>(null)
 
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
@@ -35,7 +35,7 @@ export default function DetailPage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const { data: characters = [], isFetched: charactersFetched } = useQuery({
+  const { data: characters = [], isFetched: charactersFetched } = useQuery<AnimeCharacter[] | MangaCharacter[]>({
     queryKey: [type === 'anime' ? 'anime' : 'manga', item?.id, 'characters'],
     queryFn: () => type === 'anime' ? getAnimeCharacters(item!.id) : getMangaCharacters(item!.id),
     enabled: !!item?.id,
@@ -59,16 +59,12 @@ export default function DetailPage() {
   const hasCharacters = characters.length > 0
   const hasEpisodes = type === 'anime' ? (episodeData?.meta.total ?? 0) > 0 : (chapterData?.meta.total ?? 0) > 0
   const contentFetched = charactersFetched && (type === 'anime' ? episodesFetched : chaptersFetched)
-  const defaultFilterSet = useRef(false)
-
-  useEffect(() => {
-    if (contentFetched && !defaultFilterSet.current) {
-      defaultFilterSet.current = true
-      if (!hasCharacters) {
-        setFilter(hasEpisodes ? 'episode' : 'thread')
-      }
-    }
-  }, [contentFetched, hasCharacters, hasEpisodes])
+  const defaultFilter = !contentFetched 
+  ? 'characters'
+  : hasCharacters ? 'characters'
+  : hasEpisodes ? 'episode'
+  : 'thread'
+  const filter = userFilter ?? defaultFilter
 
   const ANIME_STATUSES = [
     { value: 'plan_to_watch', label: 'À regarder' },
@@ -101,9 +97,14 @@ export default function DetailPage() {
     mutationFn: (status: string) => type === 'anime'
       ? addMyAnime({ anime_id: item!.id, status, progress: null, rewatch_count: null, score: null, is_private: false })
       : addMyManga({ manga_id: item!.id, status, progress: null, reread_count: null, score: null, is_private: false }),
-    onSuccess: () => {
+    onSuccess: (_data, status) => {
       queryClient.invalidateQueries({ queryKey: ['library', type as string] })
-      if (!myEntry) showToast(type === 'anime' ? 'Anime ajouté à votre liste' : 'Manga ajouté à votre liste', 'success')
+      if (!myEntry) {
+        showToast(type === 'anime' ? 'Anime ajouté à votre liste' : 'Manga ajouté à votre liste', 'success')
+      } else {
+        const label = statuses.find((s) => s.value === status)?.label
+        showToast(`Status mis à jour : ${label}.`, 'success')
+      }
     },
     onError: (err) => showToast((err as Error).message, 'error'),
   })
@@ -254,7 +255,7 @@ export default function DetailPage() {
             <div className="flex gap-5 items-center justify-center w-full">
               {hasCharacters && (
                 <button
-                  onClick={() => setFilter('characters')}
+                  onClick={() => setUserFilter('characters')}
                   className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
                 >
                   <span className="hidden md:inline">Personnages</span>
@@ -262,14 +263,14 @@ export default function DetailPage() {
               )}
               {hasEpisodes && (
                 <button
-                  onClick={() => setFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
+                  onClick={() => setUserFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
                   className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
                 >
                   <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
                 </button>
               )}
               <button
-                onClick={() => setFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
+                onClick={() => setUserFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
                 className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'thread' ? 'bg-alerts text-white' : 'text-border'}`}
               >
                 <span className="hidden md:inline">Fil de discussion</span>

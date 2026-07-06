@@ -7,16 +7,24 @@ import { Flame, ThumbsUp, Bookmark, Trash } from 'lucide-react'
 import { getUserPosts } from '@/app/lib/user'
 import FilterTab from '../../components/FilterTab'
 import { useQuery } from '@tanstack/react-query'
+import { useAuth } from '@/app/context/AuthContext'
 
 const FILTER_OPTIONS = [
   { value: 'mine', label: 'Mes Posts', icon: <Flame size={18} /> },
   { value: 'save', label: 'Sauvegardés', icon: <Bookmark size={18} /> },
-  { value: 'liked', label: 'Liké', icon: <ThumbsUp size={18} /> },
+  { value: 'liked', label: 'Posts Liké', icon: <ThumbsUp size={18} /> },
   { value: 'deleted', label: 'Archivés', icon: <Trash size={18} /> },
+]
+
+const FILTER_OPTIONS_OTHER = [
+  { value: 'mine', label: 'Posts Publiés', icon: <Flame size={18} /> },
+  { value: 'liked', label: 'Posts Likés', icon: <ThumbsUp size={18} /> },
 ]
 
 export default function Activity({ user }: { user: User }) {
   const [filter, setFilter] = useState('mine')
+  const { user: connectedUser } = useAuth()
+  const isOwnProfil = connectedUser?.id === user.id
 
   const { data, isLoading } = useQuery({
     queryKey: ['user', user.id, 'posts'],
@@ -27,7 +35,7 @@ export default function Activity({ user }: { user: User }) {
 
   return (
     <div className="flex flex-col gap-8 p-7">
-      <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
+      <FilterTab value={filter} onChange={setFilter} options={isOwnProfil ? FILTER_OPTIONS : FILTER_OPTIONS_OTHER} />
       {isLoading ? (
         <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
           <span className="loading loading-spinner loading-lg text-primary"></span>
@@ -39,7 +47,7 @@ export default function Activity({ user }: { user: User }) {
           ))}
         </div>
       ) : (
-        <p className="text-text/60">Vous n&apos;avez pas encore de posts</p>
+        <p className="text-text/60">{isOwnProfil ? "Vous n'avez pas encore de posts" : "Cet utilisateur n'a pas encore posté"}</p>
       )}
     </div>
   )
