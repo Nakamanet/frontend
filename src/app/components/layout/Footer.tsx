@@ -15,6 +15,10 @@ export default function Footer() {
         <Link href="/politique-cookies" className="hover:text-white transition-colors">
           Politique des cookies
         </Link>
+        <span className="text-white/20">|</span>
+        <Link href="https://discord.com/invite/TjWBz6QzjE" target="_blank">
+          Discord
+        </Link>
       </div>
       <p className="text-sm text-white/30">© {new Date().getFullYear()} NakamaNet</p>
     </footer>

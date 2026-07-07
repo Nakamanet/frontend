@@ -2,18 +2,21 @@
 
 import { Forum } from '../types/forum'
 import Link from 'next/link'
-import { MessageSquare, Eye, ThumbsUp, Pin } from 'lucide-react'
+import { MessageSquare, Eye, ThumbsUp, Pin, Archive } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { pinTopic } from '../lib/forum'
+import { pinTopic, archiveTopic } from '../lib/forum'
 import { useAuth } from '../context/AuthContext'
 import { useRouter } from 'next/navigation'
 
 export default function ForumCards({ topic }: { topic: Forum }) {
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, user } = useAuth()
   const router = useRouter()
   const queryClient = useQueryClient()
 
   const isPinned = topic.is_pinned || topic.user_has_pinned
+  const canArchive = !!user && (
+    user.id === topic.user_id || ['moderator', 'admin'].includes(user.role)
+  )
 
   const pinMutation = useMutation({
     mutationFn: () => pinTopic(topic.id),
@@ -23,12 +26,23 @@ export default function ForumCards({ topic }: { topic: Forum }) {
     },
   })
 
+  const archiveMutation = useMutation({
+    mutationFn: () => archiveTopic(topic.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums'] }),
+  })
+
   const handlePin = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
     if (topic.is_pinned) return
     if (!isLoggedIn) { router.push('/login'); return }
     pinMutation.mutate()
+  }
+
+  const handleArchive = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    archiveMutation.mutate()
   }
 
   return (
@@ -41,15 +55,26 @@ export default function ForumCards({ topic }: { topic: Forum }) {
               • {new Date(topic.created_at).toLocaleDateString('fr-FR')}
             </span>
           </div>
-          <button
-            onClick={handlePin}
-            title={topic.is_pinned ? 'Sujet épinglé' : topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
-            className={`btn btn-ghost border-none btn-xs p-1 rounded-full shrink-0 transition-colors ${
-              isPinned ? 'text-alerts' : 'text-border hover:text-alerts'
-            } ${topic.is_pinned ? 'cursor-default' : ''}`}
-          >
-            <Pin size={15} fill={isPinned ? 'currentColor' : 'none'} />
-          </button>
+          <div className="flex items-center gap-1 shrink-0">
+            {canArchive && (
+              <button
+                onClick={handleArchive}
+                title={topic.is_archived ? 'Désarchiver' : 'Archiver ce sujet'}
+                className="btn btn-ghost border-none btn-xs p-1 rounded-full transition-colors text-border hover:text-alerts"
+              >
+                <Archive size={15} />
+              </button>
+            )}
+            <button
+              onClick={handlePin}
+              title={topic.is_pinned ? 'Sujet épinglé' : topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
+              className={`btn btn-ghost border-none btn-xs p-1 rounded-full transition-colors ${
+                isPinned ? 'text-alerts' : 'text-border hover:text-alerts'
+              } ${topic.is_pinned ? 'cursor-default' : ''}`}
+            >
+              <Pin size={15} fill={isPinned ? 'currentColor' : 'none'} />
+            </button>
+          </div>
         </div>
 
         <h3 className="text-[16px] font-bold text-white leading-snug">{topic.title}</h3>

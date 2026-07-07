@@ -52,6 +52,11 @@ export async function voteOnReply(id: number): Promise<{ votes_count: number; us
   return data
 }
 
+export async function archiveTopic(id: number): Promise<{ is_archived: boolean }> {
+  const { data } = await api.post(`/forum/topics/${id}/archive`)
+  return data
+}
+
 export async function pinTopic(id: number): Promise<{ user_has_pinned: boolean }> {
   const { data } = await api.post(`/forum/topics/${id}/pin`)
   return data
