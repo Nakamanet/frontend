@@ -1,11 +1,25 @@
 import api from './axios'
 import type { Post, PaginatedPosts } from '../types/post'
 
-export async function getPosts(page = 1): Promise<PaginatedPosts> {
-  const { data } = await api.get<PaginatedPosts>('/posts', { params: { page } })
-  return data
+export interface GetPostsParams {
+  page?: number
+  filter?: 'all' | 'trends' | 'recent' | 'friends'
 }
 
+export async function getPosts({ page = 1, filter = 'all' }: GetPostsParams = {}): Promise<PaginatedPosts> {
+  const params: Record<string, string | number> = { page }
+
+  if (filter === 'trends') {
+    params.sort = 'most_liked'
+  } else if (filter === 'recent') {
+    params.sort = 'latest' // matches default, but explicit is fine
+  } else if (filter === 'friends') {
+    params.friends_only = 1
+  }
+
+  const { data } = await api.get<PaginatedPosts>('/posts', { params })
+  return data
+}
 export async function getPostById(id: number): Promise<Post> {
   const { data } = await api.get<Post>(`/posts/${id}`)
   return data

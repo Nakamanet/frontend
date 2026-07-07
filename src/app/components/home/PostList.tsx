@@ -14,7 +14,7 @@ import {
 import Image from 'next/image'
 import { User } from '../../types/auth'
 import PostCards from '../PostCards'
-import { getPosts, createPost } from '@/app/lib/post'
+import { getPosts, createPost,GetPostsParams } from '@/app/lib/post'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -27,8 +27,8 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
   const queryClient = useQueryClient()
 
   const { data, isLoading } = useQuery({
-    queryKey: ['posts', { userId: user?.id }],
-    queryFn: () => getPosts(),
+    queryKey: ['posts', { userId: user?.id, filter }],
+    queryFn: () => getPosts({ filter: filter as GetPostsParams['filter'] }),
   })
   const posts = data?.data ?? []
 
