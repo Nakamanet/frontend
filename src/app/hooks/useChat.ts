@@ -65,6 +65,7 @@ export function useChat(room: string) {
   }, [connected, room])
 
   const sendMessage = (content: string) => {
+    console.log('[useChat] sending, room =', room)
     if (!content.trim() || !socketRef.current || !room) return
     socketRef.current.emit('chat:message', {
       room,
