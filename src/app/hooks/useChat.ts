@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext'
 
 interface Message {
   _id: string
+  room: string
   user_id: string
   username: string
   avatar_url: string | null
@@ -12,28 +13,25 @@ interface Message {
   created_at: string
 }
 
-export function useChat() {
-  const { isLoggedIn,user } = useAuth()
+export function useChat(room: string) {
+  const { isLoggedIn, user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
 
+  // connect once
   useEffect(() => {
-    console.log('useChat effect fired, isLoggedIn:', isLoggedIn)
-
     if (!isLoggedIn) return
-
-    console.log('token:', localStorage.getItem('token'))
 
     const token = localStorage.getItem('token')
     if (!token) return
 
     const socket = io(process.env.NEXT_PUBLIC_CHAT_URL!, {
-        auth: {
-            token,
-            username:   user?.username,
-            avatar_url: user?.avatar_url ?? null,
-        },
+      auth: {
+        token,
+        username: user?.username,
+        avatar_url: user?.avatar_url ?? null,
+      },
     })
 
     socketRef.current = socket
@@ -46,8 +44,7 @@ export function useChat() {
     })
 
     socket.on('chat:message', (message: Message) => {
-        console.log('chat:message received:', message)
-        setMessages((prev) => [...prev, message])
+      setMessages((prev) => [...prev, message])
     })
 
     socket.on('connect_error', (err) => {
@@ -56,18 +53,26 @@ export function useChat() {
 
     return () => {
       socket.disconnect()
+      socketRef.current = null
     }
   }, [isLoggedIn])
 
+  // join / switch room whenever room changes (or once connected)
+  useEffect(() => {
+    if (!connected || !socketRef.current || !room) return
+    setMessages([]) // clear old room's messages while we wait for history
+    socketRef.current.emit('chat:join', room)
+  }, [connected, room])
+
   const sendMessage = (content: string) => {
-    console.log('sendMessage called, socket connected:', socketRef.current?.connected)
-    if (!content.trim() || !socketRef.current) return
+    if (!content.trim() || !socketRef.current || !room) return
     socketRef.current.emit('chat:message', {
-            content,
-            username:   user?.username ?? 'Anonymous',
-            avatar_url: user?.avatar_url ?? null,
-        })
-    }
+      room,
+      content,
+      username: user?.username ?? 'Anonymous',
+      avatar_url: user?.avatar_url ?? null,
+    })
+  }
 
   return { messages, connected, sendMessage }
 }

@@ -8,7 +8,7 @@ import { User } from '../../types/auth'
 import { useChat } from '@/app/hooks/useChat'
 
 export default function Chat({ user }: { user: User | null }) {
-  const { messages, connected, sendMessage } = useChat()
+  const { messages, connected, sendMessage } = useChat('general')
   const [input, setInput] = useState('')
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 

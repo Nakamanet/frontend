@@ -15,3 +15,9 @@ export interface MyManga {
     score: number | null,
     is_private: boolean
 }
+export interface FriendsExploreEntryWithDetail<T> {
+  anime_id?: number
+  manga_id?: number
+  friends_count: number
+  detail: T
+}
