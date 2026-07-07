@@ -11,6 +11,7 @@ import Link from 'next/link'
 import Chat from '@/app/components/home/Chat'
 import Calendar from '@/app/components/home/Calendar'
 import { useQuery } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 export default function AnimePage() {
   const { user } = useAuth()
@@ -19,7 +20,7 @@ export default function AnimePage() {
   const [openModal, setOpenModal] = useState(false)
   const [page, setPage] = useState(1)
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['anime', { page, limit, genre }],
     queryFn: () => getAnimes(page, limit, genre),
     staleTime: 5 * 60 * 1000,
@@ -46,6 +47,9 @@ export default function AnimePage() {
             </button>
           </div>
         </div>
+        {isLoading ? (
+          <Loader variant="plain" className="h-full my-[90px]" />
+        ) : (
         <div className="grid grid-cols-5 gap-4">
           {anime.map((item) => (
             <div
@@ -76,6 +80,7 @@ export default function AnimePage() {
             </div>
           ))}
         </div>
+        )}
         <Pagination page={page} lastPage={maxPage} onPageChange={setPage} />
       </section>
       <section className="pt-11">

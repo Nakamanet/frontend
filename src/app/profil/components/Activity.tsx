@@ -8,6 +8,7 @@ import { getUserPosts } from '@/app/lib/user'
 import FilterTab from '../../components/FilterTab'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/app/context/AuthContext'
+import Loader from '@/app/components/Loader'
 
 const FILTER_OPTIONS = [
   { value: 'mine', label: 'Mes Posts', icon: <Flame size={18} /> },
@@ -37,9 +38,7 @@ export default function Activity({ user }: { user: User }) {
     <div className="flex flex-col gap-8 p-7">
       <FilterTab value={filter} onChange={setFilter} options={isOwnProfil ? FILTER_OPTIONS : FILTER_OPTIONS_OTHER} />
       {isLoading ? (
-        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
+        <Loader />
       ) : posts.length > 0 ? (
         <div className='flex flex-col gap-2'>
           {posts.map((post) => (

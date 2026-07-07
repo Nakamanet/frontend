@@ -8,6 +8,7 @@ import CreateForum from './components/CreateForum'
 import ForumCards from '../components/ForumCards'
 import AppLayout from '../components/layout/AppLayout'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 const CATEGORIES = [
   { id: '', label: 'Récents' },
@@ -94,9 +95,7 @@ export default function ForumPage() {
           <div className="flex-1 flex flex-col gap-6 min-w-0 mb-10 min-h-[500px]">
             <div className="flex-1 flex flex-col gap-4">
               {isLoading ? (
-                <div className="flex justify-center items-center p-10 flex-1 border border-border bg-accent rounded-[15px]">
-                  <span className="loading loading-spinner text-alerts"></span>
-                </div>
+                <Loader size="md" color="alerts" className="flex-1" />
               ) : topics.length === 0 ? (
                 <div className="flex justify-center items-center p-10 text-border text-[15px] flex-1 border border-border bg-accent rounded-[15px]">
                   Aucun sujet trouvé.

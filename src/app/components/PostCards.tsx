@@ -23,7 +23,6 @@ export default function PostCards({ post }: { post: Post }) {
   const { mutate: like } = useMutation({
     mutationFn: () => toggleLikePost(post.id),
     onSuccess: (res) => {
-      res.liked ? showToast('Post liké', 'success') : showToast('Post deliké', 'success')
       setLikeCount(prev => res.liked ? prev + 1 : prev - 1)
       setLikedOverride(res.liked)
     },
@@ -33,11 +32,13 @@ export default function PostCards({ post }: { post: Post }) {
   const { mutate: toggleSave } = useMutation({
     mutationFn: () => saved ? unsavePost(post.id) : savePost(post.id),
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       saved
         ? showToast('Post retiré des sauvegardes', 'success')
         : showToast('Post sauvegardé', 'success')
       setSaved(prev => !prev)
     },
+    onError: () => showToast("Erreur lors de la sauvegarde", "error")
   })
 
   return (

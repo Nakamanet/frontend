@@ -7,6 +7,7 @@ import Image from 'next/image'
 import EpisodeModal from './EpisodeModal'
 import Pagination from '../../components/Pagination'
 import { useQuery } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 type EpisodeProps = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
@@ -16,18 +17,20 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
   const [page, setPage] = useState(1)
   const limit = 9
 
-  const { data: episodeData } = useQuery({
+  const { data: episodeData, isLoading: episodeLoading } = useQuery({
     queryKey: ['anime', item.id, 'episodes', { page, limit }],
     queryFn: () => getEpisodes(item.id, page, limit),
     enabled: type === 'anime',
     staleTime: 5 * 60 * 1000,
   })
-  const { data: chapterData } = useQuery({
+  const { data: chapterData, isLoading: chapterLoading } = useQuery({
     queryKey: ['manga', item.id, 'chapters', { page, limit }],
     queryFn: () => getChapters(item.id, page, limit),
     enabled: type === 'manga',
     staleTime: 5 * 60 * 1000,
   })
+
+  const isLoading = type === 'anime' ? episodeLoading : chapterLoading
 
   const episodes: Episode[] = episodeData?.data ?? []
   const chapters: Chapter[] = chapterData?.data ?? []
@@ -36,7 +39,8 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
   return (
     <div className="border border-border bg-accent rounded-[15px] p-5 ">
       {/* Content */}
-      {type === 'anime' && (
+      {isLoading && <Loader variant="plain" className="my-[90px]" />}
+      {!isLoading && type === 'anime' && (
         <ul className="grid grid-cols-3 gap-2">
           {episodes.map((e) => (
             <button
@@ -65,7 +69,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
           ))}
         </ul>
       )}
-      {type === 'manga' && (
+      {!isLoading && type === 'manga' && (
         <ul className="grid grid-cols-3 gap-2">
           {chapters.map((e) => (
             <button

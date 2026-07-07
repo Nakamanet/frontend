@@ -10,6 +10,8 @@ import AppLayout from '@/app/components/layout/AppLayout'
 import { ThumbsUp } from 'lucide-react'
 import { useAuth } from '@/app/context/AuthContext'
 import type { ForumReply } from '@/app/types/forum'
+import Loader from '@/app/components/Loader'
+import { useToast } from '@/app/context/ToastContext'
 
 function groupReplies(replies: ForumReply[]): ForumReply[] {
   const topLevel = replies.filter(r => !r.parent_id).sort((a, b) => (b.votes_count ?? 0) - (a.votes_count ?? 0))
@@ -32,17 +34,20 @@ export default function TopicDetailPage() {
   const params = useParams()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const { showToast } = useToast()
   const { isLoggedIn } = useAuth()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
 
   const topicVoteMutation = useMutation({
     mutationFn: (id: number) => voteOnTopic(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] }),
+    onError: () => showToast("Erreur lors du vote", 'error')
   })
 
   const replyVoteMutation = useMutation({
     mutationFn: (id: number) => voteOnReply(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] }),
+    onError: () => showToast("Erreur lors du vote", 'error')
   })
 
   const handleVote = (type: 'topic' | 'reply', id: number) => {
@@ -60,9 +65,7 @@ export default function TopicDetailPage() {
   if (isLoading) {
     return (
       <AppLayout>
-        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
-          <span className="loading loading-spinner text-alerts"></span>
-        </div>
+        <Loader size="md" color="alerts" />
       </AppLayout>
     )
   }

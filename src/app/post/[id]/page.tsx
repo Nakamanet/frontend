@@ -6,6 +6,7 @@ import { Post } from '../../types/post'
 import PostCards from '../../components/PostCards'
 import AppLayout from '../../components/layout/AppLayout'
 import { useQuery } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 export default function PostPage() {
   const { id } = useParams()
@@ -18,9 +19,7 @@ export default function PostPage() {
 
   if (isLoading) return (
     <AppLayout sidebar>
-      <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
-        <span className="loading loading-spinner loading-lg text-primary"></span>
-      </div>
+      <Loader />
     </AppLayout>
   )
   if (!post) return null

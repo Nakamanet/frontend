@@ -10,6 +10,7 @@ import { MyAnime, MyManga } from '../../types/library'
 import { Anime, Manga } from '../../types/catalog'
 import { useQuery, useQueries } from '@tanstack/react-query'
 import ScrollableRow from './ScrollableRow'
+import Loader from '@/app/components/Loader'
 
 export default function Lists() {
   const { user } = useAuth()
@@ -66,9 +67,7 @@ export default function Lists() {
   return (
     <ScrollableRow>
       {isLoading ? (
-        <div className="flex justify-center items-center mx-auto my-[90px]">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
+        <Loader variant="plain" className="mx-auto my-[90px]" />
       ) : (
         <div className="flex gap-4">
           {items.map((item) => (

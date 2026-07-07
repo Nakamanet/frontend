@@ -10,6 +10,7 @@ import Friends from '../components/Friends'
 import { User } from '@/app/types/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/app/context/ToastContext'
+import Loader from '@/app/components/Loader'
 
 function ProfilAccessNotice({ status }: { status: User['friendship_status'] | undefined}) {
   switch (status) {
@@ -90,7 +91,7 @@ export default function ProfilPage() {
   const postsCount = postsData?.total ?? 0
   const libraryCount = profileUser?.library_count ?? 0
 
-  if (isLoading) return <div className="flex justify-center p-10">Chargement...</div>
+  if (isLoading) return <Loader variant="plain" className="min-h-[80vh]" />
   if (!profileUser) return <div className="flex justify-center p-10">Utilisateur introuvable</div>
   const hasAccess = !!profileUser.role && profileUser.friendship_status !== 'blocked' && profileUser.friendship_status !== 'blocked_by'
 

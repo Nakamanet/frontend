@@ -10,6 +10,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import FilterTab from '../../components/FilterTab'
 import { useQuery, useQueries } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 const FILTER_OPTIONS = [
   { value: 'manga', label: 'Mangas', icon: <Book size={18} /> },
@@ -67,9 +68,7 @@ export default function Library() {
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
 
       {isLoading ? (
-        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
+        <Loader />
       ) : filter === "manga" ? (
         <div>
           {mangas && mangas.length > 0 ? (

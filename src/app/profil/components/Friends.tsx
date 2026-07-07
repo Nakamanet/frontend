@@ -9,6 +9,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import FilterTab from '@/app/components/FilterTab'
 import { useToast } from '@/app/context/ToastContext'
+import Loader from '@/app/components/Loader'
 
 const FILTER_OPTIONS = [
   { value: 'friends', label: 'Amis', icon: <Users size={18} /> },
@@ -92,9 +93,7 @@ export default function Friends({ user }: { user: User }) {
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
 
       {isLoading ? (
-        <div className="flex justify-center items-center p-10 m-8 border border-border bg-accent rounded-[15px]">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
+        <Loader className="m-8" />
       ) : filter === 'friends' ? (
         friends.length > 0 ? (
           <div className='flex flex-col gap-5 p-5 m-8 bg-accent border border-border rounded-[15px]'>

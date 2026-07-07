@@ -7,6 +7,7 @@ import type { Forum } from '@/app/types/forum'
 import { X } from 'lucide-react'
 import { useToast } from '@/app/context/ToastContext'
 import { useAuth } from '@/app/context/AuthContext'
+import Loader from '@/app/components/Loader'
 
 export default function CreateForum({ onCreated }: { onCreated: () => void }) {
   const { showToast } = useToast()
@@ -118,7 +119,7 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
                 disabled={loading}
                 className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-2 font-bold text-white border-none mt-2 w-full"
               >
-                {loading ? <span className="loading loading-spinner"></span> : 'Publier le sujet'}
+                {loading ? <Loader variant="inline" size="md" /> : 'Publier le sujet'}
               </button>
             </form>
           </div>

@@ -6,6 +6,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import CharacterModal from './CharacterModal'
 import { useQuery } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 type Character = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
@@ -19,18 +20,20 @@ export default function CharacterPage({ type, item }: Character) {
   >()
   const [characterModal, setCharacterModal] = useState(false)
 
-  const { data: animeCharacters = [] } = useQuery({
+  const { data: animeCharacters = [], isLoading: animeLoading } = useQuery({
     queryKey: ['anime', item.id, 'characters'],
     queryFn: () => getAnimeCharacters(item.id),
     enabled: type === 'anime',
     staleTime: 5 * 60 * 1000,
   })
-  const { data: mangaCharacters = [] } = useQuery({
+  const { data: mangaCharacters = [], isLoading: mangaLoading } = useQuery({
     queryKey: ['manga', item.id, 'characters'],
     queryFn: () => getMangaCharacters(item.id),
     enabled: type === 'manga',
     staleTime: 5 * 60 * 1000,
   })
+
+  const isLoading = type === 'anime' ? animeLoading : mangaLoading
 
   const groupedAnimeCharacters = animeCharacters
     .reduce<GroupedAnimeCharacter[]>((acc, ac) => {
@@ -54,7 +57,8 @@ export default function CharacterPage({ type, item }: Character) {
 
   return (
     <div className="border border-border bg-accent rounded-[15px] p-5">
-      {type === 'anime' && (
+      {isLoading && <Loader variant="plain" className="my-[90px]" />}
+      {!isLoading && type === 'anime' && (
         <ul className="flex flex-wrap gap-2 justify-center">
           {groupedAnimeCharacters.map((ac) => (
             <button
@@ -82,7 +86,7 @@ export default function CharacterPage({ type, item }: Character) {
           ))}
         </ul>
       )}
-      {type === 'manga' && (
+      {!isLoading && type === 'manga' && (
         <ul className="flex flex-wrap gap-2 justify-center">
           {sortedMangaCharacters.map((mc) => (
             <button

@@ -18,6 +18,7 @@ import { getPosts, createPost } from '@/app/lib/post'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
   const [filter, setFilter] = useState('all')
@@ -151,9 +152,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
       </div>
       {/* Zone des posts */}
       {isLoading ? (
-        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
+        <Loader />
       ) : posts.length > 0 ? (
         posts.map((post) => (
           <Link href={`/post/${post.id}`} key={post.id}>

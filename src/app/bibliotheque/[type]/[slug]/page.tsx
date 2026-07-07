@@ -17,6 +17,7 @@ import CharacterPage from './components/CharacterPage'
 import { addMyAnime, addMyManga, deleteMyAnime, deleteMyManga, getMyAnime, getMyManga } from '@/app/lib/library'
 import { useToast } from '@/app/context/ToastContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 export default function DetailPage() {
   const { type, slug } = useParams()
@@ -189,7 +190,7 @@ export default function DetailPage() {
                 <div className="dropdown dropdown-end shrink-0">
                   <button tabIndex={0} disabled={isMutating} className="btn btn-ghost border-none rounded-full bg-primary text-primary-content flex items-center gap-2 disabled:opacity-70">
                     {isMutating
-                      ? <span className="loading loading-spinner loading-xs" />
+                      ? <Loader variant="inline" size="xs" />
                       : <>{statuses.find(s => s.value === myEntry.status)?.label ?? myEntry.status}<ChevronDown size={16} /></>
                     }
                   </button>
@@ -224,7 +225,7 @@ export default function DetailPage() {
                   disabled={isMutating}
                   className="btn btn-ghost border-none rounded-full bg-primary text-primary-content shrink-0 disabled:opacity-70"
                 >
-                  {isMutating ? <span className="loading loading-spinner loading-xs" /> : 'Ajouter à ma liste'}
+                  {isMutating ? <Loader variant="inline" size="xs" /> : 'Ajouter à ma liste'}
                 </button>
               ) : null}
             </div>

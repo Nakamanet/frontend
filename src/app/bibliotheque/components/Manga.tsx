@@ -7,6 +7,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import ScrollableRow from './ScrollableRow'
+import Loader from '@/app/components/Loader'
 
 export default function Manga() {
   const { data, isLoading, isError, error } = useQuery({
@@ -20,9 +21,7 @@ export default function Manga() {
   return (
     <ScrollableRow>
       {isLoading ? (
-        <div className="flex justify-center items-center h-full mx-auto my-[90px]">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
+        <Loader variant="plain" className="h-full mx-auto my-[90px]" />
       ) : isError ? (
         <div className="flex justify-center items-center h-full">
           <p className="text-red-500">{(error as Error)?.message ?? 'Erreur lors du chargement du catalogue'}</p>

@@ -8,6 +8,7 @@ import { Forum } from '@/app/types/forum'
 import ForumCards from '@/app/components/ForumCards'
 import FilterTab from '../../components/FilterTab'
 import { useQuery } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 const FILTER_OPTIONS = [
   { value: 'mine', label: 'Mes Forums', icon: <Flame size={18} /> },
@@ -30,9 +31,7 @@ export default function MyTopics({ user }: { user: User }) {
     <div className="flex flex-col gap-8 p-7">
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
       {isLoading ? (
-        <div className="flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]">
-          <span className="loading loading-spinner loading-lg text-primary"></span>
-        </div>
+        <Loader />
       ) : forums.length > 0 ? (
         <div>
           {forums.map((forum) => (

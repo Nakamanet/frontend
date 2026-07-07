@@ -6,6 +6,7 @@ import { replyToForum } from '@/app/lib/forum'
 import { useToast } from '@/app/context/ToastContext'
 import { useAuth } from '@/app/context/AuthContext'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import Loader from '@/app/components/Loader'
 
 interface ReplyForumProps {
   topicId: number
@@ -76,7 +77,7 @@ export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumPr
           disabled={loading}
           className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-2 font-bold text-white border-none disabled:opacity-50"
         >
-          {loading ? <span className="loading loading-spinner loading-xs"></span> : 'Publier'}
+          {loading ? <Loader variant="inline" size="xs" /> : 'Publier'}
         </button>
 
         {onCancel && (

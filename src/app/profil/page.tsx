@@ -14,6 +14,7 @@ import { useQuery, useQueries } from '@tanstack/react-query'
 import { getUserProfil, getUserPosts } from '../lib/user'
 import { getMyAnime, getMyManga } from '../lib/library'
 import { useSyncExternalStore } from 'react'
+import Loader from '@/app/components/Loader'
 
 function useHash() {
   return useSyncExternalStore(
@@ -57,7 +58,7 @@ export default function ProfilPage() {
     window.location.hash = TAB_TO_HASH[tab]
   }
 
-  const { data } = useQuery({
+  const { data, isLoading: profileLoading } = useQuery({
     queryKey: ['user', user?.id ?? 0, 'profile'],
     queryFn: () => getUserProfil(user!.id),
     enabled: !!user?.id,
@@ -72,11 +73,11 @@ export default function ProfilPage() {
   })
   const postsCount = results[0]?.data?.total ?? 0
   const libraryCount = (results[1]?.data?.length ?? 0) + (results[2]?.data?.length ?? 0)
+  const postsLoading = results[0]?.isLoading
+  const libraryLoading = results[1]?.isLoading || results[2]?.isLoading
 
   if (isAuthLoading) return (
-    <div className="flex items-center justify-center min-h-[80vh]">
-      <span className="loading loading-spinner loading-lg text-primary" />
-    </div>
+    <Loader variant="plain" className="min-h-[80vh]" />
   )
   if (!user) redirect('/login')
 
@@ -124,13 +125,13 @@ export default function ProfilPage() {
               {new Date(user.created_at).toLocaleDateString()}
             </p>
             <p className="flex items-center gap-2">
-              <BookOpen size={15} className="text-primary" /> {libraryCount} oeuvres suivies
+              <BookOpen size={15} className="text-primary" /> {libraryLoading ? <Loader variant="inline" size="xs" /> : libraryCount} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
-              <Users size={15} className="text-primary" /> {data?.friends_count} amis
+              <Users size={15} className="text-primary" /> {profileLoading ? <Loader variant="inline" size="xs" /> : data?.friends_count} amis
             </p>
             <p className="flex items-center gap-2">
-              <MessageSquare size={15} className="text-primary" /> {postsCount} posts
+              <MessageSquare size={15} className="text-primary" /> {postsLoading ? <Loader variant="inline" size="xs" /> : postsCount} posts
             </p>
           </div>
           <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">

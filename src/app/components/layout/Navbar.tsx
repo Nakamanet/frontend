@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search, Bell, User } from 'lucide-react'
+import { Search, Bell, User, LogOut } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { CircleUser } from 'lucide-react'
 import { useState } from 'react'
@@ -12,6 +12,7 @@ import SearchModal from '../SearchModal'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/context/ToastContext'
 import { acceptFriend } from '@/app/lib/friends'
+import Loader from '@/app/components/Loader'
 
 export default function Navbar() {
   const { isLoggedIn, logout, user } = useAuth()
@@ -28,7 +29,7 @@ export default function Navbar() {
     refetchInterval: 30000,
   })
 
-  const { data: notifications } = useQuery({
+  const { data: notifications, isLoading: notificationsLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: getNotifications,
     select: (data) => ({
@@ -44,7 +45,6 @@ export default function Navbar() {
 
   const invalidateNotifications = () => {
     queryClient.invalidateQueries({ queryKey: ['notifications']})
-    showToast("Notification marqué comme lu", "success")
   }
 
   const acceptMutation = useMutation({
@@ -90,25 +90,31 @@ export default function Navbar() {
         <div className="flex items-center gap-3 pr-4 md:pr-10">
           {isLoggedIn && user ? (
             <>
-              <Search
-                size={27}
-                className="hidden md:block cursor-pointer hover:text-primary transition-colors"
-                onClick={() => setSearchModalOpen(true)}
-              />
-              <div className='dropdown dropdown-end relative hidden md:block z-20'>
+            {/* Search */}
+              <span className='tooltip tooltip-bottom hidden md:block' data-tip="Recherche">
+                <Search
+                  size={27}
+                  className="cursor-pointer hover:text-primary transition-colors"
+                  onClick={() => setSearchModalOpen(true)}
+                />
+              </span>
+              {/* Notifications */}
+              <div className='dropdown dropdown-end relative hidden md:block tooltip tooltip-bottom' data-tip="Notifications">
                 <div tabIndex={0} role='button' className='relative'>
                   <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
                   {unreadCount > 0 && (
                     <span className='absolute -top-1 -right-1 bg-alerts text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
                 </div>
-                <div tabIndex={-1} className='dropdown-content w-100 rounded-box z-1 mt-3 p-3 bg-accent border-border shadow'>
+                <div tabIndex={-1} className='dropdown-content w-100 rounded-box z-10 mt-3 p-3 bg-accent border-border shadow'>
                   <div className='flex justify-between items-center gap-2 p-3'>
                     <span className='font-bold'>Notifications</span>
                     <button className='btn btn-ghost text-xs text-primary' onClick={() => markAllAsReadMutation.mutate()}>Tout marquer comme lu</button>
                   </div>
                   <ul className='menu menu-lg p-2 pt-0'>
-                    {notificationsList.length === 0 ? (
+                    {notificationsLoading ? (
+                      <li><Loader variant="plain" size="md" className="py-4" /></li>
+                    ) : notificationsList.length === 0 ? (
                       <li><span className='text-border'>Aucune notifications</span></li>
                     ) : (
                       notificationsList.map((n) => (
@@ -144,7 +150,8 @@ export default function Navbar() {
                   </ul>
                 </div>
               </div>
-              <div className="dropdown dropdown-end">
+              {/* PP */}
+              <div className="dropdown dropdown-end tooltip tooltip-bottom z-10" data-tip="Profil">
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                   <div className="w-10 rounded-full">
                     {user.avatar_url ? (
@@ -154,12 +161,18 @@ export default function Navbar() {
                     )}
                   </div>
                 </div>
-                <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-1 mt-3 p-2 bg-accent border border-border shadow">
+                <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
                   <li>
-                    <Link href="/profil">Profil</Link>
+                    <div className='flex'>
+                      <User size={20} /> 
+                      <Link href="/profil">Profil</Link>
+                    </div>
                   </li>
                   <li>
-                    <button onClick={logout}>Déconnexion</button>
+                    <div className='flex'> 
+                      <LogOut size={20} />
+                      <button onClick={logout}>Déconnexion</button>
+                    </div>
                   </li>
                 </ul>
               </div>
