@@ -1,55 +1,54 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { 
-  format, 
-  startOfMonth, 
-  endOfMonth, 
-  startOfWeek, 
-  endOfWeek, 
-  eachDayOfInterval, 
-  isSameMonth, 
-  isSameDay, 
-  addMonths, 
-  subMonths 
-} from 'date-fns';
-import { fr } from 'date-fns/locale';
-import { User } from '../../types/auth';
-
+import React, { useState } from 'react'
+import {
+  format,
+  startOfMonth,
+  endOfMonth,
+  startOfWeek,
+  endOfWeek,
+  eachDayOfInterval,
+  isSameMonth,
+  isSameDay,
+  addMonths,
+  subMonths,
+} from 'date-fns'
+import { fr } from 'date-fns/locale'
+import { User } from '../../types/auth'
 
 export default function Calendar({ user }: { user: User | null }) {
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null)
 
   const events = [
     {
-        id: 1,
-        title: "Tome 1 de Naruto",
-        date: "2026-03-13",
-        description: "Le premier tome de Naruto",
+      id: 1,
+      title: 'Tome 1 de Naruto',
+      date: '2026-03-13',
+      description: 'Le premier tome de Naruto',
     },
     {
-        id: 2,
-        title: "Tome 2 de Naruto",
-        date: "2026-03-20",
-        description: "Le deuxième tome de Naruto",
+      id: 2,
+      title: 'Tome 2 de Naruto',
+      date: '2026-03-20',
+      description: 'Le deuxième tome de Naruto',
     },
     {
-        id: 3,
-        title: "Tome 3 de Naruto",
-        date: "2026-03-27",
-        description: "Le troisième tome de Naruto",
-    }
+      id: 3,
+      title: 'Tome 3 de Naruto',
+      date: '2026-03-27',
+      description: 'Le troisième tome de Naruto',
+    },
   ]
   // Logique de génération des jours
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(monthStart);
-  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
-  const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
-  const calendarDays = eachDayOfInterval({ start: startDate, end: endDate });
+  const monthStart = startOfMonth(currentMonth)
+  const monthEnd = endOfMonth(monthStart)
+  const startDate = startOfWeek(monthStart, { weekStartsOn: 1 })
+  const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  const calendarDays = eachDayOfInterval({ start: startDate, end: endDate })
 
-  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
-  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
+  const nextMonth = () => setCurrentMonth(addMonths(currentMonth, 1))
+  const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
 
   return (
     <div className="card bg-accent rounded-[15px] shadow-xl border border-border w-full">
@@ -88,7 +87,9 @@ export default function Calendar({ user }: { user: User | null }) {
             onChange={(e) => setCurrentMonth(new Date(Number(e.target.value), currentMonth.getMonth(), 1))}
           >
             {Array.from({ length: 11 }, (_, i) => currentMonth.getFullYear() - 5 + i).map((y) => (
-              <option key={y} value={y}>{y}</option>
+              <option key={y} value={y}>
+                {y}
+              </option>
             ))}
           </select>
           <button
@@ -103,22 +104,24 @@ export default function Calendar({ user }: { user: User | null }) {
 
         {/* Jours de la semaine */}
         <div className="grid grid-cols-7 gap-1 text-center text-xs font-semibold opacity-50 mb-2">
-          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => <div key={d + Math.random()}>{d}</div>)}
+          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d) => (
+            <div key={d + Math.random()}>{d}</div>
+          ))}
         </div>
 
         {/* Grille des jours */}
         <div className="grid grid-cols-7 gap-1">
           {calendarDays.map((day, idx) => {
-            const dateStr = format(day, 'yyyy-MM-dd');
-            const hasEvent = events.some(e => e.date === dateStr);
-            const isCurrentMonth = isSameMonth(day, monthStart);
+            const dateStr = format(day, 'yyyy-MM-dd')
+            const hasEvent = events.some((e) => e.date === dateStr)
+            const isCurrentMonth = isSameMonth(day, monthStart)
 
             return (
               <button
                 key={idx}
                 onClick={() => {
-                  setSelectedDay(day);
-                  (document.getElementById('calendar_modal') as HTMLDialogElement).showModal();
+                  setSelectedDay(day)
+                  ;(document.getElementById('calendar_modal') as HTMLDialogElement).showModal()
                 }}
                 className={`
                   flex flex-col items-center justify-center p-2 rounded-lg text-xs transition-colors
@@ -129,7 +132,7 @@ export default function Calendar({ user }: { user: User | null }) {
                 {format(day, 'd')}
                 {hasEvent && <div className="w-1 h-1 bg-error rounded-full mt-1"></div>}
               </button>
-            );
+            )
           })}
         </div>
       </div>
@@ -137,19 +140,19 @@ export default function Calendar({ user }: { user: User | null }) {
       {/* Modal DaisyUI */}
       <dialog id="calendar_modal" className="modal modal-bottom sm:modal-middle">
         <div className="modal-box">
-          <h3 className="font-bold text-lg">
-            {selectedDay ? format(selectedDay, 'eeee d MMMM', { locale: fr }) : ''}
-          </h3>
+          <h3 className="font-bold text-lg">{selectedDay ? format(selectedDay, 'eeee d MMMM', { locale: fr }) : ''}</h3>
           <div className="py-4">
-            {selectedDay && events.filter(e => e.date === format(selectedDay, 'yyyy-MM-dd')).length > 0 ? (
-              events.filter(e => e.date === format(selectedDay, 'yyyy-MM-dd')).map(e => (
-                <div key={e.id} className="alert alert-info shadow-sm mb-2">
-                  <div>
-                    <h4 className="font-bold">{e.title}</h4>
-                    <p className="text-sm">{e.description}</p>
+            {selectedDay && events.filter((e) => e.date === format(selectedDay, 'yyyy-MM-dd')).length > 0 ? (
+              events
+                .filter((e) => e.date === format(selectedDay, 'yyyy-MM-dd'))
+                .map((e) => (
+                  <div key={e.id} className="alert alert-info shadow-sm mb-2">
+                    <div>
+                      <h4 className="font-bold">{e.title}</h4>
+                      <p className="text-sm">{e.description}</p>
+                    </div>
                   </div>
-                </div>
-              ))
+                ))
             ) : (
               <p className="text-sm opacity-60">Aucun événement prévu.</p>
             )}
@@ -162,5 +165,5 @@ export default function Calendar({ user }: { user: User | null }) {
         </div>
       </dialog>
     </div>
-  );
+  )
 }

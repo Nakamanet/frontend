@@ -5,9 +5,19 @@ services:
       dockerfile: Dockerfile
     container_name: frontend
     ports:
-      - "3000:3000"
+      - '3000:3000'
+    networks:
+      - default
+      - shared_network
     volumes:
       - .:/app
       - /app/node_modules
     environment:
       - NEXT_PUBLIC_API_URL=http://localhost:8080/api
+      - NEXT_PUBLIC_CHAT_URL=http://localhost:3333
+
+
+
+networks:
+  shared_network:
+    external: true

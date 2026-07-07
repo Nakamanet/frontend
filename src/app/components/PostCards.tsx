@@ -1,50 +1,92 @@
-import Image from "next/image";
-import { CircleUser, Heart, MessageCircle, Bookmark } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
-import { Post } from "../types/post";
+'use client'
+
+import Image from 'next/image'
+import { CircleUser, Heart, MessageCircle, Bookmark } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { useAuth } from "../context/AuthContext"
+import { fr } from 'date-fns/locale'
+import { Post } from '../types/post'
+import { toggleLikePost } from '../lib/likes'
+import { useToast } from '../context/ToastContext'
+import { useState } from 'react'
+import { unsavePost, savePost } from "../lib/post"
+import { useMutation } from '@tanstack/react-query'
 
 export default function PostCards({ post }: { post: Post }) {
-    return (
-        <div key={post.id} className="bg-accent shadow-sm place-items-center w-full border border-border rounded-[15px] p-6">
-            <div className="flex gap-3">
-                <div>
-                    {post.user.avatar_url ? (
-                        <Image
-                            src={post.user.avatar_url}
-                            alt="Avatar"
-                            width={100}
-                            height={100}
-                            className="w-12 h-12 rounded-full"
-                        />
-                    ) : (
-                        <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
-                            <CircleUser size={35} strokeWidth={1.5} />
-                        </div>
-                    )}
-                </div>
-                <div className="flex flex-col gap-3">
-                    <div className="flex gap-2">
-                        <p className="font-bold">{post.user.username}</p>
-                        <p className="text-sm text-border">@{post.user.username}</p>
-                        <p className="text-sm text-border">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
-                    </div>
-                    <p>{post.content}</p>
-                    <div className="flex gap-2">
-                        <div className="flex gap-2">
-                            <Heart size={20} />
-                            <p>0</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <MessageCircle size={20} />
-                            <p>0</p>
-                        </div>
-                        <div className="flex gap-2">
-                            <Bookmark size={20} />
-                        </div>
-                    </div>
-                </div>
+  const { user } = useAuth()
+  const { showToast } = useToast()
+  const [likeCount, setLikeCount] = useState(post.likes_count)
+  const [likedOverride, setLikedOverride] = useState<boolean | null>(null)
+  const liked = likedOverride ?? (post.likes?.some(l => l.user_id === user?.id) ?? false)
+  const [saved, setSaved] = useState(false)
+
+  const { mutate: like } = useMutation({
+    mutationFn: () => toggleLikePost(post.id),
+    onSuccess: (res) => {
+      setLikeCount(prev => res.liked ? prev + 1 : prev - 1)
+      setLikedOverride(res.liked)
+    },
+    onError: () => showToast('Erreur lors du like du post', 'error'),
+  })
+
+  const { mutate: toggleSave } = useMutation({
+    mutationFn: () => saved ? unsavePost(post.id) : savePost(post.id),
+    onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      saved
+        ? showToast('Post retiré des sauvegardes', 'success')
+        : showToast('Post sauvegardé', 'success')
+      setSaved(prev => !prev)
+    },
+    onError: () => showToast("Erreur lors de la sauvegarde", "error")
+  })
+
+  return (
+    <div key={post.id} className="bg-accent shadow-sm w-full border border-border hover:border-primary/50 rounded-[15px] p-6 transition-colors cursor-pointer">
+      <div className="flex gap-3">
+        <div>
+          {post.user.avatar_url ? (
+            <Image
+              src={post.user.avatar_url}
+              alt="Avatar"
+              width={100}
+              height={100}
+              className="w-12 h-12 rounded-full"
+            />
+          ) : (
+            <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
+              <CircleUser size={35} strokeWidth={1.5} />
             </div>
+          )}
         </div>
-    );
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2">
+            <p className="font-bold">{post.user.username}</p>
+            <p className="text-sm text-text/60">@{post.user.username}</p>
+            <p className="text-sm text-text/60">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
+          </div>
+          <p>{post.content}</p>
+          <div className="flex">
+            <button
+              className='btn btn-ghost flex gap-2 p-2 hover:text-red-400 transition-colors'
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); like() }}
+            >
+              <Heart size={20} className={liked ? 'fill-red-500 text-red-500' : 'text-text/70'}/>
+              <p>{likeCount}</p>
+            </button>
+            <button className="btn btn-ghost flex gap-2 p-2 text-text/70 hover:text-primary transition-colors">
+              <MessageCircle size={20} />
+              <p>{post.comments_count}</p>
+            </button>
+            <button
+              className="btn btn-ghost flex gap-2 p-2 hover:text-primary transition-colors"
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); toggleSave() }}
+            >
+              <Bookmark size={20} className={saved ? 'fill-primary text-primary' : 'text-text/70'}/>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
