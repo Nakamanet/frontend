@@ -66,3 +66,13 @@ export async function getUserPins(page = 1): Promise<PaginatedForums> {
   const { data } = await api.get<PaginatedForums>('/forum/my-pins', { params: { page } })
   return data
 }
+
+export async function getMyArchivedTopics(page = 1): Promise<PaginatedForums> {
+  const { data } = await api.get<PaginatedForums>('/forum/my-archived', { params: { page } })
+  return data
+}
+
+export async function getMyVotedTopics(page = 1): Promise<PaginatedForums> {
+  const { data } = await api.get<PaginatedForums>('/forum/my-voted', { params: { page } })
+  return data
+}
