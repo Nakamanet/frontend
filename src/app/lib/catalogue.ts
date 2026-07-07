@@ -111,3 +111,16 @@ export async function getAnimeCharacters(id: number): Promise<AnimeCharacter[]> 
 export async function getMangaCharacters(id: number): Promise<MangaCharacter[]> {
   return cachedGet<MangaCharacter[]>(`/manga/${id}/characters`)
 }
+
+
+export async function searchAnime(query: string): Promise<Anime[]> {
+  if (!query.trim()) return []
+  const { data } = await catalogueApi.get('/anime', { params: { search: query, limit: 8 } })
+  return data.data // paginate() wraps results in { data: [...], meta: {...} }
+}
+
+export async function searchManga(query: string): Promise<Manga[]> {
+  if (!query.trim()) return []
+  const { data } = await catalogueApi.get('/manga', { params: { search: query, limit: 8 } })
+  return data.data
+}
