@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import { CircleUser, Heart, MessageCircle, Bookmark } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useAuth } from "../context/AuthContext"
@@ -44,24 +45,34 @@ export default function PostCards({ post }: { post: Post }) {
   return (
     <div key={post.id} className="bg-accent shadow-sm w-full border border-border hover:border-primary/50 rounded-[15px] p-6 transition-colors cursor-pointer">
       <div className="flex gap-3">
-        <div>
+        <Link
+          href={`/profil/${post.user.id}`}
+          onClick={(e) => e.stopPropagation()}
+          className="shrink-0"
+        >
           {post.user.avatar_url ? (
             <Image
               src={post.user.avatar_url}
               alt="Avatar"
               width={100}
               height={100}
-              className="w-12 h-12 rounded-full"
+              className="w-12 h-12 rounded-full hover:opacity-80 transition-opacity"
             />
           ) : (
-            <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
+            <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70 hover:opacity-80 transition-opacity">
               <CircleUser size={35} strokeWidth={1.5} />
             </div>
           )}
-        </div>
+        </Link>
         <div className="flex flex-col gap-3">
           <div className="flex gap-2">
-            <p className="font-bold">{post.user.username}</p>
+            <Link
+              href={`/profil/${post.user.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="font-bold hover:underline"
+            >
+              {post.user.username}
+            </Link>
             <p className="text-sm text-text/60">@{post.user.username}</p>
             <p className="text-sm text-text/60">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
           </div>
