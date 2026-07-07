@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getForums } from '@/app/lib/forum'
+import { getForums, getUserPins } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
 import { Paperclip } from 'lucide-react'
 import CreateForum from './components/CreateForum'
@@ -9,6 +9,8 @@ import ForumCards from '../components/ForumCards'
 import AppLayout from '../components/layout/AppLayout'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
+import { useAuth } from '../context/AuthContext'
+import Link from 'next/link'
 
 const CATEGORIES = [
   { id: '', label: 'Récents' },
@@ -19,11 +21,18 @@ const CATEGORIES = [
   { id: 'spoilers', label: 'Spoilers' },
 ]
 
+const PIN_TITLE_MAX = 30
+
+function truncate(str: string, max: number) {
+  return str.length > max ? str.slice(0, max) + '…' : str
+}
+
 export default function ForumPage() {
   const [activeCategory, setActiveCategory] = useState<string>('')
   const [searchInput, setSearchInput] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const queryClient = useQueryClient()
+  const { isLoggedIn } = useAuth()
 
   useEffect(() => {
     const timer = setTimeout(() => setSearchQuery(searchInput), 300)
@@ -37,25 +46,46 @@ export default function ForumPage() {
       return getForums(1, categoryParam, searchQuery || undefined)
     },
   })
+
+  const { data: systemPinnedData } = useQuery({
+    queryKey: ['forums-system-pinned'],
+    queryFn: () => getForums(1, undefined, undefined, true),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const { data: userPinsData } = useQuery({
+    queryKey: ['user-pins'],
+    queryFn: () => getUserPins(),
+    enabled: isLoggedIn,
+  })
+
   const topics = data?.data ?? []
+  const systemPinned = systemPinnedData?.data ?? []
+  const userPins = userPinsData?.data ?? []
+  const topBarPinned = [
+    ...systemPinned,
+    ...userPins.filter(up => !systemPinned.some(sp => sp.id === up.id)),
+  ]
 
   return (
     <AppLayout>
       <div className="flex flex-col gap-10 w-full h-full overflow-y-auto scrollbar-hide">
-        <div className="flex justify-between items-center border border-border bg-accent rounded-full py-1 px-6 shrink-0">
-          <div className="flex gap-5 overflow-x-auto scrollbar-hide">
-            <button className="flex px-4 items-center gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts text-white">
-              <Paperclip size={18} />
-              <span className="hidden md:inline">Sujet épinglé 1</span>
-            </button>
-            <button className="flex px-4 items-center gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts text-white">
-              <Paperclip size={18} />
-              <span className="hidden md:inline">Sujet épinglé 2</span>
-            </button>
-            <button className="flex px-4 items-center gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts text-white">
-              <Paperclip size={18} />
-              <span className="hidden md:inline">Sujet épinglé 3</span>
-            </button>
+        <div className="flex items-center shrink-0">
+          <div className="flex flex-wrap gap-3">
+            {topBarPinned.length === 0 ? (
+              <span className="text-border text-sm px-4 py-2">Aucun sujet épinglé</span>
+            ) : (
+              topBarPinned.map((topic) => (
+                <Link
+                  key={topic.id}
+                  href={`/forum/${topic.id}`}
+                  className="flex px-4 items-center gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts text-white shrink-0"
+                >
+                  <Paperclip size={18} />
+                  <span className="hidden md:inline">{truncate(topic.title, PIN_TITLE_MAX)}</span>
+                </Link>
+              ))
+            )}
           </div>
         </div>
 

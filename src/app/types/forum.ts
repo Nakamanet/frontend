@@ -29,6 +29,7 @@ export interface Forum {
   views_count: number
   votes_count: number
   user_has_voted: boolean
+  user_has_pinned: boolean
   user: User
   replies?: ForumReply[]
 }
