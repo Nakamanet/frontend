@@ -78,3 +78,30 @@ export async function unarchivePost(id: number): Promise<{ message: string, arch
   const { data } = await api.patch(`/posts/${id}/unarchive`)
   return data
 }
+
+export interface Comment {
+  id: number
+  user_id: number
+  post_id: number
+  parent_id: number | null
+  content: string
+  is_spoiler: boolean
+  user: { id: number; username: string; avatar_url: string | null }
+}
+
+export async function getComments(postId: number): Promise<{ data: Comment[] }> {
+  const { data } = await api.get(`/posts/${postId}/comments`)
+  return data
+}
+
+export async function createComment(
+  postId: number,
+  body: { content: string; parent_id?: number | null; is_spoiler?: boolean }
+): Promise<Comment> {
+  const { data } = await api.post(`/posts/${postId}/comments`, body)
+  return data
+}
+
+export async function deleteComment(commentId: number): Promise<void> {
+  await api.delete(`/posts/comments/${commentId}`)
+}
