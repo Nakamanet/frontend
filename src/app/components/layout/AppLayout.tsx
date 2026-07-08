@@ -37,7 +37,7 @@ export default function AppLayout({ children, sidebar = false }: AppLayoutProps)
             <Home size={22} />
             Accueil
           </Link>
-          <Link href="/list" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/list' ? 'text-primary' : 'text-border'}`}>
+          <Link href="/bibliotheque" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/bibliotheque' ? 'text-primary' : 'text-border'}`}>
             <BookOpen size={22} />
             Bibliothèque
           </Link>
