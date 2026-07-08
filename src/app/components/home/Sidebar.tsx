@@ -6,8 +6,10 @@ import Link from 'next/link'
 import { CircleUser, Users, Flame } from 'lucide-react'
 import { getUserPosts } from '@/app/lib/user'
 import { getFriends } from '@/app/lib/friends'
-import { getMyAnime, getMyManga } from '@/app/lib/library'
-import { useQueries } from '@tanstack/react-query'
+import { getMyAnime, getMyManga, getTopAnime, getTopManga } from '@/app/lib/library'
+import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
+import { Anime, Manga } from '@/app/types/catalog'
+import { useQueries, useQuery } from '@tanstack/react-query'
 
 export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { isLoggedIn: boolean; isAuthLoading?: boolean; user: User | null }) {
   const results = useQueries({
@@ -21,6 +23,42 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
   const postCounts = results[0]?.data?.total ?? 0
   const workCount = (results[1]?.data?.length ?? 0) + (results[2]?.data?.length ?? 0)
   const friendsCount = results[3]?.data?.length ?? 0
+
+  const { data: topMangaEntries = [] } = useQuery({
+    queryKey: ['library', 'top-manga'],
+    queryFn: getTopManga,
+  })
+  const { data: topAnimeEntries = [] } = useQuery({
+    queryKey: ['library', 'top-anime'],
+    queryFn: getTopAnime,
+  })
+
+  const topMangaDetails = useQueries({
+    queries: topMangaEntries.map((entry) => ({
+      queryKey: ['manga', entry.manga_id],
+      queryFn: () => getMangaById(entry.manga_id!),
+      staleTime: 5 * 60 * 1000,
+      enabled: !!entry.manga_id,
+    })),
+  })
+  const topAnimeDetails = useQueries({
+    queries: topAnimeEntries.map((entry) => ({
+      queryKey: ['anime', entry.anime_id],
+      queryFn: () => getAnimeById(entry.anime_id!),
+      staleTime: 5 * 60 * 1000,
+      enabled: !!entry.anime_id,
+    })),
+  })
+
+  const topManga = topMangaEntries
+    .map((entry, i) => (topMangaDetails[i]?.data ? { ...entry, detail: topMangaDetails[i].data as Manga } : null))
+    .filter((x): x is NonNullable<typeof x> => x !== null)
+    .slice(0, 3)
+
+  const topAnime = topAnimeEntries
+    .map((entry, i) => (topAnimeDetails[i]?.data ? { ...entry, detail: topAnimeDetails[i].data as Anime } : null))
+    .filter((x): x is NonNullable<typeof x> => x !== null)
+    .slice(0, 3)
 
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
@@ -108,24 +146,70 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
           )}
         </div>
       </div>
-      {/* Bloc Top Mangas a remplir quand la Bibliothèque sera intégrée*/}
-      <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-[15px]">
-        <div className="card-body flex justify-center w-full">
-          <div className="flex gap-2">
+      {/* Bloc Top Mangas */}
+      <div className="card w-full bg-accent shadow-sm border border-border rounded-[15px]">
+        <div className="card-body w-full">
+          <div className="flex gap-2 items-center">
             <Flame size={20} />
-            <h1 className="text-sm">Top Mangas</h1>
+            <h1 className="text-sm font-semibold">Top Mangas</h1>
           </div>
-          <p>A remplir quand on aura l&apos;API</p>
+          {topManga.length > 0 ? (
+            <ul className="flex flex-col gap-2 mt-2">
+              {topManga.map((manga, i) => (
+                <li key={manga.manga_id}>
+                  <Link
+                    href={`/bibliotheque/manga/${manga.detail.slug}`}
+                    className="flex items-center gap-3 hover:bg-base-200/50 rounded-[8px] p-1 transition-colors"
+                  >
+                    <span className="text-sm font-bold text-primary w-4 text-center">{i + 1}</span>
+                    <Image
+                      src={manga.detail.posterImage || '/bg.png'}
+                      alt={manga.detail.titleEn}
+                      width={32}
+                      height={45}
+                      className="rounded object-cover shrink-0"
+                    />
+                    <span className="text-sm truncate">{manga.detail.titleEn}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-text/60">Aucune donnée pour l&apos;instant</p>
+          )}
         </div>
       </div>
-      {/* Bloc Top Anime a remplir quand la Bibliothèque sera intégrée*/}
-      <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-[15px]">
-        <div className="card-body flex justify-center w-full">
-          <div className="flex gap-2">
+      {/* Bloc Top Anime */}
+      <div className="card w-full bg-accent shadow-sm border border-border rounded-[15px]">
+        <div className="card-body w-full">
+          <div className="flex gap-2 items-center">
             <Flame size={20} />
-            <h1 className="text-sm">Top Anime</h1>
+            <h1 className="text-sm font-semibold">Top Anime</h1>
           </div>
-          <p>A remplir quand on aura l&apos;API</p>
+          {topAnime.length > 0 ? (
+            <ul className="flex flex-col gap-2 mt-2">
+              {topAnime.map((anime, i) => (
+                <li key={anime.anime_id}>
+                  <Link
+                    href={`/bibliotheque/anime/${anime.detail.slug}`}
+                    className="flex items-center gap-3 hover:bg-base-200/50 rounded-[8px] p-1 transition-colors"
+                  >
+                    <span className="text-sm font-bold text-primary w-4 text-center">{i + 1}</span>
+                    <Image
+                      src={anime.detail.posterImage || '/bg.png'}
+                      alt={anime.detail.titleEn}
+                      width={32}
+                      height={45}
+                      className="rounded object-cover shrink-0"
+                    />
+                    <span className="text-sm truncate">{anime.detail.titleEn}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-text/60">Aucune donnée pour l&apos;instant</p>
+          )}
         </div>
       </div>
     </div>

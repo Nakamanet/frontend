@@ -56,3 +56,19 @@ export async function getFriendsExplore(): Promise<FriendsExploreResponse> {
   const res = await api.get('/library/explore/friends') // adjust to your axios instance import
   return res.data
 }
+
+export interface TopEntry {
+  anime_id?: number
+  manga_id?: number
+  count: number
+}
+
+export async function getTopAnime(): Promise<TopEntry[]> {
+  const { data } = await api.get('/library/top/anime')
+  return data
+}
+
+export async function getTopManga(): Promise<TopEntry[]> {
+  const { data } = await api.get('/library/top/manga')
+  return data
+}
