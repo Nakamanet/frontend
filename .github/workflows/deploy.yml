@@ -19,9 +19,16 @@ jobs:
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "target=prod" >> $GITHUB_OUTPUT
+            echo "api_url=https://api.nakamanet.fr/api" >> $GITHUB_OUTPUT
+            echo "lib_api_url=https://adonis.nakamanet.fr" >> $GITHUB_OUTPUT
+            echo "chat_url=https://adonis.nakamanet.fr" >> $GITHUB_OUTPUT
           else
             echo "target=preprod" >> $GITHUB_OUTPUT
+            echo "api_url=https://dev-api.nakamanet.fr/api" >> $GITHUB_OUTPUT
+            echo "lib_api_url=https://dev-adonis.nakamanet.fr" >> $GITHUB_OUTPUT
+            echo "chat_url=https://dev-adonis.nakamanet.fr" >> $GITHUB_OUTPUT
           fi
+          echo "r2_url=https://pub-e672f7689c754d048f17f8bbad20297c.r2.dev" >> $GITHUB_OUTPUT
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -36,6 +43,11 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/nakamanet/frontend:${{ steps.env.outputs.target }}
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ steps.env.outputs.api_url }}
+            NEXT_PUBLIC_LIB_API_URL=${{ steps.env.outputs.lib_api_url }}
+            NEXT_PUBLIC_R2_PUBLIC_URL=${{ steps.env.outputs.r2_url }}
+            NEXT_PUBLIC_CHAT_URL=${{ steps.env.outputs.chat_url }}
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.0.3

@@ -28,7 +28,6 @@ export default function Navbar() {
     queryFn: getUnreadCount,
     enabled: isLoggedIn,
     refetchInterval: 30000,
-    enabled: isLoggedIn,
   })
 
   const { data: notifications, isLoading: notificationsLoading } = useQuery({
@@ -42,7 +41,6 @@ export default function Navbar() {
     }),
     enabled: isLoggedIn,
     refetchInterval: 30000,
-    enabled: isLoggedIn,
   })
 
   const notificationsList = notifications?.data ?? []
