@@ -15,7 +15,7 @@ import { acceptFriend } from '@/app/lib/friends'
 import Loader from '@/app/components/Loader'
 
 export default function Navbar() {
-  const { isLoggedIn, logout, user } = useAuth()
+  const { isLoggedIn, isAuthLoading, hasStoredSession, logout, user } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const queryClient = useQueryClient()
@@ -27,6 +27,7 @@ export default function Navbar() {
     queryKey: ['notifications', 'unread-count'],
     queryFn: getUnreadCount,
     refetchInterval: 30000,
+    enabled: isLoggedIn,
   })
 
   const { data: notifications, isLoading: notificationsLoading } = useQuery({
@@ -39,6 +40,7 @@ export default function Navbar() {
       )
     }),
     refetchInterval: 30000,
+    enabled: isLoggedIn,
   })
 
   const notificationsList = notifications?.data ?? []
@@ -88,7 +90,20 @@ export default function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-3 pr-4 md:pr-10">
-          {isLoggedIn && user ? (
+          {isAuthLoading ? (
+            hasStoredSession ? (
+              <div className="flex items-center gap-3">
+                <div className="hidden md:block w-6 h-6 rounded-full bg-border/40" />
+                <div className="hidden md:block w-6 h-6 rounded-full bg-border/40" />
+                <div className="w-8 h-8 rounded-full bg-border/40" />
+              </div>
+            ) : (
+              <div className="hidden md:flex gap-5 p-2">
+                <div className="w-20 h-4 rounded-full bg-border/40" />
+                <div className="w-16 h-4 rounded-full bg-border/40" />
+              </div>
+            )
+          ) : isLoggedIn && user ? (
             <>
             {/* Search */}
               <span className='tooltip tooltip-bottom hidden md:block' data-tip="Recherche">
@@ -225,7 +240,7 @@ export default function Navbar() {
           <Link href="/chat" onClick={() => setMenuOpen(false)}>
             Chat
           </Link>
-          {!isLoggedIn && (
+          {!isAuthLoading && !isLoggedIn && (
             <>
               <hr className="border-border" />
               <Link href="/login" onClick={() => setMenuOpen(false)}>
