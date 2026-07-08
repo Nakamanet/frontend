@@ -176,7 +176,7 @@ export default function ProfilPage() {
       <section className="grid grid-cols-4">
         <div className="w-full h-auto flex flex-col gap-5 py-7">
           <div className="flex flex-col justify-center gap-1 bg-accent p-5 border border-border rounded-[15px]">
-            <p className="pb-2">{profileUser.bio || 'Pas encore de bio'}</p>
+            <p className="pb-2 whitespace-pre-wrap">{profileUser.bio || 'Pas encore de bio'}</p>
             <p className="flex items-center gap-2">
               <MapPin size={15} className="text-primary" /> {profileUser.localisation || 'Non renseigné'}
             </p>

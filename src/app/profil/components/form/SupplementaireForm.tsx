@@ -74,10 +74,12 @@ export default function SupplementaireForm({ user }: { user: User }) {
           <textarea
             id="bio"
             name="bio"
+            maxLength={500}
             className="textarea textarea-ghost bg-border rounded-[15px] min-h-[120px] w-full"
             value={bio || ''}
             onChange={(e) => setBio(e.target.value)}
           />
+          <span className="text-sm text-right text-text/60">{(bio || '').length}/500</span>
         </div>
         {fieldErrors.bio && <p className="text-sm text-alerts">{fieldErrors.bio}</p>}
 

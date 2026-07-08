@@ -132,7 +132,7 @@ export default function LandingPage() {
           <>
             Partage tes coups de cœur en temps réel
             <br />
-            <span className="text-text/30">avec 12 000 nakamas.</span>
+            <span className="text-text/30">avec la communauté.</span>
           </>
         }
         description="Poste tes réactions à chaud, partage des panels marquants et explore le feed de ta communauté en temps réel."

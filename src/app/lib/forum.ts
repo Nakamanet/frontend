@@ -1,9 +1,19 @@
 import api from './axios'
 import type { Forum, ForumReply, PaginatedForums } from '../types/forum'
 
-export async function getForums(page = 1, category?: Forum['category'], search?: string): Promise<PaginatedForums> {
+export async function getForums(
+  page = 1,
+  category?: Forum['category'],
+  search?: string,
+  is_pinned?: boolean
+): Promise<PaginatedForums> {
   const { data } = await api.get<PaginatedForums>('/forum/topics', {
-    params: { page, ...(category && { category }), ...(search && { search }) },
+    params: {
+      page,
+      ...(category && { category }),
+      ...(search && { search }),
+      ...(is_pinned !== undefined && { is_pinned }),
+    },
   })
   return data
 }
@@ -39,5 +49,30 @@ export async function voteOnTopic(id: number): Promise<{ votes_count: number; us
 
 export async function voteOnReply(id: number): Promise<{ votes_count: number; user_has_voted: boolean }> {
   const { data } = await api.post(`/forum/replies/${id}/vote`)
+  return data
+}
+
+export async function archiveTopic(id: number): Promise<{ is_archived: boolean }> {
+  const { data } = await api.post(`/forum/topics/${id}/archive`)
+  return data
+}
+
+export async function pinTopic(id: number): Promise<{ user_has_pinned: boolean }> {
+  const { data } = await api.post(`/forum/topics/${id}/pin`)
+  return data
+}
+
+export async function getUserPins(page = 1): Promise<PaginatedForums> {
+  const { data } = await api.get<PaginatedForums>('/forum/my-pins', { params: { page } })
+  return data
+}
+
+export async function getMyArchivedTopics(page = 1): Promise<PaginatedForums> {
+  const { data } = await api.get<PaginatedForums>('/forum/my-archived', { params: { page } })
+  return data
+}
+
+export async function getMyVotedTopics(page = 1): Promise<PaginatedForums> {
+  const { data } = await api.get<PaginatedForums>('/forum/my-voted', { params: { page } })
   return data
 }

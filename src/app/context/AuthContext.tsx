@@ -6,6 +6,7 @@ import { User } from '../types/auth'
 interface AuthContextType {
   isLoggedIn: boolean
   isAuthLoading: boolean
+  hasStoredSession: boolean
   user: User | null
   login: (token: string, userData: User, expiresIn: number) => void
   logout: () => Promise<void>
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
+  const [hasStoredSession, setHasStoredSession] = useState(false)
   const [user, setUser] = useState<User | null>(null)
 
   const fetchUser = useCallback(async () => {
@@ -40,6 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === 'undefined') return
     const token = localStorage.getItem('token')
     const expires_at = localStorage.getItem('expires_at')
+    setHasStoredSession(!!token)
     if (!token) {
       setIsAuthLoading(false)
       return
@@ -87,7 +90,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, user, login, logout, refreshUser: fetchUser }}>
+    <AuthContext.Provider value={{ isLoggedIn, isAuthLoading, hasStoredSession, user, login, logout, refreshUser: fetchUser }}>
       {children}
     </AuthContext.Provider>
   )

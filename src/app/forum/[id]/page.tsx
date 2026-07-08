@@ -2,12 +2,12 @@
 
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { getForumById, voteOnTopic, voteOnReply } from '@/app/lib/forum'
+import { getForumById, voteOnTopic, voteOnReply, pinTopic, archiveTopic } from '@/app/lib/forum'
 import ReplyForum from '../components/ReplyForum'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import AppLayout from '@/app/components/layout/AppLayout'
-import { ThumbsUp } from 'lucide-react'
+import { ThumbsUp, Pin, Archive } from 'lucide-react'
 import { useAuth } from '@/app/context/AuthContext'
 import type { ForumReply } from '@/app/types/forum'
 import Loader from '@/app/components/Loader'
@@ -35,13 +35,28 @@ export default function TopicDetailPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const { showToast } = useToast()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, user } = useAuth()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
 
   const topicVoteMutation = useMutation({
     mutationFn: (id: number) => voteOnTopic(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] }),
     onError: () => showToast("Erreur lors du vote", 'error')
+  })
+
+  const topicArchiveMutation = useMutation({
+    mutationFn: (id: number) => archiveTopic(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums'] }),
+    onError: () => showToast("Erreur lors de l'archivage", 'error')
+  })
+
+  const topicPinMutation = useMutation({
+    mutationFn: (id: number) => pinTopic(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] })
+      queryClient.invalidateQueries({ queryKey: ['user-pins'] })
+    },
+    onError: () => showToast("Erreur lors de l'épinglage", 'error')
   })
 
   const replyVoteMutation = useMutation({
@@ -90,17 +105,36 @@ export default function TopicDetailPage() {
           ← Retour au forum
         </Link>
 
+        {topic.is_archived && (
+          <div className="flex items-center gap-2 px-4 py-3 bg-border/20 border border-border rounded-[15px] text-border text-sm">
+            <Archive size={15} />
+            Ce sujet est archivé. Les nouvelles réponses sont désactivées.
+          </div>
+        )}
+
         <div className="border border-border bg-accent rounded-[15px] p-6">
-          <span className="text-[10px] font-bold px-3 py-1 bg-alerts text-white rounded-full uppercase tracking-wide">
-            {topic.category}
-          </span>
+          <div className="flex items-start justify-between gap-4">
+            <span className="text-[10px] font-bold px-3 py-1 bg-alerts text-white rounded-full uppercase tracking-wide">
+              {topic.category}
+            </span>
+            {!!user && (user.id === topic.user_id || ['moderator', 'admin'].includes(user.role)) && (
+              <button
+                onClick={() => topicArchiveMutation.mutate(topic.id)}
+                title={topic.is_archived ? 'Désarchiver' : 'Archiver ce sujet'}
+                className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-border hover:bg-alerts/20 hover:text-alerts flex items-center gap-1.5 shrink-0"
+              >
+                <Archive size={14} />
+                {topic.is_archived ? 'Désarchiver' : 'Archiver'}
+              </button>
+            )}
+          </div>
           <h1 className="text-2xl font-bold text-white mt-6">{topic.title}</h1>
           <p className="text-sm text-border mt-2 mb-6">
             Par <span className="font-bold text-white">{topic.user?.username || 'Anonyme'}</span> •{' '}
             {new Date(topic.created_at).toLocaleDateString('fr-FR')}
           </p>
           <div className="whitespace-pre-wrap text-[15px] text-white">{topic.content}</div>
-          <div className="mt-4">
+          <div className="mt-4 flex items-center gap-2">
             <button
               onClick={() => handleVote('topic', topic.id)}
               className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
@@ -110,6 +144,21 @@ export default function TopicDetailPage() {
               <ThumbsUp size={14} />
               {topic.votes_count ?? 0}
             </button>
+            {!topic.is_pinned && (
+              <button
+                onClick={() => {
+                  if (!isLoggedIn) { router.push('/login'); return }
+                  topicPinMutation.mutate(topic.id)
+                }}
+                title={topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
+                className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
+                  topic.user_has_pinned ? 'bg-alerts/20 text-alerts' : 'text-border hover:bg-alerts/20 hover:text-alerts'
+                }`}
+              >
+                <Pin size={14} fill={topic.user_has_pinned ? 'currentColor' : 'none'} />
+                {topic.user_has_pinned ? 'Épinglé' : 'Épingler'}
+              </button>
+            )}
           </div>
         </div>
 

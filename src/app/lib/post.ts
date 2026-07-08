@@ -1,11 +1,25 @@
 import api from './axios'
 import type { Post, PaginatedPosts } from '../types/post'
 
-export async function getPosts(page = 1): Promise<PaginatedPosts> {
-  const { data } = await api.get<PaginatedPosts>('/posts', { params: { page } })
-  return data
+export interface GetPostsParams {
+  page?: number
+  filter?: 'all' | 'trends' | 'recent' | 'friends'
 }
 
+export async function getPosts({ page = 1, filter = 'all' }: GetPostsParams = {}): Promise<PaginatedPosts> {
+  const params: Record<string, string | number> = { page }
+
+  if (filter === 'trends') {
+    params.sort = 'most_liked'
+  } else if (filter === 'recent') {
+    params.sort = 'latest' // matches default, but explicit is fine
+  } else if (filter === 'friends') {
+    params.friends_only = 1
+  }
+
+  const { data } = await api.get<PaginatedPosts>('/posts', { params })
+  return data
+}
 export async function getPostById(id: number): Promise<Post> {
   const { data } = await api.get<Post>(`/posts/${id}`)
   return data
@@ -63,4 +77,31 @@ export async function archivePost(id: number): Promise<{ message: string, archiv
 export async function unarchivePost(id: number): Promise<{ message: string, archived: boolean }> {
   const { data } = await api.patch(`/posts/${id}/unarchive`)
   return data
+}
+
+export interface Comment {
+  id: number
+  user_id: number
+  post_id: number
+  parent_id: number | null
+  content: string
+  is_spoiler: boolean
+  user: { id: number; username: string; avatar_url: string | null }
+}
+
+export async function getComments(postId: number): Promise<{ data: Comment[] }> {
+  const { data } = await api.get(`/posts/${postId}/comments`)
+  return data
+}
+
+export async function createComment(
+  postId: number,
+  body: { content: string; parent_id?: number | null; is_spoiler?: boolean }
+): Promise<Comment> {
+  const { data } = await api.post(`/posts/${postId}/comments`, body)
+  return data
+}
+
+export async function deleteComment(commentId: number): Promise<void> {
+  await api.delete(`/posts/comments/${commentId}`)
 }

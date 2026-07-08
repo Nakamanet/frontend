@@ -23,12 +23,14 @@ export interface Forum {
   related_manga_id: number | null
   is_pinned: boolean
   is_locked: boolean
+  is_archived: boolean
   created_at: string
   updated_at: string
   replies_count: number
   views_count: number
   votes_count: number
   user_has_voted: boolean
+  user_has_pinned: boolean
   user: User
   replies?: ForumReply[]
 }

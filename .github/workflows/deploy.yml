@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   build-and-deploy:
@@ -13,6 +13,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Determine environment
+        id: env
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "target=prod" >> $GITHUB_OUTPUT
+          else
+            echo "target=preprod" >> $GITHUB_OUTPUT
+          fi
 
       - name: Log in to GHCR
         uses: docker/login-action@v3
@@ -26,12 +35,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/nakamanet/frontend:prod
-          build-args: |
-            NEXT_PUBLIC_API_URL=https://api.nakamanet.fr/api
-            NEXT_PUBLIC_LIB_API_URL=https://adonis.nakamanet.fr
-            NEXT_PUBLIC_R2_PUBLIC_URL=https://pub-e672f7689c754d048f17f8bbad20297c.r2.dev
-            NEXT_PUBLIC_CHAT_URL=https://adonis.nakamanet.fr
+          tags: ghcr.io/nakamanet/frontend:${{ steps.env.outputs.target }}
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.0.3
@@ -39,4 +43,4 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_DEPLOY_USER }}
           key: ${{ secrets.VPS_DEPLOY_KEY }}
-          script: prod frontend
+          script: ${{ steps.env.outputs.target }} frontend
