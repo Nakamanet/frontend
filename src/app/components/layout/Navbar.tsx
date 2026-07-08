@@ -26,6 +26,7 @@ export default function Navbar() {
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: getUnreadCount,
+    enabled: isLoggedIn,
     refetchInterval: 30000,
     enabled: isLoggedIn,
   })
@@ -39,6 +40,7 @@ export default function Navbar() {
         (n) => !n.is_read || Date.now() - new Date(n.updated_at).getTime() < DAY_MS
       )
     }),
+    enabled: isLoggedIn,
     refetchInterval: 30000,
     enabled: isLoggedIn,
   })

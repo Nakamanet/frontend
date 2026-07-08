@@ -5,10 +5,8 @@ const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**',
-      },
+      { protocol: 'https', hostname: '**.r2.dev'},
+      { protocol: 'https', hostname: 'media.kitsu.app'}
     ],
   },
 }
