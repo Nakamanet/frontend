@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { CircleUser, Heart, MessageCircle, Bookmark } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useAuth } from "../context/AuthContext"
@@ -15,6 +16,7 @@ import { useMutation } from '@tanstack/react-query'
 
 export default function PostCards({ post }: { post: Post }) {
   const { user } = useAuth()
+  const router = useRouter()
   const { showToast } = useToast()
   const [likeCount, setLikeCount] = useState(post.likes_count)
   const [likedOverride, setLikedOverride] = useState<boolean | null>(null)
@@ -43,7 +45,11 @@ export default function PostCards({ post }: { post: Post }) {
   })
 
   return (
-    <div key={post.id} className="bg-accent shadow-sm w-full border border-border hover:border-primary/50 rounded-[15px] p-6 transition-colors cursor-pointer">
+    <div
+      key={post.id}
+      onClick={() => router.push(`/post/${post.id}`)}
+      className="bg-accent shadow-sm w-full border border-border hover:border-primary/50 rounded-[15px] p-6 transition-colors cursor-pointer"
+    >
       <div className="flex gap-3">
         <Link
           href={`/profil/${post.user.id}`}

@@ -15,7 +15,6 @@ import Image from 'next/image'
 import { User } from '../../types/auth'
 import PostCards from '../PostCards'
 import { getPosts, createPost,GetPostsParams } from '@/app/lib/post'
-import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
@@ -155,9 +154,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
         <Loader />
       ) : posts.length > 0 ? (
         posts.map((post) => (
-          <Link href={`/post/${post.id}`} key={post.id}>
-            <PostCards key={post.id} post={post} />
-          </Link>
+          <PostCards key={post.id} post={post} />
         ))
       ) : (
         <p className="text-text/60 text-center py-10">Aucun post trouvé</p>
