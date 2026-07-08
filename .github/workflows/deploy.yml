@@ -44,3 +44,4 @@ jobs:
           username: ${{ secrets.VPS_DEPLOY_USER }}
           key: ${{ secrets.VPS_DEPLOY_KEY }}
           script: ${{ steps.env.outputs.target }} frontend
+          
