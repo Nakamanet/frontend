@@ -27,6 +27,11 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/nakamanet/frontend:prod
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.nakamanet.fr/api
+            NEXT_PUBLIC_LIB_API_URL=https://adonis.nakamanet.fr
+            NEXT_PUBLIC_R2_PUBLIC_URL=https://pub-e672f7689c754d048f17f8bbad20297c.r2.dev
+            NEXT_PUBLIC_CHAT_URL=https://adonis.nakamanet.fr
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.0.3
