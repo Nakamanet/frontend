@@ -18,6 +18,12 @@ export function useChat(room: string) {
   const [messages, setMessages] = useState<Message[]>([])
   const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
+  const roomRef = useRef(room)
+
+  // keep roomRef in sync with the latest room prop
+  useEffect(() => {
+    roomRef.current = room
+  }, [room])
 
   // connect once
   useEffect(() => {
@@ -32,6 +38,7 @@ export function useChat(room: string) {
         username: user?.username,
         avatar_url: user?.avatar_url ?? null,
       },
+      forceNew: true,
     })
 
     socketRef.current = socket
@@ -44,7 +51,11 @@ export function useChat(room: string) {
     })
 
     socket.on('chat:message', (message: Message) => {
-      setMessages((prev) => [...prev, message])
+      setMessages((prev) => {
+        // Only append if the message belongs to the room we're currently viewing
+        if (message.room !== roomRef.current) return prev
+        return [...prev, message]
+      })
     })
 
     socket.on('connect_error', (err) => {
@@ -65,7 +76,6 @@ export function useChat(room: string) {
   }, [connected, room])
 
   const sendMessage = (content: string) => {
-    console.log('[useChat] sending, room =', room)
     if (!content.trim() || !socketRef.current || !room) return
     socketRef.current.emit('chat:message', {
       room,
