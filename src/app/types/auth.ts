@@ -14,6 +14,7 @@ export interface User {
   friends_count : number
   posts_count: number
   library_count: number
+  topics_count: number
   friendship_status: 'none' | 'pending_sent' | 'pending_received' | 'friends' | 'blocked' | 'blocked_by'
   friendship_id?: number | null
   created_at: string

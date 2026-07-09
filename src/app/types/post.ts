@@ -12,6 +12,8 @@ export interface Post {
   updated_at: string
   likes_count: number
   comments_count: number
+  user_has_liked?: boolean
+  user_has_saved?: boolean
   likes: { user_id: number }[] | null
   user: User
 }

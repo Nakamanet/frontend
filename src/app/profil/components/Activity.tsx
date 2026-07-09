@@ -9,6 +9,8 @@ import FilterTab from '../../components/FilterTab'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/app/context/AuthContext'
 import Loader from '@/app/components/Loader'
+import { getMyArchivedPost, getMySavedPosts, getUserLikedPosts } from '@/app/lib/post'
+import { PaginatedPosts } from '@/app/types/post'
 
 const FILTER_OPTIONS = [
   { value: 'mine', label: 'Mes Posts', icon: <Flame size={18} /> },
@@ -27,9 +29,16 @@ export default function Activity({ user }: { user: User }) {
   const { user: connectedUser } = useAuth()
   const isOwnProfil = connectedUser?.id === user.id
 
+  const fetchers: Record<string, () => Promise<PaginatedPosts>> = {
+    mine: () => getUserPosts(user.id),
+    liked: () => getUserLikedPosts(user.id),
+    save: () => getMySavedPosts(),
+    deleted: () => getMyArchivedPost(),
+  }
+  
   const { data, isLoading } = useQuery({
-    queryKey: ['user', user.id, 'posts'],
-    queryFn: () => getUserPosts(user.id),
+    queryKey: ['user', user.id, 'posts', filter],
+    queryFn: fetchers[filter],
   })
 
   const posts = data?.data ?? []

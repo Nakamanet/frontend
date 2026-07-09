@@ -44,8 +44,8 @@ export async function deletePost(id: number): Promise<void> {
   await api.delete(`/posts/${id}`)
 }
 
-export async function getMylikedPosts(): Promise<PaginatedPosts> {
-  const { data } = await api.get<PaginatedPosts>('/posts/me/liked')
+export async function getUserLikedPosts(id: number): Promise<PaginatedPosts> {
+  const { data } = await api.get<PaginatedPosts>(`/users/${id}/liked-posts`)
   return data
 }
 
@@ -76,6 +76,11 @@ export async function archivePost(id: number): Promise<{ message: string, archiv
 
 export async function unarchivePost(id: number): Promise<{ message: string, archived: boolean }> {
   const { data } = await api.patch(`/posts/${id}/unarchive`)
+  return data
+}
+
+export async function hidePost(id: number): Promise<{ message: string, hidden: boolean }> {
+  const { data } = await api.post(`/posts/${id}/hide`)
   return data
 }
 
