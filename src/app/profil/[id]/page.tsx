@@ -1,7 +1,7 @@
 'use client'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
-import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare, EllipsisVertical } from 'lucide-react'
+import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare, EllipsisVertical, Spool } from 'lucide-react'
 import { useState } from 'react'
 import { getUserProfil, getUserPosts } from '../../lib/user'
 import Activity from '../components/Activity'
@@ -90,6 +90,8 @@ export default function ProfilPage() {
   })
   const postsCount = postsData?.total ?? 0
   const libraryCount = profileUser?.library_count ?? 0
+  const threadCount = profileUser?.topics_count ?? 0
+  const friendsCount = profileUser?.friends_count ?? 0
 
   if (isLoading) return <Loader variant="plain" className="min-h-[80vh]" />
   if (!profileUser) return <div className="flex justify-center p-10">Utilisateur introuvable</div>
@@ -188,7 +190,10 @@ export default function ProfilPage() {
               <BookOpen size={15} className="text-primary" /> {libraryCount} oeuvres suivies
             </p>
             <p className="flex items-center gap-2">
-              <Users size={15} className="text-primary" /> {profileUser.friends_count} amis
+              <Users size={15} className="text-primary" /> {friendsCount} amis
+            </p>
+            <p className="flex items-center gap-2">
+              <Spool size={15} className="text-primary" /> {threadCount} sujets
             </p>
             <p className="flex items-center gap-2">
               <MessageSquare size={15} className="text-primary" /> {postsCount} posts

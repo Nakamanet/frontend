@@ -86,6 +86,11 @@ export default function Navbar() {
           <Link href="/bibliotheque" className="hover:text-primary transition-colors">Bibliothèque</Link>
           <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
           <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
+          {user?.is_admin && (
+            <Link href="/admin" className="...">
+              Admin
+            </Link>
+          )}
         </div>
 
         {/* Right side */}
@@ -155,7 +160,7 @@ export default function Navbar() {
                                   <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
                                 {" "} vous a envoyé une demande d&apos;ami
                                 </p>
-                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number)}}>Accepter</button>
+                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number, { onSuccess: () => markAsReadMutation.mutate(n.id) })}}>Accepter</button>
                               </div>
                             )}
                           </div>

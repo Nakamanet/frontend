@@ -3,7 +3,7 @@
 import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
-import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare } from 'lucide-react'
+import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare, Spool } from 'lucide-react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
 import MyTopics from './components/MyTopics'
@@ -129,6 +129,9 @@ export default function ProfilPage() {
             </p>
             <p className="flex items-center gap-2">
               <Users size={15} className="text-primary" /> {profileLoading ? <Loader variant="inline" size="xs" /> : data?.friends_count} amis
+            </p>
+            <p className="flex items-center gap-2">
+              <Spool size={15} className="text-primary" /> {profileLoading ? <Loader variant="inline" size="xs" /> : data?.topics_count} sujets
             </p>
             <p className="flex items-center gap-2">
               <MessageSquare size={15} className="text-primary" /> {postsLoading ? <Loader variant="inline" size="xs" /> : postsCount} posts
