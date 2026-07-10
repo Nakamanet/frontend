@@ -17,7 +17,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
       { queryKey: ['user', user?.id, 'posts'], queryFn: () => getUserPosts(user!.id), enabled: !!user },
       { queryKey: ['library', 'anime'], queryFn: getMyAnime, enabled: !!user },
       { queryKey: ['library', 'manga'], queryFn: getMyManga, enabled: !!user },
-      { queryKey: ['friends'], queryFn: getFriends, enabled: !!user },
+      { queryKey: ['friends', user!.id], queryFn: () => getFriends(user!.id), enabled: !!user },
     ],
   })
   const postCounts = results[0]?.data?.total ?? 0

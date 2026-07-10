@@ -39,8 +39,8 @@ export default function Friends({ user }: { user: User }) {
 
   const queryClient = useQueryClient()
   const { data: friends = [], isLoading: friendsLoading } = useQuery<Friendship[]>({
-    queryKey: ['friends'],
-    queryFn: getFriends,
+    queryKey: ['friends', user.id],
+    queryFn: () => getFriends(user.id),
   })
 
   const { data: pending = [], isLoading: pendingLoading } = useQuery<Friendship[]>({

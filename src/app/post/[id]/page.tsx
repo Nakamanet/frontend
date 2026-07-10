@@ -79,7 +79,7 @@ export default function PostPage() {
   return (
     <AppLayout sidebar>
       <div className="flex flex-col gap-5">
-        <PostCards post={post} />
+        <PostCards post={post} detailView />
 
         <div className="bg-accent border border-border rounded-[15px] p-6 flex flex-col gap-4">
           <h2 className="font-semibold text-lg">

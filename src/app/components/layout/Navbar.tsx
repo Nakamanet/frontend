@@ -160,7 +160,7 @@ export default function Navbar() {
                                   <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
                                 {" "} vous a envoyé une demande d&apos;ami
                                 </p>
-                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number)}}>Accepter</button>
+                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number, { onSuccess: () => markAsReadMutation.mutate(n.id) })}}>Accepter</button>
                               </div>
                             )}
                           </div>
