@@ -5,6 +5,7 @@ import { User } from '../../types/auth'
 import { useState } from 'react'
 import { Flame, ThumbsUp, Bookmark, Trash } from 'lucide-react'
 import { getUserPosts } from '@/app/lib/user'
+import { getMylikedPosts, getMySavedPosts, getMyArchivedPost } from '@/app/lib/post'
 import FilterTab from '../../components/FilterTab'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/app/context/AuthContext'
@@ -38,10 +39,28 @@ export default function Activity({ user }: { user: User }) {
   
   const { data, isLoading } = useQuery({
     queryKey: ['user', user.id, 'posts', filter],
-    queryFn: fetchers[filter],
+    queryFn: () => {
+      switch (filter) {
+        case 'save':
+          return getMySavedPosts()
+        case 'liked':
+          return getMylikedPosts()
+        case 'deleted':
+          return getMyArchivedPost()
+        default:
+          return getUserPosts(user.id)
+      }
+    },
   })
 
   const posts = data?.data ?? []
+
+  const emptyMessages: Record<string, string> = {
+    mine: isOwnProfil ? "Vous n'avez pas encore de posts" : "Cet utilisateur n'a pas encore posté",
+    save: "Vous n'avez pas encore sauvegardé de posts",
+    liked: isOwnProfil ? "Vous n'avez pas encore liké de posts" : "Cet utilisateur n'a pas encore liké de posts",
+    deleted: "Vous n'avez pas encore de posts archivés",
+  }
 
   return (
     <div className="flex flex-col gap-8 p-7">
@@ -55,7 +74,7 @@ export default function Activity({ user }: { user: User }) {
           ))}
         </div>
       ) : (
-        <p className="text-text/60">{isOwnProfil ? "Vous n'avez pas encore de posts" : "Cet utilisateur n'a pas encore posté"}</p>
+        <p className="text-text/60">{emptyMessages[filter]}</p>
       )}
     </div>
   )

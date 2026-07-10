@@ -5,6 +5,8 @@ export interface User {
   birthdate: string
   role: string
   is_deleted: boolean
+  is_admin: boolean
+  is_moderator: boolean
   localisation?: string | null
   bio?: string | null
   avatar_url?: string | null

@@ -86,6 +86,11 @@ export default function Navbar() {
           <Link href="/bibliotheque" className="hover:text-primary transition-colors">Bibliothèque</Link>
           <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
           <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
+          {user?.is_admin && (
+            <Link href="/admin" className="...">
+              Admin
+            </Link>
+          )}
         </div>
 
         {/* Right side */}
