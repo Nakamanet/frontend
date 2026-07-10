@@ -2,11 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Script from 'next/script'
 import { useAuth } from '../../context/AuthContext'
 import api from '../../lib/axios'
 import { useGeolocation } from '../../hooks/useGeolocalisation'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!
 
 export default function RegisterPage() {
   const { login } = useAuth()
@@ -19,6 +22,7 @@ export default function RegisterPage() {
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
+  const [recaptchaReady, setRecaptchaReady] = useState(false)
 
   const today = new Date()
   const maxBirthdate = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate())
@@ -55,6 +59,13 @@ export default function RegisterPage() {
         return
       }
 
+      if (!recaptchaReady || !window.grecaptcha) {
+        setError('Vérification anti-robot en cours de chargement, veuillez patienter...')
+        return
+      }
+
+      const recaptchaToken = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'register' })
+
       const response = await api.post('/auth/register', {
         username,
         email,
@@ -62,6 +73,7 @@ export default function RegisterPage() {
         password_confirmation: passwordConfirmation,
         birthdate,
         localisation: location || null,
+        recaptcha_token: recaptchaToken,
       })
       showToast('Inscription réussi', 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
@@ -76,6 +88,11 @@ export default function RegisterPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden py-12">
+      <Script
+        src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
+        strategy="afterInteractive"
+        onLoad={() => window.grecaptcha?.ready(() => setRecaptchaReady(true))}
+      />
       {/* Background effect */}
       <div
         className="absolute inset-0"
