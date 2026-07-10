@@ -106,6 +106,16 @@ export function middleware(request: NextRequest) {
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('X-Frame-Options', 'DENY')
 
+  // HSTS : uniquement en prod. Ignoré par le navigateur sur http, et on évite
+  // ainsi de forcer https sur localhost pendant le dev. `preload` volontairement
+  // omis (engagement quasi-irréversible).
+  if (!isDev) {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=63072000; includeSubDomains',
+    )
+  }
+
   return response
 }
 
