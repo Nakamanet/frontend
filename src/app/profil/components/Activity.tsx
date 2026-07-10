@@ -5,7 +5,6 @@ import { User } from '../../types/auth'
 import { useState } from 'react'
 import { Flame, ThumbsUp, Bookmark, Trash } from 'lucide-react'
 import { getUserPosts } from '@/app/lib/user'
-import { getMylikedPosts, getMySavedPosts, getMyArchivedPost } from '@/app/lib/post'
 import FilterTab from '../../components/FilterTab'
 import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/app/context/AuthContext'
@@ -36,21 +35,10 @@ export default function Activity({ user }: { user: User }) {
     save: () => getMySavedPosts(),
     deleted: () => getMyArchivedPost(),
   }
-  
+
   const { data, isLoading } = useQuery({
     queryKey: ['user', user.id, 'posts', filter],
-    queryFn: () => {
-      switch (filter) {
-        case 'save':
-          return getMySavedPosts()
-        case 'liked':
-          return getMylikedPosts()
-        case 'deleted':
-          return getMyArchivedPost()
-        default:
-          return getUserPosts(user.id)
-      }
-    },
+    queryFn: () => (fetchers[filter] ?? fetchers.mine)(),
   })
 
   const posts = data?.data ?? []
