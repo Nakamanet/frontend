@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 /**
  * Bascule en Content-Security-Policy-Report-Only : le navigateur signale les
@@ -23,11 +23,7 @@ function toWsOrigin(origin: string | null): string | null {
   return origin ? origin.replace(/^http/, 'ws') : null
 }
 
-export function middleware(request: NextRequest) {
-  // Nonce unique par requête (Web Crypto, dispo dans le runtime edge).
-  const nonce = btoa(
-    String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))),
-  )
+export function middleware() {
   const isDev = process.env.NODE_ENV !== 'production'
 
   // Origines externes légitimes, dérivées des variables d'env du build.
@@ -36,10 +32,12 @@ export function middleware(request: NextRequest) {
   const chat = toOrigin(process.env.NEXT_PUBLIC_CHAT_URL)
   const r2 = toOrigin(process.env.NEXT_PUBLIC_R2_PUBLIC_URL)
 
+  // Pages majoritairement générées en statique → pas de nonce par requête
+  // possible. On autorise les chunks même origine ('self') + les scripts
+  // inline de bootstrap Next ('unsafe-inline').
   const scriptSrc = [
     "'self'",
-    `'nonce-${nonce}'`,
-    "'strict-dynamic'",
+    "'unsafe-inline'",
     // HMR / React Refresh en dev ont besoin de eval.
     isDev ? "'unsafe-eval'" : null,
   ].filter(Boolean)
@@ -92,13 +90,7 @@ export function middleware(request: NextRequest) {
     ? 'Content-Security-Policy-Report-Only'
     : 'Content-Security-Policy'
 
-  // Next lit le nonce depuis le header CSP de la *requête* pour l'appliquer
-  // automatiquement à ses propres scripts.
-  const requestHeaders = new Headers(request.headers)
-  requestHeaders.set('x-nonce', nonce)
-  requestHeaders.set('Content-Security-Policy', csp)
-
-  const response = NextResponse.next({ request: { headers: requestHeaders } })
+  const response = NextResponse.next()
   response.headers.set(headerName, csp)
 
   // Headers de sécurité complémentaires (Aikido les vérifie souvent aussi).
