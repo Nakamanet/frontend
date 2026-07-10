@@ -20,6 +20,14 @@ export default function RegisterPage() {
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
 
+  const today = new Date()
+  const maxBirthdate = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate())
+    .toISOString()
+    .split('T')[0]
+  const minBirthdate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate())
+    .toISOString()
+    .split('T')[0]
+
   useEffect(() => {
     detect()
   }, [])
@@ -29,6 +37,16 @@ export default function RegisterPage() {
     try {
       if (password !== passwordConfirmation) {
         setError('Les mots de passe ne correspondent pas')
+        return
+      }
+
+      if (birthdate > maxBirthdate) {
+        setError('Vous devez avoir au moins 15 ans pour vous inscrire')
+        return
+      }
+
+      if (birthdate < minBirthdate) {
+        setError('Veuillez saisir une date de naissance valide')
         return
       }
 
@@ -108,6 +126,8 @@ export default function RegisterPage() {
                 type="date"
                 className={inputClass}
                 required
+                min={minBirthdate}
+                max={maxBirthdate}
                 onChange={(e) => setBirthdate(e.target.value)}
               />
             </div>
