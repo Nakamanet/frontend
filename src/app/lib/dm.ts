@@ -23,6 +23,9 @@ export interface DmConversation {
 }
 
 export async function getMyDms(): Promise<DmConversation[]> {
-  const { data } = await chatApi.get('/dms')
+  const token = localStorage.getItem('token')
+  const { data } = await chatApi.get('/dms', {
+    headers: { Authorization: `Bearer ${token}` },
+  })
   return data
 }

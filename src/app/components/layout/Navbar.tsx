@@ -86,6 +86,7 @@ export default function Navbar() {
           <Link href="/bibliotheque" className="hover:text-primary transition-colors">Bibliothèque</Link>
           <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
           <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
+          <Link href="/messages" className="hover:text-primary transition-colors">Messages</Link>
           {user?.is_admin && (
             <Link href="/admin" className="...">
               Admin
