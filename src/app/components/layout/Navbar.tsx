@@ -183,10 +183,10 @@ export default function Navbar() {
                 </div>
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
                   <li>
-                    <div className='flex'>
+                    <Link href="/profil">
                       <User size={20} /> 
-                      <Link href="/profil">Profil</Link>
-                    </div>
+                      <p>Profil</p>
+                    </Link>
                   </li>
                   <li>
                     <div className='flex'> 

@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: frontend
+    command: npm run dev
     ports:
       - '3000:3000'
     networks:
