@@ -9,6 +9,7 @@ import { useGeolocation } from '../../hooks/useGeolocalisation'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
 
+import Loader from '@/app/components/Loader'
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!
 
 export default function RegisterPage() {
@@ -23,6 +24,18 @@ export default function RegisterPage() {
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
   const [recaptchaReady, setRecaptchaReady] = useState(false)
+  const { isLoggedIn, isAuthLoading } = useAuth()
+
+  useEffect(() => {
+      if (!isAuthLoading && isLoggedIn) {
+        router.replace('/')
+      }
+      detect()
+    }, [isAuthLoading, isLoggedIn, router])
+  
+    if (isAuthLoading || isLoggedIn) {
+      return <Loader variant="plain" className="min-h-[80vh]" />
+    }
 
   const today = new Date()
   const maxBirthdate = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate())
@@ -32,9 +45,6 @@ export default function RegisterPage() {
     .toISOString()
     .split('T')[0]
 
-  useEffect(() => {
-    detect()
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
