@@ -12,7 +12,7 @@ interface SearchModalProps {
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts'>('all')
+  const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts' | 'forums'>('all')
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -46,8 +46,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setSkip(0)
     try {
       const userIdParam = user?.id ? `&user_id=${user.id}` : ''
+      const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000'
       const response = await fetch(
-        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=0&limit=20`
+        `${aiUrl}/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=0&limit=20`
       )
       if (response.ok) {
         const data = await response.json()
@@ -72,8 +73,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const nextSkip = skip + 20
     try {
       const userIdParam = user?.id ? `&user_id=${user.id}` : ''
+      const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000'
       const response = await fetch(
-        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=${nextSkip}&limit=20`
+        `${aiUrl}/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=${nextSkip}&limit=20`
       )
       if (response.ok) {
         const data = await response.json()
@@ -95,11 +97,25 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [filter])
 
+  // Debounced search on query change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (query.trim()) {
+        handleSearch()
+      } else {
+        setResults([])
+      }
+    }, 400) // 400ms delay
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [query])
+
   const getResultHref = (res: any): string => {
     if (res.type === 'anime') return `/bibliotheque/anime/${res.slug}`
     if (res.type === 'manga') return `/bibliotheque/manga/${res.slug}`
     if (res.type === 'users') return `/profil/${res.user_id}`
     if (res.type === 'posts') return `/post/${res.post_id}`
+    if (res.type === 'forums') return `/forum/${res.forum_id}`
     return '#'
   }
 
@@ -131,7 +147,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
         {/* Filters */}
         <div className="flex gap-2 p-3 bg-base-200/50  border-b border-border">
-          {['all', 'anime', 'manga', 'users', 'posts'].map((f) => (
+          {['all', 'anime', 'manga', 'users', 'posts', 'forums'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f as any)}
@@ -159,8 +175,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 onClick={onClose}
                 className="flex gap-4 p-3 rounded-lg hover:bg-base-200 transition-colors border border-transparent hover:border-border"
               >
-                <div className="w-12 h-12 bg-base-300 rounded shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
-                  {res.type === 'users' ? 'user' : res.type}
+                <div className="w-12 h-12 bg-base-300 rounded shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50 overflow-hidden">
+                  {res.type === 'users' && res.avatar_url ? (
+                    <img src={res.avatar_url} alt={res.title} className="w-full h-full object-cover" />
+                  ) : (
+                    res.type === 'users' ? 'user' : res.type
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

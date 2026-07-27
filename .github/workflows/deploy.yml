@@ -22,11 +22,13 @@ jobs:
             echo "api_url=https://api.nakamanet.fr/api" >> $GITHUB_OUTPUT
             echo "lib_api_url=https://adonis.nakamanet.fr" >> $GITHUB_OUTPUT
             echo "chat_url=https://adonis.nakamanet.fr" >> $GITHUB_OUTPUT
+            echo "ai_url=https://ai.nakamanet.fr" >> $GITHUB_OUTPUT
           else
             echo "target=preprod" >> $GITHUB_OUTPUT
             echo "api_url=https://dev-api.nakamanet.fr/api" >> $GITHUB_OUTPUT
             echo "lib_api_url=https://dev-adonis.nakamanet.fr" >> $GITHUB_OUTPUT
             echo "chat_url=https://dev-adonis.nakamanet.fr" >> $GITHUB_OUTPUT
+            echo "ai_url=https://dev-ai.nakamanet.fr" >> $GITHUB_OUTPUT
           fi
           echo "r2_url=https://pub-e672f7689c754d048f17f8bbad20297c.r2.dev" >> $GITHUB_OUTPUT
 
@@ -48,6 +50,7 @@ jobs:
             NEXT_PUBLIC_LIB_API_URL=${{ steps.env.outputs.lib_api_url }}
             NEXT_PUBLIC_R2_PUBLIC_URL=${{ steps.env.outputs.r2_url }}
             NEXT_PUBLIC_CHAT_URL=${{ steps.env.outputs.chat_url }}
+            NEXT_PUBLIC_AI_URL=${{ steps.env.outputs.ai_url }}
             NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ vars.RECAPTCHA_SITE_KEY }}
 
       - name: Deploy on VPS
