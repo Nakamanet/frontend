@@ -31,6 +31,7 @@ export function middleware() {
   const lib = toOrigin(process.env.NEXT_PUBLIC_LIB_API_URL)
   const chat = toOrigin(process.env.NEXT_PUBLIC_CHAT_URL)
   const r2 = toOrigin(process.env.NEXT_PUBLIC_R2_PUBLIC_URL)
+  const ai = toOrigin(process.env.NEXT_PUBLIC_AI_URL)
 
   // Pages majoritairement générées en statique → pas de nonce par requête
   // possible. On autorise les chunks même origine ('self') + les scripts
@@ -49,6 +50,7 @@ export function middleware() {
         api,
         lib,
         chat,
+        ai,
         toWsOrigin(lib),
         toWsOrigin(chat),
         // websockets HMR en dev
