@@ -31,7 +31,7 @@ export default function CharacterModal({ isOpen, onClose, type, item }: Characte
         >
             <div className="grid grid-cols-6 gap-4 p-4">
                 <div className="col-span-2 flex justify-center gap-3 m-2">
-                    <div className="relative w-50 h-70 rounded-[15px] overflow-hidden shrink-0">
+                    <div className="relative w-50 h-70 rounded-card overflow-hidden shrink-0">
                         <Image
                             src={item.character.imageUrl || '/logo.png'}
                             alt={item.character.name}
@@ -46,7 +46,7 @@ export default function CharacterModal({ isOpen, onClose, type, item }: Characte
                     {type === 'anime' && item.persons.length > 0 && (
                         <div className="flex flex-col gap-2">
                             {item.persons.map((person) => (
-                                <div key={person.id} className='flex items-center gap-3 bg-accent rounded-[15px] overflow-hidden'>
+                                <div key={person.id} className='flex items-center gap-3 bg-accent rounded-card overflow-hidden'>
                                     {person.imageUrl && (
                                         <Image
                                             src={person.imageUrl}

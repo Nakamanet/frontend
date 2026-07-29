@@ -143,7 +143,7 @@ export default function DetailPage() {
             </Link>
           </div>
           {/* Fond */}
-          <div className="relative w-full h-64 shrink-0 rounded-[15px] overflow-hidden bg-primary z-0">
+          <div className="relative w-full h-64 shrink-0 rounded-card overflow-hidden bg-primary z-0">
             {item?.coverImage ? (
               <Image
                 src={item.coverImage}
@@ -168,7 +168,7 @@ export default function DetailPage() {
                 alt="Avatar"
                 width={250}
                 height={390}
-                className="w-full object-cover rounded-[15px]"
+                className="w-full object-cover rounded-card"
               />
             ) : (
               <Image
@@ -176,7 +176,7 @@ export default function DetailPage() {
                 alt="Bannière"
                 width={100}
                 height={100}
-                className="object-cover w-full h-full rounded-[15px]"
+                className="object-cover w-full h-full rounded-card"
               />
             )}
           </div>
@@ -211,7 +211,7 @@ export default function DetailPage() {
                       <button
                         onClick={() => removeEntry()}
                         disabled={isMutating}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-accent disabled:opacity-50"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary hover:bg-accent disabled:opacity-50"
                       >
                         <Trash2 size={14} />
                         Supprimer
@@ -229,7 +229,7 @@ export default function DetailPage() {
                 </button>
               ) : null}
             </div>
-            <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
+            <div className="bg-accent rounded-card p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
               <p className="text-xl">Synopsis</p>
               {item?.synopsis ? (
                 <>
@@ -245,7 +245,7 @@ export default function DetailPage() {
                   )}
                 </>
               ) : (
-                <p className="text-border italic">Pas de synopsis pour le moment.</p>
+                <p className="text-text-muted italic">Pas de synopsis pour le moment.</p>
               )}
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function DetailPage() {
               {hasCharacters && (
                 <button
                   onClick={() => setUserFilter('characters')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
+                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full ${filter === 'characters' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
                   <span className="hidden md:inline">Personnages</span>
                 </button>
@@ -265,14 +265,14 @@ export default function DetailPage() {
               {hasEpisodes && (
                 <button
                   onClick={() => setUserFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
+                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full ${filter === 'episode' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
                   <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
                 </button>
               )}
               <button
                 onClick={() => setUserFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
-                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'thread' ? 'bg-alerts text-white' : 'text-border'}`}
+                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full ${filter === 'thread' ? 'bg-primary text-white' : 'text-text-muted'}`}
               >
                 <span className="hidden md:inline">Fil de discussion</span>
               </button>

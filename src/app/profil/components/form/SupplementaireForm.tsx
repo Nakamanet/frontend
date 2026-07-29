@@ -6,6 +6,7 @@ import { User } from '../../../types/auth'
 import { updateProfil } from '@/app/lib/user'
 import { useToast } from '@/app/context/ToastContext'
 import { Info } from 'lucide-react'
+import Button from '@/app/components/ui/Button'
 
 export default function SupplementaireForm({ user }: { user: User }) {
   const { showToast } = useToast()
@@ -44,7 +45,7 @@ export default function SupplementaireForm({ user }: { user: User }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
+    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className="text-2xl font-bold">Informations supplémentaires</h3>
       <form className="flex flex-col gap-4" onSubmit={handleSubmitSupplementaire}>
         <div className="flex flex-col gap-2">
@@ -67,7 +68,7 @@ export default function SupplementaireForm({ user }: { user: User }) {
               onChange={(e) => setBirthdate(e.target.value)}
             />
           </div>
-          {fieldErrors.birthdate && <p className="text-sm text-alerts">{fieldErrors.birthdate}</p>}
+          {fieldErrors.birthdate && <p className="text-sm text-primary">{fieldErrors.birthdate}</p>}
         </div>
         <div className="flex flex-col">
           <label htmlFor="bio">Bio</label>
@@ -75,21 +76,17 @@ export default function SupplementaireForm({ user }: { user: User }) {
             id="bio"
             name="bio"
             maxLength={500}
-            className="textarea textarea-ghost bg-border rounded-[15px] min-h-[120px] w-full"
+            className="textarea textarea-ghost bg-border rounded-card min-h-[120px] w-full"
             value={bio || ''}
             onChange={(e) => setBio(e.target.value)}
           />
           <span className="text-sm text-right text-text/60">{(bio || '').length}/500</span>
         </div>
-        {fieldErrors.bio && <p className="text-sm text-alerts">{fieldErrors.bio}</p>}
+        {fieldErrors.bio && <p className="text-sm text-primary">{fieldErrors.bio}</p>}
 
-        <button
-          type="submit"
-          className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" disabled={isSubmitting} className="col-span-2">
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-        </button>
+        </Button>
       </form>
     </div>
   )

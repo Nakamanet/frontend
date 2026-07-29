@@ -63,7 +63,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
   return (
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
       {!isAuthLoading && isLoggedIn && user ? (
-        <div className="card w-full bg-accent shadow-sm border border-border overflow-hidden rounded-[15px]">
+        <div className="card w-full bg-accent shadow-sm border border-border overflow-hidden rounded-card">
           {/* Bloc identité de l'utilisateur */}
           {/* Bannière : image ou fond rouge */}
           <div className="relative w-full h-20 shrink-0 rounded-t-[8px] overflow-hidden bg-primary">
@@ -119,7 +119,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
         </div>
       ) : null}
       {/* Bloc Activité des amis a remplir quand l'API fonctionnera*/}
-      <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-[15px]">
+      <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-card">
         <div className="card-body flex justify-center w-full">
           {isAuthLoading ? null : isLoggedIn ? (
             <div className="flex gap-2">
@@ -147,11 +147,11 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
         </div>
       </div>
       {/* Bloc Top Mangas */}
-      <div className="card w-full bg-accent shadow-sm border border-border rounded-[15px]">
+      <div className="card w-full bg-accent shadow-sm border border-border rounded-card">
         <div className="card-body w-full">
           <div className="flex gap-2 items-center">
             <Flame size={20} />
-            <h1 className="text-sm font-semibold">Top Mangas</h1>
+            <h3 className="text-sm font-semibold">Top Mangas</h3>
           </div>
           {topManga.length > 0 ? (
             <ul className="flex flex-col gap-2 mt-2">
@@ -180,11 +180,11 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
         </div>
       </div>
       {/* Bloc Top Anime */}
-      <div className="card w-full bg-accent shadow-sm border border-border rounded-[15px]">
+      <div className="card w-full bg-accent shadow-sm border border-border rounded-card">
         <div className="card-body w-full">
           <div className="flex gap-2 items-center">
             <Flame size={20} />
-            <h1 className="text-sm font-semibold">Top Anime</h1>
+            <h3 className="text-sm font-semibold">Top Anime</h3>
           </div>
           {topAnime.length > 0 ? (
             <ul className="flex flex-col gap-2 mt-2">

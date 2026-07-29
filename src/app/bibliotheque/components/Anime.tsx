@@ -38,7 +38,7 @@ export default function Anime() {
                       alt={item.titleEn}
                       width={145}
                       height={100}
-                      className="object-cover rounded-[15px] min-w-[145px] min-h-[100px]"
+                      className="object-cover rounded-card min-w-[145px] min-h-[100px]"
                       priority
                     />
                   </Link>
@@ -47,7 +47,7 @@ export default function Anime() {
             ))}
           </div>
           <Link href="/bibliotheque/anime">
-            <div className="flex flex-col border border-border gap-2 rounded-[15px] items-center justify-center w-[145px] h-full">
+            <div className="flex flex-col border border-border gap-2 rounded-card items-center justify-center w-[145px] h-full">
               <Plus size={35} />
               <p>Tous les animes</p>
             </div>

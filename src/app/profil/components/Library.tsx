@@ -76,7 +76,7 @@ export default function Library() {
               {mangas.map((manga) => (
                 <div
                   key={manga.manga_id}
-                  className='card bg-accent border border-border rounded-[15px] h-[450px] w-[250px] flex flex-col overflow-hidden'
+                  className='card bg-accent border border-border rounded-card h-[450px] w-[250px] flex flex-col overflow-hidden'
                 >
                   <Link href={`/bibliotheque/manga/${manga.detail.slug}`} className="flex flex-col h-full min-h-0">
                     <figure className="relative h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
@@ -110,7 +110,7 @@ export default function Library() {
               {animes.map((anime) => (
                 <div
                   key={anime.anime_id}
-                  className='card bg-accent border border-border rounded-[15px] h-[450px] w-[250px] flex flex-col overflow-hidden'
+                  className='card bg-accent border border-border rounded-card h-[450px] w-[250px] flex flex-col overflow-hidden'
                 >
                   <Link href={`/bibliotheque/anime/${anime.detail.slug}`} className="flex flex-col h-full min-h-0">
                     <figure className="relative h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">

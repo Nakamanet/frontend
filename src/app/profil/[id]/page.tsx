@@ -11,6 +11,7 @@ import { User } from '@/app/types/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
+import SectionSwitcher from '@/app/components/ui/SectionSwitcher'
 
 import Link from 'next/link'
 
@@ -101,8 +102,8 @@ export default function ProfilPage() {
 
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
-      <section className="relative w-full h-[20vh] rounded-[15px] mb-8 overflow-visible">
-        <div className="absolute inset-0 bg-primary overflow-hidden rounded-[15px]">
+      <section className="relative w-full h-[20vh] rounded-card mb-8 overflow-visible">
+        <div className="absolute inset-0 bg-primary overflow-hidden rounded-card">
           {profileUser.banner_url ? (
             <Image
               src={profileUser.banner_url}
@@ -135,7 +136,7 @@ export default function ProfilPage() {
                     </button>
                   </li>
                   <li>
-                    <button className="btn btn-ghost text-sm border-none rounded-full" onClick={handleBlock}>
+                    <button className="btn btn-ghost text-sm border-none rounded-full text-primary" onClick={handleBlock}>
                       Bloquer
                     </button>
                   </li>
@@ -158,12 +159,12 @@ export default function ProfilPage() {
                     </Link>
                   </li>
                   <li>
-                    <button className="btn btn-ghost text-sm border-none rounded-full" onClick={handleRemove}>
+                    <button className="btn btn-ghost text-sm border-none rounded-full text-primary" onClick={handleRemove}>
                       Supprimer l&apos;ami
                     </button>
                   </li>
                   <li>
-                    <button className="btn btn-ghost text-sm border-none rounded-full" onClick={handleBlock}>
+                    <button className="btn btn-ghost text-sm border-none rounded-full text-primary" onClick={handleBlock}>
                       Bloquer
                     </button>
                   </li>
@@ -188,7 +189,7 @@ export default function ProfilPage() {
       </section>
       <section className="grid grid-cols-4">
         <div className="w-full h-auto flex flex-col gap-5 py-7">
-          <div className="flex flex-col justify-center gap-1 bg-accent p-5 border border-border rounded-[15px]">
+          <div className="flex flex-col justify-center gap-1 bg-accent p-5 border border-border rounded-card">
             <p className="pb-2 whitespace-pre-wrap">{profileUser.bio || 'Pas encore de bio'}</p>
             <p className="flex items-center gap-2">
               <MapPin size={15} className="text-primary" /> {profileUser.localisation || 'Non renseigné'}
@@ -211,42 +212,16 @@ export default function ProfilPage() {
             </p>
           </div>
           {hasAccess && (
-            <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
-              <ul className='flex flex-col gap-1'>
-                <li>
-                  <button
-                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                    onClick={() => setActiveTab('activities')}
-                  >
-                    Posts
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'forum' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                    onClick={() => setActiveTab('forum')}
-                  >
-                    Forum
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'friends' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                    onClick={() => setActiveTab('friends')}
-                  >
-                    Amis
-                  </button>
-                </li>
-                <li>
-                  <button
-                    className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                    onClick={() => setActiveTab('library')}
-                  >
-                    Bibliothèque
-                  </button>
-                </li>
-              </ul>
-            </div>
+            <SectionSwitcher
+              items={[
+                { id: 'activities', label: 'Posts' },
+                { id: 'forum', label: 'Forum' },
+                { id: 'friends', label: 'Amis' },
+                { id: 'library', label: 'Bibliothèque' },
+              ]}
+              active={activeTab}
+              onChange={setActiveTab}
+            />
           )}
         </div>
         <div className="col-span-3 min-h-[70vh]">

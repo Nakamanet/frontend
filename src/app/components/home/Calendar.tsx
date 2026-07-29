@@ -51,14 +51,14 @@ export default function Calendar({ user }: { user: User | null }) {
   const prevMonth = () => setCurrentMonth(subMonths(currentMonth, 1))
 
   return (
-    <div className="card bg-accent rounded-[15px] shadow-xl border border-border w-full">
+    <div className="card bg-accent rounded-card shadow-xl border border-border w-full">
       <div className="card-body p-4">
         {/* Header : Flèches + Select mois + Select année */}
         <div className="flex justify-between items-center gap-2 mb-4">
           <button
             type="button"
             onClick={prevMonth}
-            className="btn btn-ghost btn-sm btn-circle text-border hover:bg-primary hover:text-primary-content border-none"
+            className="btn btn-ghost btn-sm btn-circle text-text-muted hover:bg-primary hover:text-primary-content border-none"
             aria-label="Mois précédent"
           >
             ‹
@@ -95,7 +95,7 @@ export default function Calendar({ user }: { user: User | null }) {
           <button
             type="button"
             onClick={nextMonth}
-            className="btn btn-ghost btn-sm btn-circle text-border hover:bg-primary hover:text-primary-content border-none"
+            className="btn btn-ghost btn-sm btn-circle text-text-muted hover:bg-primary hover:text-primary-content border-none"
             aria-label="Mois suivant"
           >
             ›

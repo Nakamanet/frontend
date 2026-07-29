@@ -35,7 +35,7 @@ export default function Information({ type, item }: InformationProps) {
   const itemStaffs: AnimeStaff[] | MangaStaff[] = (results[3]?.data as AnimeStaff[] | MangaStaff[]) ?? []
 
   return (
-    <div className="border border-border bg-accent rounded-[15px] p-5">
+    <div className="border border-border bg-accent rounded-card p-5">
       <div className="flex items-center justify-center gap-2 mb-4">
         <Info className="text-primary" />
         <p>Informations</p>

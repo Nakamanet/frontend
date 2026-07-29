@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, X, Loader2 } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Link from 'next/link'
+import Loader from './Loader'
 
 interface SearchModalProps {
   isOpen: boolean
@@ -162,7 +163,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 min-h-[300px]">
           {loading && results.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-base-content/50 mt-10">
-              <Loader2 className="animate-spin mb-4" size={32} />
+              <Loader variant="plain" size="lg" className="mb-4" />
               <p>Recherche en cours...</p>
             </div>
           ) : null}
@@ -212,7 +213,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 disabled={loadingMore}
                 className="btn btn-outline btn-primary rounded-full px-6 flex items-center gap-2"
               >
-                {loadingMore && <Loader2 className="animate-spin" size={16} />}
+                {loadingMore && <Loader variant="inline" size="sm" />}
                 Charger plus de résultats
               </button>
             </div>

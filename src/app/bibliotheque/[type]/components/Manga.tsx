@@ -41,7 +41,7 @@ export default function MangaPage() {
           </p>
           <div className="flex gap-10 w-full h-full">
             <SearchBarPage className="w-full" />
-            <button onClick={() => setOpenModal(true)} className="btn btn-ghost bg-accent rounded-[15px]">
+            <button onClick={() => setOpenModal(true)} className="btn btn-ghost bg-accent rounded-card">
               <SlidersHorizontal />
               <p>Filtres</p>
             </button>
@@ -54,7 +54,7 @@ export default function MangaPage() {
           {manga.map((item) => (
             <div
               key={item.id}
-              className="card bg-accent border border-border rounded-[15px] h-[450px] flex flex-col overflow-hidden"
+              className="card bg-accent border border-border rounded-card h-[450px] flex flex-col overflow-hidden"
             >
               <Link href={`/bibliotheque/manga/${item.slug}`} className="flex flex-col h-full min-h-0">
                 <figure className="h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">

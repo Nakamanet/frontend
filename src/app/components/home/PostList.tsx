@@ -18,6 +18,7 @@ import { getPosts, createPost,GetPostsParams } from '@/app/lib/post'
 import { useToast } from '@/app/context/ToastContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
+import Button from '@/app/components/ui/Button'
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
   const [filter, setFilter] = useState('all')
@@ -53,7 +54,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
       {/* Ajouter un post */}
       {isLoggedIn && user ? (
-        <div className="flex flex-col bg-accent border border-border rounded-[15px] gap-2 px-6 py-4">
+        <div className="flex flex-col bg-accent border border-border rounded-card gap-2 px-6 py-4">
           <div className="flex gap-2">
             <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
               {user.avatar_url ? (
@@ -84,18 +85,10 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                   <ImageIcon size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
                   <Smile size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
                 </div>
-                <button
-                  onClick={() => postPosts()}
-                  disabled={!content.trim()}
-                  className={`btn px-4 rounded-[15px] transition-all duration-200 ${
-                    content.trim()
-                      ? 'btn-ghost border border-primary text-primary hover:bg-primary hover:text-white'
-                      : 'btn-ghost border border-border text-text/30 cursor-not-allowed'
-                  }`}
-                >
-                  <SendHorizonal size={17} />
+                <Button onClick={() => postPosts()} disabled={!content.trim()} size="sm">
+                  <SendHorizonal size={16} />
                   Poster
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -112,7 +105,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 setFilter('trends')
               }
             }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'trends' ? 'bg-primary text-white' : 'text-text/70 hover:bg-primary/20 hover:text-text'}`}
+            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'trends' ? 'bg-primary text-white' : 'text-text-muted hover:bg-primary/20 hover:text-text'}`}
           >
             <Flame size={18} />
             <span className="hidden md:inline">Tendances</span>
@@ -125,7 +118,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 setFilter('recent')
               }
             }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'recent' ? 'bg-primary text-white' : 'text-text/70 hover:bg-primary/20 hover:text-text'}`}
+            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'recent' ? 'bg-primary text-white' : 'text-text-muted hover:bg-primary/20 hover:text-text'}`}
           >
             <Clock size={18} />
             <span className="hidden md:inline">Récents</span>
@@ -138,13 +131,13 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 setFilter('friends')
               }
             }}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'friends' ? 'bg-primary text-white' : 'text-text/70 hover:bg-primary/20 hover:text-text'}`}
+            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'friends' ? 'bg-primary text-white' : 'text-text-muted hover:bg-primary/20 hover:text-text'}`}
           >
             <Users size={18} />
             <span className="hidden md:inline">Amis</span>
           </button>
         </div>
-        <button className="flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal text-text/70 hover:text-text transition-colors rounded-full">
+        <button className="flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal text-text-muted hover:text-text transition-colors rounded-full">
           <SlidersHorizontal size={20} />
           <p className="hidden md:inline">Filtres</p>
         </button>

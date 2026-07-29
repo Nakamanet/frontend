@@ -124,7 +124,7 @@ export default function Navbar() {
                 <div tabIndex={0} role='button' className='relative'>
                   <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
                   {unreadCount > 0 && (
-                    <span className='absolute -top-1 -right-1 bg-alerts text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
+                    <span className='absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
                 </div>
                 <div tabIndex={-1} className='dropdown-content w-100 rounded-box z-10 mt-3 p-3 bg-accent border-border shadow'>
@@ -136,7 +136,7 @@ export default function Navbar() {
                     {notificationsLoading ? (
                       <li><Loader variant="plain" size="md" className="py-4" /></li>
                     ) : notificationsList.length === 0 ? (
-                      <li><span className='text-border'>Aucune notifications</span></li>
+                      <li><span className='text-text-muted'>Aucune notifications</span></li>
                     ) : (
                       notificationsList.map((n) => (
                         <li key={n.id}>

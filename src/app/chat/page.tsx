@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { LogIn, Hash, Tag, BookOpen, Loader2, Users } from 'lucide-react'
+import { LogIn, Hash, Tag, BookOpen, Users } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
 import { getChannels, type Channel } from '../lib/channels'
 import { useQuery } from '@tanstack/react-query'
+import Button from '../components/ui/Button'
+import Loader from '../components/Loader'
+import SectionSwitcher from '../components/ui/SectionSwitcher'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   hash: <Hash size={16} />,
@@ -54,7 +57,7 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto px-2 py-3">
           {loadingChannels ? (
             <div className="flex justify-center py-10">
-              <Loader2 size={20} className="animate-spin text-primary" />
+              <Loader variant="inline" size="sm" />
             </div>
           ) : channels.length === 0 ? (
             <p className="text-center text-xs text-base-content/40 px-3 py-6">
@@ -66,29 +69,16 @@ export default function ChatPage() {
                 <p className="px-3 mb-1.5 text-xs font-semibold uppercase tracking-wider text-base-content/40">
                   {group}
                 </p>
-                <ul className="flex flex-col gap-0.5">
-                  {groupChannels.map((channel) => {
-                    const isActive = activeRoom === channel.room
-                    return (
-                      <li key={channel._id}>
-                        <button
-                          type="button"
-                          onClick={() => setActiveRoom(channel.room)}
-                          className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
-                            isActive
-                              ? 'bg-primary text-primary-content font-medium'
-                              : 'text-base-content/70 hover:bg-base-300/60 hover:text-base-content'
-                          }`}
-                        >
-                          <span className={isActive ? 'opacity-100' : 'opacity-60'}>
-                            {ICON_MAP[channel.icon] ?? <Hash size={16} />}
-                          </span>
-                          {channel.label}
-                        </button>
-                      </li>
-                    )
-                  })}
-                </ul>
+                <SectionSwitcher
+                  bordered={false}
+                  active={activeRoom}
+                  onChange={setActiveRoom}
+                  items={groupChannels.map((channel) => ({
+                    id: channel.room,
+                    label: channel.label,
+                    icon: ICON_MAP[channel.icon] ?? <Hash size={16} />,
+                  }))}
+                />
               </div>
             ))
           )}
@@ -156,9 +146,9 @@ export default function ChatPage() {
               placeholder={connected ? `Écrire dans #${activeChannel?.label ?? activeRoom}...` : 'Connexion en cours...'}
               disabled={!canSend}
             />
-            <button type="submit" className="btn btn-primary" disabled={!canSend || !input.trim()}>
+            <Button type="submit" disabled={!canSend || !input.trim()}>
               Envoyer
-            </button>
+            </Button>
           </form>
         )}
       </main>

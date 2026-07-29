@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { User } from '../../../types/auth'
 import { useToast } from '@/app/context/ToastContext'
+import Button from '@/app/components/ui/Button'
 
 export default function PersonnalForm({ user }: { user: User }) {
   const { showToast } = useToast()
@@ -43,7 +44,7 @@ export default function PersonnalForm({ user }: { user: User }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
+    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className="text-2xl font-bold">Informations personnelles</h3>
       <form className="flex flex-col gap-4" onSubmit={handleSubmitPersonal}>
         <div className="flex gap-2">
@@ -58,7 +59,7 @@ export default function PersonnalForm({ user }: { user: User }) {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          {fieldErrors.username && <p className="text-sm text-alerts">{fieldErrors.username}</p>}
+          {fieldErrors.username && <p className="text-sm text-primary">{fieldErrors.username}</p>}
 
           <div className="flex flex-col">
             <label htmlFor="email">Email</label>
@@ -71,16 +72,12 @@ export default function PersonnalForm({ user }: { user: User }) {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          {fieldErrors.email && <p className="text-sm text-alerts">{fieldErrors.email}</p>}
+          {fieldErrors.email && <p className="text-sm text-primary">{fieldErrors.email}</p>}
         </div>
 
-        <button
-          type="submit"
-          className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" disabled={isSubmitting} className="col-span-2">
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-        </button>
+        </Button>
       </form>
     </div>
   )

@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { updatePost } from '../lib/post'
 import { useToast } from '../context/ToastContext'
 import Loader from './Loader'
+import Button from './ui/Button'
 
 export default function EditPostModal({ isOpen, onClose, post }: {isOpen: boolean, onClose : () => void, post: Post }) {
     const [content, setContent] = useState(post.content)
@@ -60,16 +61,15 @@ export default function EditPostModal({ isOpen, onClose, post }: {isOpen: boolea
                 </div>
 
                 <div className="flex justify-end gap-2 p-4 border-t border-border">
-                    <button className="btn btn-ghost rounded-full" onClick={onClose}>
+                    <Button variant="secondary" onClick={onClose}>
                         Annuler
-                    </button>
-                    <button
-                        className="btn btn-primary rounded-full"
+                    </Button>
+                    <Button
                         onClick={() => updateMutation.mutate()}
                         disabled={updateMutation.isPending || content.trim() === '' || content === post.content}
                     >
                         {updateMutation.isPending ? <Loader variant="inline" size="xs" /> : 'Enregistrer'}
-                    </button>
+                    </Button>
                 </div>
             </div>
         </div>

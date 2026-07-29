@@ -68,7 +68,7 @@ export default function AdminUsersPage() {
         {isLoading ? (
           <Loader />
         ) : (
-          <div className="overflow-x-auto bg-accent border border-border rounded-[15px]">
+          <div className="overflow-x-auto bg-accent border border-border rounded-card">
             <table className="table">
               <thead>
                 <tr>
@@ -119,7 +119,7 @@ export default function AdminUsersPage() {
                           onClick={() => {
                             if (confirm(`Désactiver le compte de ${u.username} ?`)) removeUser(u.id)
                           }}
-                          className="btn btn-ghost btn-sm text-error"
+                          className="btn btn-ghost btn-sm text-primary"
                           title="Désactiver"
                         >
                           <Trash2 size={16} />

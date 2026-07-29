@@ -111,7 +111,7 @@ export default function AdminChannelsPage() {
         </div>
 
         {showForm && (
-          <form onSubmit={handleSubmit} className="bg-accent border border-border rounded-[15px] p-5 flex flex-col gap-3">
+          <form onSubmit={handleSubmit} className="bg-accent border border-border rounded-card p-5 flex flex-col gap-3">
             <h2 className="font-semibold">{editingId ? 'Modifier le channel' : 'Nouveau channel'}</h2>
 
             <div className="flex flex-col gap-1">
@@ -177,7 +177,7 @@ export default function AdminChannelsPage() {
         {loadingChannels ? (
           <Loader />
         ) : (
-          <div className="overflow-x-auto bg-accent border border-border rounded-[15px]">
+          <div className="overflow-x-auto bg-accent border border-border rounded-card">
             <table className="table">
               <thead>
                 <tr>
@@ -200,7 +200,7 @@ export default function AdminChannelsPage() {
                         <Pencil size={14} />
                       </button>
                       <button
-                        className="btn btn-ghost btn-sm text-error"
+                        className="btn btn-ghost btn-sm text-primary"
                         onClick={() => handleDelete(channel)}
                         disabled={channel.room === 'general'}
                       >

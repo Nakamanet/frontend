@@ -15,6 +15,8 @@ import { getUserProfil, getUserPosts } from '../lib/user'
 import { getMyAnime, getMyManga } from '../lib/library'
 import { useSyncExternalStore } from 'react'
 import Loader from '@/app/components/Loader'
+import Card from '@/app/components/ui/Card'
+import SectionSwitcher from '@/app/components/ui/SectionSwitcher'
 
 function useHash() {
   return useSyncExternalStore(
@@ -84,8 +86,8 @@ export default function ProfilPage() {
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
       {/* Bannière : même principe que Sidebar */}
-      <section className="relative w-full h-[20vh] rounded-[15px] mb-8 overflow-visible">
-        <div className="absolute inset-0 bg-primary overflow-hidden rounded-[15px]">
+      <section className="relative w-full h-[20vh] rounded-card mb-8 overflow-visible">
+        <div className="absolute inset-0 bg-primary overflow-hidden rounded-card">
           {user?.banner_url ? (
             <Image
               src={user.banner_url}
@@ -115,7 +117,7 @@ export default function ProfilPage() {
       <section className="grid grid-cols-4">
         {/* Menu lateral */}
         <div className="w-full h-auto flex flex-col gap-5 py-7 ">
-          <div className="flex flex-col justify-center gap-1 bg-accent p-5 border border-border rounded-[15px]">
+          <Card className="flex flex-col justify-center gap-1">
             <p className="pb-2 whitespace-pre-wrap">{user.bio || 'Pas encore de bio'}</p>
             <p className="flex items-center gap-2">
               <MapPin size={15} className="text-primary" /> {user.localisation || 'Non renseigné'}
@@ -136,59 +138,19 @@ export default function ProfilPage() {
             <p className="flex items-center gap-2">
               <MessageSquare size={15} className="text-primary" /> {postsLoading ? <Loader variant="inline" size="xs" /> : postsCount} posts
             </p>
-          </div>
-          <div className="px-5 py-2 border border-border rounded-[15px] bg-accent">
-            <ul className='flex flex-col gap-1'>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'activities' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => switchTab('activities')}
-                >
-                  Posts
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'forum' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => switchTab('forum')}
-                >
-                  Forum
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'friends' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => switchTab('friends')}
-                >
-                  Amis
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'library' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => switchTab('library')}
-                >
-                  Bibliothèque
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'groups' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => switchTab('groups')}
-                >
-                  Groupes
-                </button>
-              </li>
-              <li>
-                <button
-                  className={`btn btn-ghost btn-xs text-sm px-5 border-none rounded-full ${activeTab === 'profil' ? 'bg-primary text-primary-content' : 'text-border'}`}
-                  onClick={() => switchTab('profil')}
-                >
-                  Paramètres
-                </button>
-              </li>
-            </ul>
-          </div>
+          </Card>
+          <SectionSwitcher
+            items={[
+              { id: 'activities', label: 'Posts' },
+              { id: 'forum', label: 'Forum' },
+              { id: 'friends', label: 'Amis' },
+              { id: 'library', label: 'Bibliothèque' },
+              { id: 'groups', label: 'Groupes' },
+              { id: 'profil', label: 'Paramètres' },
+            ]}
+            active={activeTab}
+            onChange={switchTab}
+          />
         </div>
         {/* Contenu principal */}
         <div className="col-span-3 min-h-[70vh]">

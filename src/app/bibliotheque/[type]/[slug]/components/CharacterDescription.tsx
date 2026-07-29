@@ -27,7 +27,7 @@ function clean(text: string): string {
 }
 
 export default function CharacterDescription({ text }: { text: string | null | undefined }) {
-  if (!text) return <p className="text-sm text-border italic">Pas de description.</p>
+  if (!text) return <p className="text-sm text-text-muted italic">Pas de description.</p>
 
   const parts = text.split(/(<spoiler>[\s\S]*?<\/spoiler>)/gi)
 

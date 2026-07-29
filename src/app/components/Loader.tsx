@@ -1,6 +1,6 @@
 type LoaderVariant = 'box' | 'plain' | 'inline'
 type LoaderSize = 'xs' | 'sm' | 'md' | 'lg'
-type LoaderColor = 'primary' | 'alerts'
+type LoaderColor = 'primary'
 
 interface LoaderProps {
   /** box = carte bordée (accent) · plain = flex centré nu · inline = spinner seul (boutons) */
@@ -21,11 +21,10 @@ const sizeClasses: Record<LoaderSize, string> = {
 
 const colorClasses: Record<LoaderColor, string> = {
   primary: 'text-primary',
-  alerts: 'text-alerts',
 }
 
 const wrapperClasses: Record<Exclude<LoaderVariant, 'inline'>, string> = {
-  box: 'flex justify-center items-center p-10 border border-border bg-accent rounded-[15px]',
+  box: 'flex justify-center items-center p-10 border border-border bg-accent rounded-card',
   plain: 'flex justify-center items-center',
 }
 

@@ -23,7 +23,7 @@ export default function AdminPage() {
             <Link
               key={section.href}
               href={section.href}
-              className="bg-accent border border-border rounded-[15px] p-5 flex flex-col gap-2 hover:border-primary/50 transition-colors"
+              className="bg-accent border border-border rounded-card p-5 flex flex-col gap-2 hover:border-primary/50 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <section.icon size={20} className="text-primary" />

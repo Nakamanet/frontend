@@ -52,14 +52,14 @@ export default function DeleteForm({ user }: { user: User }) {
   }
 
   return (
-    <div className="grid grid-cols-2 border border-primary rounded-[15px] overflow-hidden">
+    <div className="grid grid-cols-2 border border-primary rounded-card overflow-hidden">
       <button
         onClick={() => handleDisable(user.id)}
         disabled={isSubmitting}
         className="flex flex-col items-center gap-2 p-5 bg-accent hover:bg-primary/10 transition-colors cursor-pointer border-r border-primary disabled:opacity-50"
       >
         <span className="font-semibold text-primary">Désactiver mon compte</span>
-        <p className="text-sm text-border text-center">
+        <p className="text-sm text-text-muted text-center">
           Ce compte ne sera plus disponible il faudra prendre contact avec les modérateurs pour le réactiver.
         </p>
       </button>
@@ -69,7 +69,7 @@ export default function DeleteForm({ user }: { user: User }) {
         className="flex flex-col items-center gap-2 p-5 bg-accent hover:bg-primary/10 transition-colors cursor-pointer disabled:opacity-50"
       >
         <span className="font-semibold text-primary">Supprimer mon compte</span>
-        <p className="text-sm text-border text-center">
+        <p className="text-sm text-text-muted text-center">
           Supprimer toute vos données, cette action est irreversible. Vos données seront irrécupérables.
         </p>
       </button>

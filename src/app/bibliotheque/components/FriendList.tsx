@@ -71,7 +71,7 @@ export default function FriendList() {
                           alt={item.detail.titleEn}
                           width={145}
                           height={100}
-                          className="object-cover rounded-[15px]"
+                          className="object-cover rounded-card"
                           priority
                         />
                       </Link>

@@ -8,6 +8,7 @@ import { getCroppedImage, uploadAvatar, uploadBanner } from '@/app/lib/upload'
 import { User } from '@/app/types/auth'
 import { X } from 'lucide-react'
 import Cropper from 'react-easy-crop'
+import Button from '@/app/components/ui/Button'
 
 export default function ThemeForm({ user }: { user: User }) {
   const { showToast } = useToast()
@@ -105,7 +106,7 @@ export default function ThemeForm({ user }: { user: User }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
+    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className="text-2xl font-bold">Personnalisation</h3>
 
       <div className="grid grid-cols-2 gap-6">
@@ -125,15 +126,11 @@ export default function ThemeForm({ user }: { user: User }) {
                 <option value="system">System</option>
               </select>
             </div>
-            {fieldErrors.theme_preference && <p className="text-sm text-alerts">{fieldErrors.theme_preference}</p>}
+            {fieldErrors.theme_preference && <p className="text-sm text-primary">{fieldErrors.theme_preference}</p>}
           </div>
-          <button
-            type="submit"
-            className="btn btn-ghost border-none bg-primary text-primary-content mt-auto"
-            disabled={isThemeSubmitting}
-          >
+          <Button type="submit" disabled={isThemeSubmitting} className="mt-auto">
             {isThemeSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-          </button>
+          </Button>
         </form>
 
         <div className="flex flex-col">
@@ -174,13 +171,12 @@ export default function ThemeForm({ user }: { user: User }) {
                 </button>
               </div>
             </div>
-            <button
-              className="btn btn-ghost border-none bg-primary text-primary-content"
+            <Button
               onClick={() => (cropType === 'avatar' ? handleSubmitAvatar() : handleSubmitBanner())}
               disabled={isMediaSubmitting}
             >
               {isMediaSubmitting ? 'Upload en cours...' : 'Confirmer'}
-            </button>
+            </Button>
           </div>
           <form method="dialog" className="modal-backdrop">
             <button onClick={() => resetModal()}>

@@ -80,7 +80,7 @@ export default function TopicDetailPage() {
   if (isLoading) {
     return (
       <AppLayout>
-        <Loader size="md" color="alerts" />
+        <Loader size="md" color="primary" />
       </AppLayout>
     )
   }
@@ -88,9 +88,9 @@ export default function TopicDetailPage() {
   if (isError || !topic) {
     return (
       <AppLayout>
-        <div className="flex flex-col items-center justify-center p-10 border border-border bg-accent rounded-[15px] text-border text-[15px] gap-4">
+        <div className="flex flex-col items-center justify-center p-10 border border-border bg-accent rounded-card text-text-muted text-[15px] gap-4">
           Impossible de charger ce sujet.
-          <Link href="/forum" className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-2 font-bold text-white border-none">
+          <Link href="/forum" className="inline-flex items-center justify-center gap-1.5 rounded-full font-bold px-5 py-2.5 text-[15px] bg-primary text-white hover:bg-primary/85 transition-colors">
             Retour au forum
           </Link>
         </div>
@@ -101,27 +101,27 @@ export default function TopicDetailPage() {
   return (
     <AppLayout>
       <div className="flex flex-col gap-6 overflow-y-auto scrollbar-hide pb-10">
-        <Link href="/forum" className="btn btn-ghost border border-border rounded-full px-4 font-bold text-border hover:text-white w-fit">
+        <Link href="/forum" className="inline-flex items-center gap-1.5 rounded-full border border-border text-text hover:border-primary hover:bg-primary/10 px-5 py-2.5 text-[15px] font-bold w-fit transition-colors">
           ← Retour au forum
         </Link>
 
         {topic.is_archived && (
-          <div className="flex items-center gap-2 px-4 py-3 bg-border/20 border border-border rounded-[15px] text-border text-sm">
+          <div className="flex items-center gap-2 px-4 py-3 bg-border/20 border border-border rounded-card text-text-muted text-sm">
             <Archive size={15} />
             Ce sujet est archivé. Les nouvelles réponses sont désactivées.
           </div>
         )}
 
-        <div className="border border-border bg-accent rounded-[15px] p-6">
+        <div className="border border-border bg-accent rounded-card p-6">
           <div className="flex items-start justify-between gap-4">
-            <span className="text-[10px] font-bold px-3 py-1 bg-alerts text-white rounded-full uppercase tracking-wide">
+            <span className="text-[10px] font-bold px-3 py-1 bg-primary text-white rounded-full uppercase tracking-wide">
               {topic.category}
             </span>
             {!!user && (user.id === topic.user_id || ['moderator', 'admin'].includes(user.role)) && (
               <button
                 onClick={() => topicArchiveMutation.mutate(topic.id)}
                 title={topic.is_archived ? 'Désarchiver' : 'Archiver ce sujet'}
-                className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-border hover:bg-alerts/20 hover:text-alerts flex items-center gap-1.5 shrink-0"
+                className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-primary/20 hover:text-primary flex items-center gap-1.5 shrink-0"
               >
                 <Archive size={14} />
                 {topic.is_archived ? 'Désarchiver' : 'Archiver'}
@@ -129,7 +129,7 @@ export default function TopicDetailPage() {
             )}
           </div>
           <h1 className="text-2xl font-bold text-white mt-6">{topic.title}</h1>
-          <p className="text-sm text-border mt-2 mb-6">
+          <p className="text-sm text-text-muted mt-2 mb-6">
             Par <span className="font-bold text-white">{topic.user?.username || 'Anonyme'}</span> •{' '}
             {new Date(topic.created_at).toLocaleDateString('fr-FR')}
           </p>
@@ -138,7 +138,7 @@ export default function TopicDetailPage() {
             <button
               onClick={() => handleVote('topic', topic.id)}
               className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
-                topic.user_has_voted ? 'bg-alerts/20 text-alerts' : 'text-border hover:bg-alerts/20 hover:text-alerts'
+                topic.user_has_voted ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
               }`}
             >
               <ThumbsUp size={14} />
@@ -152,7 +152,7 @@ export default function TopicDetailPage() {
                 }}
                 title={topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
                 className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
-                  topic.user_has_pinned ? 'bg-alerts/20 text-alerts' : 'text-border hover:bg-alerts/20 hover:text-alerts'
+                  topic.user_has_pinned ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
                 }`}
               >
                 <Pin size={14} fill={topic.user_has_pinned ? 'currentColor' : 'none'} />
@@ -175,22 +175,22 @@ export default function TopicDetailPage() {
             return groupReplies(topic.replies!).map((reply) => {
               const parentAuthor = reply.parent_id ? replyMap.get(reply.parent_id)?.user?.username : null
               return (
-              <div key={reply.id} className={`border border-border bg-accent rounded-[15px] p-4 ${reply.parent_id ? 'ml-8' : ''}`}>
-                <p className="text-sm text-border mb-3">
+              <div key={reply.id} className={`border border-border bg-accent rounded-card p-4 ${reply.parent_id ? 'ml-8' : ''}`}>
+                <p className="text-sm text-text-muted mb-3">
                   <span className="font-bold text-white">{reply.user?.username || 'Anonyme'}</span> •{' '}
                   {new Date(reply.created_at).toLocaleDateString('fr-FR')}
                   {parentAuthor && (
-                    <span className="ml-2 text-[10px] font-bold px-2 py-0.5 bg-muted text-border rounded-full uppercase tracking-wide">
+                    <span className="ml-2 text-[10px] font-bold px-2 py-0.5 bg-muted text-text-muted rounded-full uppercase tracking-wide">
                       ↩ {parentAuthor}
                     </span>
                   )}
                 </p>
-                <div className="whitespace-pre-wrap text-[14px] text-border mb-4">{reply.content}</div>
+                <div className="whitespace-pre-wrap text-[14px] text-text-muted mb-4">{reply.content}</div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleVote('reply', reply.id)}
                     className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
-                      reply.user_has_voted ? 'bg-alerts/20 text-alerts' : 'text-border hover:bg-alerts/20 hover:text-alerts'
+                      reply.user_has_voted ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
                     }`}
                   >
                     <ThumbsUp size={14} />
@@ -199,7 +199,7 @@ export default function TopicDetailPage() {
                   {!reply.parent_id && (
                     <button
                       onClick={() => setReplyingTo(reply.id)}
-                      className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts/20 text-alerts"
+                      className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal hover:bg-primary rounded-full bg-primary/20 text-primary"
                     >
                       Répondre
                     </button>
@@ -213,7 +213,7 @@ export default function TopicDetailPage() {
               </div>
             )})
           })() : (
-            <div className="flex justify-center items-center p-10 text-border text-[15px] border border-border bg-accent rounded-[15px]">
+            <div className="flex justify-center items-center p-10 text-text-muted text-[15px] border border-border bg-accent rounded-card">
               Aucune réponse pour le moment. Soyez le premier !
             </div>
           )}

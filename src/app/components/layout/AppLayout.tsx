@@ -33,19 +33,19 @@ export default function AppLayout({ children, sidebar = false }: AppLayoutProps)
           </section>
         </main>
         <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-accent border-t border-border flex justify-around items-center h-16 z-50">
-          <Link href="/" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/' ? 'text-primary' : 'text-border'}`}>
+          <Link href="/" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/' ? 'text-primary' : 'text-text-muted'}`}>
             <Home size={22} />
             Accueil
           </Link>
-          <Link href="/bibliotheque" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/bibliotheque' ? 'text-primary' : 'text-border'}`}>
+          <Link href="/bibliotheque" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/bibliotheque' ? 'text-primary' : 'text-text-muted'}`}>
             <BookOpen size={22} />
             Bibliothèque
           </Link>
-          <Link href="/forum" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/forum' ? 'text-primary' : 'text-border'}`}>
+          <Link href="/forum" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/forum' ? 'text-primary' : 'text-text-muted'}`}>
             <MessageSquare size={22} />
             Forum
           </Link>
-          <Link href="/chat" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/chat' ? 'text-primary' : 'text-border'}`}>
+          <Link href="/chat" className={`flex flex-col items-center gap-1 text-xs ${pathname === '/chat' ? 'text-primary' : 'text-text-muted'}`}>
             <MessageCircle size={22} />
             Chat
           </Link>
