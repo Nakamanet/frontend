@@ -16,7 +16,6 @@ import Loader from '@/app/components/Loader'
 
 export default function Navbar() {
   const { isLoggedIn, isAuthLoading, hasStoredSession, logout, user } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -112,7 +111,7 @@ export default function Navbar() {
           ) : isLoggedIn && user ? (
             <>
             {/* Search */}
-              <span className='tooltip tooltip-bottom hidden md:block' data-tip="Recherche">
+              <span className='tooltip tooltip-bottom' data-tip="Recherche">
                 <Search
                   size={27}
                   className="cursor-pointer hover:text-primary transition-colors"
@@ -120,7 +119,7 @@ export default function Navbar() {
                 />
               </span>
               {/* Notifications */}
-              <div className='dropdown dropdown-end relative hidden md:block tooltip tooltip-bottom' data-tip="Notifications">
+              <div className='dropdown dropdown-end relative tooltip tooltip-bottom' data-tip="Notifications">
                 <div tabIndex={0} role='button' className='relative'>
                   <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
                   {unreadCount > 0 && (
@@ -199,66 +198,13 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <div className="hidden md:flex gap-5 p-2">
+            <div className="flex gap-5 p-2">
               <Link href="/login">Se connecter</Link>
               <Link href="/register">S&apos;inscrire</Link>
             </div>
           )}
-
-          {/* Burger button - mobile only */}
-          <label className="md:hidden btn btn-ghost border-none btn-circle swap swap-rotate" aria-label="Menu">
-            <input type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
-
-            {/* hamburger icon */}
-            <svg
-              className="swap-off fill-current"
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 512 512"
-            >
-              <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
-            </svg>
-
-            {/* close icon */}
-            <svg
-              className="swap-on fill-current"
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 512 512"
-            >
-              <polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
-            </svg>
-          </label>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <nav className="md:hidden flex flex-col bg-accent border-t border-border px-6 py-4 gap-5 text-lg">
-          <Link href="/list" onClick={() => setMenuOpen(false)}>
-            Bibliothèque
-          </Link>
-          <Link href="/forum" onClick={() => setMenuOpen(false)}>
-            Forum
-          </Link>
-          <Link href="/chat" onClick={() => setMenuOpen(false)}>
-            Chat
-          </Link>
-          {!isAuthLoading && !isLoggedIn && (
-            <>
-              <hr className="border-border" />
-              <Link href="/login" onClick={() => setMenuOpen(false)}>
-                Se connecter
-              </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)}>
-                S&apos;inscrire
-              </Link>
-            </>
-          )}
-        </nav>
-      )}
 
       <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
     </header>

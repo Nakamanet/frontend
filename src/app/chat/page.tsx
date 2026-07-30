@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { LogIn, Hash, Tag, BookOpen, Users } from 'lucide-react'
+import { LogIn, Hash, Tag, BookOpen, Users, Menu, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
 import { getChannels, type Channel } from '../lib/channels'
@@ -21,6 +21,7 @@ export default function ChatPage() {
   const [activeRoom, setActiveRoom] = useState('general')
   const { messages, connected, sendMessage } = useChat(activeRoom)
   const [input, setInput] = useState('')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { data: channels = [], isLoading: loadingChannels } = useQuery<Channel[]>({
     queryKey: ['channels'],
@@ -44,14 +45,25 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-base-100">
+    <div className="flex h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] bg-base-100">
+      {sidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-50"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       {/* Sidebar */}
-      <aside className="w-72 border-r border-base-300 flex flex-col bg-base-200/30">
-        <div className="p-4 border-b border-base-300">
+      <aside
+        className={`${sidebarOpen ? 'flex' : 'hidden'} md:flex w-72 max-w-[85vw] border-r border-base-300 flex-col bg-base-200/30 fixed md:static inset-y-0 left-0 z-60 md:z-auto`}
+      >
+        <div className="p-4 border-b border-base-300 flex items-center justify-between">
           <h1 className="font-semibold text-lg flex items-center gap-2">
             <Users size={18} className="text-primary" />
             Salons
           </h1>
+          <button type="button" className="md:hidden btn btn-ghost btn-sm btn-circle" onClick={() => setSidebarOpen(false)} aria-label="Fermer">
+            <X size={18} />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 py-3">
@@ -72,7 +84,7 @@ export default function ChatPage() {
                 <SectionSwitcher
                   bordered={false}
                   active={activeRoom}
-                  onChange={setActiveRoom}
+                  onChange={(room) => { setActiveRoom(room); setSidebarOpen(false) }}
                   items={groupChannels.map((channel) => ({
                     id: channel.room,
                     label: channel.label,
@@ -98,6 +110,9 @@ export default function ChatPage() {
       {/* Main chat area */}
       <main className="flex-1 flex flex-col">
         <div className="px-5 py-4 border-b border-base-300 flex items-center gap-2 bg-base-100/50 backdrop-blur-sm">
+          <button type="button" className="md:hidden btn btn-ghost btn-sm btn-circle" onClick={() => setSidebarOpen(true)} aria-label="Salons">
+            <Menu size={18} />
+          </button>
           <span className="text-primary">
             {activeChannel ? ICON_MAP[activeChannel.icon] ?? <Hash size={18} /> : <Hash size={18} />}
           </span>

@@ -20,14 +20,14 @@ export default function MessagesPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex items-center justify-center h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)]">
         <p className="text-base-content/60">Vous devez être connecté pour voir vos messages.</p>
       </div>
     )
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 flex flex-col gap-4">
+    <div className="max-w-2xl mx-auto p-6 pb-20 md:pb-6 flex flex-col gap-4">
       <h1 className="text-2xl font-bold flex items-center gap-2">
         <MessageSquare size={22} className="text-primary" />
         Messages

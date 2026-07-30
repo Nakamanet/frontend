@@ -26,14 +26,14 @@ export default function DmPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex items-center justify-center h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)]">
         <p className="text-base-content/60">Vous devez être connecté pour voir vos messages.</p>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-base-100">
+    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)] bg-base-100">
       <div className="px-5 py-4 border-b border-base-300 flex items-center gap-3">
         <button onClick={() => router.push('/messages')} className="btn btn-ghost btn-sm btn-circle">
           <ArrowLeft size={18} />

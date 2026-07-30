@@ -101,8 +101,8 @@ export default function ProfilPage() {
   const hasAccess = !!profileUser.role && profileUser.friendship_status !== 'blocked' && profileUser.friendship_status !== 'blocked_by'
 
   return (
-    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
-      <section className="relative w-full h-[20vh] rounded-card mb-8 overflow-visible">
+    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-4 md:p-13 pb-20 md:pb-13">
+      <section className="relative w-full h-40 md:h-[20vh] rounded-card mb-8 overflow-visible">
         <div className="absolute inset-0 bg-primary overflow-hidden rounded-card">
           {profileUser.banner_url ? (
             <Image
@@ -116,14 +116,14 @@ export default function ProfilPage() {
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/60" />
         </div>
         <div className="relative z-10 flex items-end p-5 h-full gap-4">
-          <div className="absolute -bottom-6 left-10 w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center overflow-hidden z-10 text-base-content/70">
+          <div className="absolute -bottom-6 left-4 md:left-10 w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center overflow-hidden z-10 text-base-content/70">
             {profileUser.avatar_url ? (
               <Image src={profileUser.avatar_url} alt="Avatar" width={65} height={65} className="w-full h-full object-cover" />
             ) : (
               <CircleUser size={50} strokeWidth={1.5} />
             )}
           </div>
-          <div className="absolute bottom-2 right-10 flex items-center justify-center z-10 text-base-content/70">
+          <div className="absolute bottom-2 right-4 md:right-10 flex items-center justify-center z-10 text-base-content/70">
             {profileUser.friendship_status === 'none' && (
               <div className='dropdown dropdown-end'>
                 <div tabIndex={0} role="button" className="btn btn-ghost border-none hover:bg-transparent hover:border-none focus:bg-transparent focus:border-none">
@@ -181,13 +181,13 @@ export default function ProfilPage() {
               <button className="btn btn-ghost border-none hover:bg-transparent hover:border-none focus:bg-transparent focus:border-none rounded-full" onClick={() => unblockMutation.mutate()}>Débloquer</button>
             )}
           </div>
-          <div className="flex flex-col absolute bottom-1 left-30">
-            <p className="text-lg">{profileUser.username}</p>
-            <p className="text-white/70">@{profileUser.username}</p>
+          <div className="flex flex-col absolute bottom-1 left-24 md:left-30 max-w-[130px] md:max-w-none">
+            <p className="text-lg truncate">{profileUser.username}</p>
+            <p className="text-white/70 truncate">@{profileUser.username}</p>
           </div>
         </div>
       </section>
-      <section className="grid grid-cols-4">
+      <section className="grid grid-cols-1 md:grid-cols-4">
         <div className="w-full h-auto flex flex-col gap-5 py-7">
           <div className="flex flex-col justify-center gap-1 bg-accent p-5 border border-border rounded-card">
             <p className="pb-2 whitespace-pre-wrap">{profileUser.bio || 'Pas encore de bio'}</p>
@@ -224,7 +224,7 @@ export default function ProfilPage() {
             />
           )}
         </div>
-        <div className="col-span-3 min-h-[70vh]">
+        <div className="md:col-span-3 min-h-[70vh]">
           {!hasAccess
             ? <ProfilAccessNotice status={profileUser.friendship_status} />
             : <>

@@ -1,5 +1,6 @@
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
+import BottomNav from './components/layout/BottomNav'
 import './globals.css'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Navbar />
               <main className="md:flex-1">{children}</main>
               <Footer />
+              <BottomNav />
             </ToastProvider>
           </AuthProvider>
         </QueryProvider>

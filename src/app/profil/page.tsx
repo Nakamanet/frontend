@@ -84,9 +84,9 @@ export default function ProfilPage() {
   if (!user) redirect('/login')
 
   return (
-    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-13">
+    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-4 md:p-13 pb-20 md:pb-13">
       {/* Bannière : même principe que Sidebar */}
-      <section className="relative w-full h-[20vh] rounded-card mb-8 overflow-visible">
+      <section className="relative w-full h-40 md:h-[20vh] rounded-card mb-8 overflow-visible">
         <div className="absolute inset-0 bg-primary overflow-hidden rounded-card">
           {user?.banner_url ? (
             <Image
@@ -100,21 +100,21 @@ export default function ProfilPage() {
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/60" />
         </div>
         <div className="relative z-10 flex items-end p-5 h-full gap-4">
-          <div className="absolute -bottom-6 left-10 w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center overflow-hidden z-10 text-base-content/70">
+          <div className="absolute -bottom-6 left-4 md:left-10 w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center overflow-hidden z-10 text-base-content/70">
             {user.avatar_url ? (
               <Image src={user.avatar_url} alt="Avatar" width={65} height={65} className="w-full h-full object-cover" />
             ) : (
               <CircleUser size={50} strokeWidth={1.5} />
             )}
           </div>
-          <div className="flex flex-col absolute bottom-1 left-30">
+          <div className="flex flex-col absolute bottom-1 left-24 md:left-30">
             <p className="text-lg text-white font-bold">{user.username}</p>
             <p className="text-white/70">@{user.username}</p>
           </div>
         </div>
       </section>
       {/* main content */}
-      <section className="grid grid-cols-4">
+      <section className="grid grid-cols-1 md:grid-cols-4">
         {/* Menu lateral */}
         <div className="w-full h-auto flex flex-col gap-5 py-7 ">
           <Card className="flex flex-col justify-center gap-1">
@@ -153,7 +153,7 @@ export default function ProfilPage() {
           />
         </div>
         {/* Contenu principal */}
-        <div className="col-span-3 min-h-[70vh]">
+        <div className="md:col-span-3 min-h-[70vh]">
           {activeTab === 'activities' && <Activity user={user} />}
           {/* A faire plus tard */}
           {activeTab === 'forum' && <MyTopics user={user} />}
