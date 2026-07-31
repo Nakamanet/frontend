@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
 import { useAuth } from '@/app/context/AuthContext'
 import { useToast } from '@/app/context/ToastContext'
+import { isAxiosError } from 'axios'
 
 export default function PostPage() {
   const { id } = useParams()
@@ -24,10 +25,18 @@ export default function PostPage() {
   const queryClient = useQueryClient()
   const [content, setContent] = useState('')
 
-  const { data: post, isLoading } = useQuery<Post>({
+  const { data: post, isLoading, isError } = useQuery<Post>({
     queryKey: ['posts', postId],
     queryFn: () => getPostById(postId),
     enabled: !!id,
+    retry: (failureCount, error) => {
+      if (isAxiosError(error) && error.response) {
+        if (error.response.status >= 400 && error.response.status < 500) {
+          return false
+        }
+      }
+      return failureCount < 3
+    }
   })
 
   const { data: commentsData, isLoading: loadingComments } = useQuery({
@@ -74,7 +83,15 @@ export default function PostPage() {
       <Loader />
     </AppLayout>
   )
-  if (!post) return null
+
+  if (isError || !post) return (
+    <AppLayout sidebar>
+      <div className="flex-col items-center p-10">
+        <p>Ce post est indisponible</p>
+        <Link href={"/"}>Retour vers la liste des posts</Link>
+      </div>
+    </AppLayout>
+  )
 
   return (
     <AppLayout sidebar>
