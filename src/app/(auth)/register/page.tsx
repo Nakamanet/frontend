@@ -8,11 +8,12 @@ import api from '../../lib/axios'
 import { useGeolocation } from '../../hooks/useGeolocalisation'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
+import Loader from '@/app/components/Loader'
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
 export default function RegisterPage() {
-  const { login } = useAuth()
+  const { login, isLoggedIn, isAuthLoading } = useAuth()
   const router = useRouter()
   const { showToast } = useToast()
   const { location, loading, detect } = useGeolocation()
@@ -26,6 +27,23 @@ export default function RegisterPage() {
   const turnstileContainerRef = useRef<HTMLDivElement>(null)
   const turnstileRenderedRef = useRef(false)
 
+  useEffect(() => {
+    if (!isAuthLoading && isLoggedIn) {
+      router.replace('/')
+    }
+  }, [isAuthLoading, isLoggedIn, router])
+
+  // géoloc uniquement pour un visiteur non connecté : inutile de demander
+  // la permission à quelqu'un qu'on redirige immédiatement
+  useEffect(() => {
+    if (isAuthLoading || isLoggedIn) return
+    detect()
+  }, [isAuthLoading, isLoggedIn, detect])
+
+  if (isAuthLoading || isLoggedIn) {
+    return <Loader variant="plain" className="min-h-[80vh]" />
+  }
+
   const today = new Date()
   const maxBirthdate = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate())
     .toISOString()
@@ -34,9 +52,6 @@ export default function RegisterPage() {
     .toISOString()
     .split('T')[0]
 
-  useEffect(() => {
-    detect()
-  }, [])
 
   const renderTurnstile = () => {
     if (turnstileRenderedRef.current || !turnstileContainerRef.current || !window.turnstile) return
