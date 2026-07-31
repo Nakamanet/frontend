@@ -1,4 +1,4 @@
-import type { User } from './auth'
+import type { PublicUser } from './auth'
 
 export interface Post {
   id: number
@@ -15,7 +15,7 @@ export interface Post {
   user_has_liked?: boolean
   user_has_saved?: boolean
   likes: { user_id: number }[] | null
-  user: User
+  user: PublicUser
 }
 
 export interface PaginatedPosts {

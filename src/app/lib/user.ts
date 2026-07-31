@@ -1,4 +1,4 @@
-import { User } from "../types/auth";
+import { ProfileUser, User } from "../types/auth";
 import { PaginatedPosts } from "../types/post";
 import { PaginatedForums } from "../types/forum";
 import api from "./axios";
@@ -28,8 +28,8 @@ export async function getUserForum(id: number): Promise<PaginatedForums> {
     return data
 }
 
-export async function getUserProfil(id: number): Promise<Partial<User>> {
-    const { data } = await api.get(`/users/${id}/profile`)
+export async function getUserProfil(id: number): Promise<ProfileUser> {
+    const { data } = await api.get<ProfileUser>(`/users/${id}/profile`)
     return data
 }
 

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { User } from '../../types/auth'
+import { PublicUser } from '../../types/auth'
 import { Friendship } from '@/app/types/friends'
 import { getFriends, getPendingFriends, getSentFriends, acceptFriend, declineFriend, removeFriend, unblockFriend, getBlockFriends } from '@/app/lib/friends'
 import Image from 'next/image'
@@ -36,7 +36,7 @@ function FriendRow({ friend, children }: { friend: { id: number; username: strin
   )
 }
 
-export default function Friends({ user }: { user: User }) {
+export default function Friends({ user }: { user: PublicUser }) {
   const [filter, setFilter] = useState('friends')
   const { showToast } = useToast()
   const [friendToRemove, setFriendToRemove] = useState<{ id: number; username: string } | null>(null)

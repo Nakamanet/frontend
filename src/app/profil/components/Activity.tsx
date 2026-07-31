@@ -1,7 +1,7 @@
 'use client'
 
 import PostCards from '../../components/PostCards'
-import { User } from '../../types/auth'
+import { PublicUser } from '../../types/auth'
 import { useState } from 'react'
 import { Flame, ThumbsUp, Bookmark, Trash } from 'lucide-react'
 import { getUserPosts } from '@/app/lib/user'
@@ -24,7 +24,7 @@ const FILTER_OPTIONS_OTHER = [
   { value: 'liked', label: 'Posts Likés', icon: <ThumbsUp size={18} /> },
 ]
 
-export default function Activity({ user }: { user: User }) {
+export default function Activity({ user }: { user: PublicUser }) {
   const [filter, setFilter] = useState('mine')
   const { user: connectedUser } = useAuth()
   const isOwnProfil = connectedUser?.id === user.id

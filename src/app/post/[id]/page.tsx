@@ -17,6 +17,15 @@ import { useAuth } from '@/app/context/AuthContext'
 import { useToast } from '@/app/context/ToastContext'
 import { isAxiosError } from 'axios'
 
+const shouldRetry = (failureCount: number, error: Error) => {
+  if (isAxiosError(error) && error.response) {
+    if (error.response.status >= 400 && error.response.status < 500) {
+      return false
+    }
+  }
+  return failureCount < 3
+}
+
 export default function PostPage() {
   const { id } = useParams()
   const postId = Number(id)
@@ -29,20 +38,14 @@ export default function PostPage() {
     queryKey: ['posts', postId],
     queryFn: () => getPostById(postId),
     enabled: !!id,
-    retry: (failureCount, error) => {
-      if (isAxiosError(error) && error.response) {
-        if (error.response.status >= 400 && error.response.status < 500) {
-          return false
-        }
-      }
-      return failureCount < 3
-    }
+    retry: shouldRetry
   })
 
   const { data: commentsData, isLoading: loadingComments } = useQuery({
     queryKey: ['posts', postId, 'comments'],
     queryFn: () => getComments(postId),
     enabled: !!id,
+    retry: shouldRetry
   })
   const comments = commentsData?.data ?? []
 
@@ -86,7 +89,7 @@ export default function PostPage() {
 
   if (isError || !post) return (
     <AppLayout sidebar>
-      <div className="flex-col items-center p-10">
+      <div className="flex flex-col items-center gap-2 p-10">
         <p>Ce post est indisponible</p>
         <Link href={"/"}>Retour vers la liste des posts</Link>
       </div>

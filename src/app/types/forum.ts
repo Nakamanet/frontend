@@ -1,4 +1,4 @@
-import type { User } from './auth'
+import type { PublicUser } from './auth'
 
 export interface ForumReply {
   id: number
@@ -10,7 +10,7 @@ export interface ForumReply {
   user_has_voted: boolean
   created_at: string
   updated_at: string
-  user: User
+  user: PublicUser
 }
 
 export interface Forum {
@@ -31,7 +31,7 @@ export interface Forum {
   votes_count: number
   user_has_voted: boolean
   user_has_pinned: boolean
-  user: User
+  user: PublicUser
   replies?: ForumReply[]
 }
 

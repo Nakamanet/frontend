@@ -7,14 +7,14 @@ import { getUserProfil, getUserPosts } from '../../lib/user'
 import Activity from '../components/Activity'
 import { blockFriend, removeFriend, sendFriendRequest, unblockFriend } from '@/app/lib/friends'
 import Friends from '../components/Friends'
-import { User } from '@/app/types/auth'
+import { ProfileUser } from '@/app/types/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
 
 import Link from 'next/link'
 
-function ProfilAccessNotice({ status }: { status: User['friendship_status'] | undefined}) {
+function ProfilAccessNotice({ status }: { status: ProfileUser['friendship_status'] | undefined}) {
   switch (status) {
     case 'blocked_by':
       return <p className="text-text/60">Ce compte est restreint</p>
@@ -253,9 +253,9 @@ export default function ProfilPage() {
           {!hasAccess
             ? <ProfilAccessNotice status={profileUser.friendship_status} />
             : <>
-                {activeTab === 'activities' && <Activity user={profileUser as User} />}
+                {activeTab === 'activities' && <Activity user={profileUser} />}
                 {activeTab === 'forum' && <p className="p-7">Forum à venir</p>}
-                {activeTab === 'friends' && <Friends user={profileUser as User} />}
+                {activeTab === 'friends' && <Friends user={profileUser} />}
                 {activeTab === 'library' && <p className="p-7">Bibliothèque</p>}
               </>
           }
