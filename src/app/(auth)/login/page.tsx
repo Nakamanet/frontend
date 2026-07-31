@@ -1,18 +1,29 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import api from '../../lib/axios'
 import { useAuth } from '../../context/AuthContext'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
+import Loader from '@/app/components/Loader'
 
 export default function LoginPage() {
-  const { login } = useAuth()
+  const { login, isLoggedIn, isAuthLoading } = useAuth()
   const router = useRouter()
   const { showToast } = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+
+  useEffect(() => {
+    if (!isAuthLoading && isLoggedIn) {
+      router.replace('/')
+    }
+  }, [isAuthLoading, isLoggedIn, router])
+
+  if (isAuthLoading || isLoggedIn) {
+    return <Loader variant="plain" className="min-h-[80vh]" />
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
