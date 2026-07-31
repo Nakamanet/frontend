@@ -34,6 +34,16 @@ export default function Footer() {
                 Chat
               </Link>
             </li>
+            <li>
+              <Link href="/messages" className="hover:text-primary transition-colors">
+                Messages
+              </Link>
+            </li>
+            <li>
+              <Link href="/profil" className="hover:text-primary transition-colors">
+                Profil
+              </Link>
+            </li>
           </ul>
         </div>
 

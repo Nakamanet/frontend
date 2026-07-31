@@ -37,7 +37,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
   const lastPage = type === 'anime' ? (episodeData?.meta?.lastPage ?? 1) : (chapterData?.meta?.lastPage ?? 1)
 
   return (
-    <div className="border border-border bg-accent rounded-[15px] p-5 ">
+    <div className="border border-border bg-accent rounded-card p-5 ">
       {/* Content */}
       {isLoading && <Loader variant="plain" className="my-[90px]" />}
       {!isLoading && type === 'anime' && (
@@ -45,7 +45,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
           {episodes.map((e) => (
             <button
               key={e.id}
-              className="border border-border p-2 rounded-[15px] bg-muted hover:bg-accent text-left"
+              className="border border-border p-2 rounded-card bg-muted hover:bg-accent text-left"
               onClick={() => {
                 setEpisodeModal(true)
                 setDetail({ type: 'anime', item: e })
@@ -74,7 +74,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
           {chapters.map((e) => (
             <button
               key={e.id}
-              className="border border-border p-2 rounded-[15px] bg-muted hover:bg-accent text-left"
+              className="border border-border p-2 rounded-card bg-muted hover:bg-accent text-left"
               onClick={() => {
                 setEpisodeModal(true)
                 setDetail({ type: 'manga', item: e })

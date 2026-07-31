@@ -2,7 +2,7 @@
 
 import { getAnimeCharacters, getMangaCharacters } from '@/app/lib/catalogue'
 import { Anime, AnimeCharacter, Manga, MangaCharacter, Person } from '@/app/types/catalog'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import CharacterModal from './CharacterModal'
 import { useQuery } from '@tanstack/react-query'
@@ -14,11 +14,17 @@ export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> 
   persons: Person[]
 }
 
+// Environ 3 rangées avant de charger la suite au scroll (approximatif : le nombre
+// de colonnes varie selon la largeur d'écran, donc ce n'est pas un calcul exact).
+const PAGE_SIZE = 15
+
 export default function CharacterPage({ type, item }: Character) {
   const [detail, setDetail] = useState<
     { type: 'anime'; item: GroupedAnimeCharacter } | { type: 'manga'; item: MangaCharacter }
   >()
   const [characterModal, setCharacterModal] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const sentinelRef = useRef<HTMLDivElement>(null)
 
   const { data: animeCharacters = [], isLoading: animeLoading } = useQuery({
     queryKey: ['anime', item.id, 'characters'],
@@ -55,64 +61,78 @@ export default function CharacterPage({ type, item }: Character) {
     return rank(a.role) - rank(b.role) || a.character.name.localeCompare(b.character.name)
   })
 
+  const totalCount = type === 'anime' ? groupedAnimeCharacters.length : sortedMangaCharacters.length
+  const hasMore = visibleCount < totalCount
+
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el || !hasMore) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) setVisibleCount((prev) => prev + PAGE_SIZE)
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [hasMore])
+
   return (
-    <div className="border border-border bg-accent rounded-[15px] p-5">
+    <div className="border border-border bg-accent rounded-card p-5">
       {isLoading && <Loader variant="plain" className="my-[90px]" />}
       {!isLoading && type === 'anime' && (
-        <ul className="flex flex-wrap gap-2 justify-center">
-          {groupedAnimeCharacters.map((ac) => (
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+          {groupedAnimeCharacters.slice(0, visibleCount).map((ac) => (
             <button
               key={ac.characterId}
               onClick={() => {
                 setCharacterModal(true)
                 setDetail({ type: 'anime', item: ac })
               }}
-              className="flex gap-4 border border-border w-[170px] rounded-[15px] bg-muted hover:bg-accent p-3"
+              className="flex flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2"
             >
-              <li className="flex flex-col gap-3 w-[170px]">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="relative w-30 h-[187px] rounded-[15px] overflow-hidden shrink-0">
-                    <Image
-                      src={ac.character.imageUrl || '/logo.png'}
-                      alt={ac.character.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <p>{ac.character.name}</p>
-                </div>
-              </li>
+              <div className="relative w-full aspect-2/3 rounded-card overflow-hidden shrink-0">
+                <Image
+                  src={ac.character.imageUrl || '/logo.png'}
+                  alt={ac.character.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <p className="text-sm text-center line-clamp-2">{ac.character.name}</p>
             </button>
           ))}
-        </ul>
+        </div>
       )}
       {!isLoading && type === 'manga' && (
-        <ul className="flex flex-wrap gap-2 justify-center">
-          {sortedMangaCharacters.map((mc) => (
+        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
+          {sortedMangaCharacters.slice(0, visibleCount).map((mc) => (
             <button
               key={mc.characterId}
               onClick={() => {
                 setCharacterModal(true)
                 setDetail({ type: 'manga', item: mc })
               }}
-              className="flex gap-4 border border-border w-[170px] rounded-[15px] bg-muted hover:bg-accent p-3"
+              className="flex flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2"
             >
-              <li className="flex flex-col gap-3 justify-between w-[170px]">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="relative w-30 h-[187px] rounded-[15px] overflow-hidden shrink-0">
-                    <Image
-                      src={mc.character.imageUrl || '/logo.png'}
-                      alt={mc.character.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <p>{mc.character.name}</p>
-                </div>
-              </li>
+              <div className="relative w-full aspect-2/3 rounded-card overflow-hidden shrink-0">
+                <Image
+                  src={mc.character.imageUrl || '/logo.png'}
+                  alt={mc.character.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <p className="text-sm text-center line-clamp-2">{mc.character.name}</p>
             </button>
           ))}
-        </ul>
+        </div>
+      )}
+
+      {!isLoading && hasMore && (
+        <div ref={sentinelRef} className="flex justify-center py-4">
+          <Loader variant="inline" size="sm" />
+        </div>
       )}
 
       {detail && <CharacterModal isOpen={characterModal} onClose={() => setCharacterModal(false)} {...detail} />}

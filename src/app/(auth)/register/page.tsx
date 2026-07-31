@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Script from 'next/script'
 import { useAuth } from '../../context/AuthContext'
@@ -8,9 +8,9 @@ import api from '../../lib/axios'
 import { useGeolocation } from '../../hooks/useGeolocalisation'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
-
 import Loader from '@/app/components/Loader'
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!
+
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
 export default function RegisterPage() {
   const { login, isLoggedIn, isAuthLoading } = useAuth()
@@ -23,7 +23,9 @@ export default function RegisterPage() {
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
-  const [recaptchaReady, setRecaptchaReady] = useState(false)
+  const [turnstileToken, setTurnstileToken] = useState('')
+  const turnstileContainerRef = useRef<HTMLDivElement>(null)
+  const turnstileRenderedRef = useRef(false)
 
   useEffect(() => {
     if (!isAuthLoading && isLoggedIn) {
@@ -50,6 +52,16 @@ export default function RegisterPage() {
     .toISOString()
     .split('T')[0]
 
+  const renderTurnstile = () => {
+    if (turnstileRenderedRef.current || !turnstileContainerRef.current || !window.turnstile) return
+    window.turnstile.render(turnstileContainerRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      action: 'register',
+      callback: (token) => setTurnstileToken(token),
+      'expired-callback': () => setTurnstileToken(''),
+    })
+    turnstileRenderedRef.current = true
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,12 +86,10 @@ export default function RegisterPage() {
         return
       }
 
-      if (!recaptchaReady || !window.grecaptcha) {
-        setError('Vérification anti-robot en cours de chargement, veuillez patienter...')
+      if (!turnstileToken) {
+        setError('Vérification anti-robot en cours, veuillez patienter...')
         return
       }
-
-      const recaptchaToken = await window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: 'register' })
 
       const response = await api.post('/auth/register', {
         username,
@@ -88,7 +98,7 @@ export default function RegisterPage() {
         password_confirmation: passwordConfirmation,
         birthdate,
         localisation: location || null,
-        recaptcha_token: recaptchaToken,
+        turnstile_token: turnstileToken,
       })
       showToast('Inscription réussi', 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
@@ -104,9 +114,9 @@ export default function RegisterPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden py-12">
       <Script
-        src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
-        onLoad={() => window.grecaptcha?.ready(() => setRecaptchaReady(true))}
+        onLoad={renderTurnstile}
       />
       {/* Background effect */}
       <div
@@ -187,6 +197,8 @@ export default function RegisterPage() {
                 minLength={8}
               />
             </div>
+
+            <div ref={turnstileContainerRef} className="flex justify-center" />
 
             {error && <p className="text-red-400 text-sm">{error}</p>}
 

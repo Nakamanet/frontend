@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { pinTopic, archiveTopic } from '../lib/forum'
 import { useAuth } from '../context/AuthContext'
 import { useRouter } from 'next/navigation'
+import Card from './ui/Card'
 
 export default function ForumCards({ topic }: { topic: Forum }) {
   const { isLoggedIn, user } = useAuth()
@@ -47,11 +48,11 @@ export default function ForumCards({ topic }: { topic: Forum }) {
 
   return (
     <Link href={`/forum/${topic.id}`}>
-      <div className="flex flex-col border border-border bg-accent rounded-[15px] gap-4 p-4 hover:bg-white/2 transition cursor-pointer">
+      <Card variant="compact" className="flex flex-col gap-4 hover:bg-white/2 transition cursor-pointer">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[14px] font-bold text-white">{topic.user?.username || 'Anonyme'}</span>
-            <span className="text-xs text-border">
+            <span className="text-xs text-text-muted">
               • {new Date(topic.created_at).toLocaleDateString('fr-FR')}
             </span>
           </div>
@@ -60,7 +61,7 @@ export default function ForumCards({ topic }: { topic: Forum }) {
               <button
                 onClick={handleArchive}
                 title={topic.is_archived ? 'Désarchiver' : 'Archiver ce sujet'}
-                className="btn btn-ghost border-none btn-xs p-1 rounded-full transition-colors text-border hover:text-alerts"
+                className="btn btn-ghost border-none btn-xs p-1 rounded-full transition-colors text-text-muted hover:text-primary"
               >
                 <Archive size={15} />
               </button>
@@ -69,7 +70,7 @@ export default function ForumCards({ topic }: { topic: Forum }) {
               onClick={handlePin}
               title={topic.is_pinned ? 'Sujet épinglé' : topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
               className={`btn btn-ghost border-none btn-xs p-1 rounded-full transition-colors ${
-                isPinned ? 'text-alerts' : 'text-border hover:text-alerts'
+                isPinned ? 'text-primary' : 'text-text-muted hover:text-primary'
               } ${topic.is_pinned ? 'cursor-default' : ''}`}
             >
               <Pin size={15} fill={isPinned ? 'currentColor' : 'none'} />
@@ -78,16 +79,16 @@ export default function ForumCards({ topic }: { topic: Forum }) {
         </div>
 
         <h3 className="text-[16px] font-bold text-white leading-snug">{topic.title}</h3>
-        <p className="text-[14px] text-border line-clamp-2">{topic.content}</p>
+        <p className="text-[14px] text-text-muted line-clamp-2">{topic.content}</p>
 
         <div className="flex flex-col gap-3 mt-2">
           <div>
-            <span className="text-[10px] font-bold px-3 py-1 bg-alerts text-white rounded-full uppercase tracking-wide">
+            <span className="text-[10px] font-bold px-3 py-1 bg-primary text-white rounded-full uppercase tracking-wide">
               {topic.category}
             </span>
           </div>
-          <div className="flex items-center gap-6 text-border text-sm font-medium">
-            <span className="flex items-center gap-1.5 hover:text-alerts transition-colors">
+          <div className="flex items-center gap-6 text-text-muted text-sm font-medium">
+            <span className="flex items-center gap-1.5 hover:text-primary transition-colors">
               <MessageSquare size={16} /> {topic.replies_count}
             </span>
             <span className="flex items-center gap-1.5 transition-colors">
@@ -98,7 +99,7 @@ export default function ForumCards({ topic }: { topic: Forum }) {
             </span>
           </div>
         </div>
-      </div>
+      </Card>
     </Link>
   )
 }

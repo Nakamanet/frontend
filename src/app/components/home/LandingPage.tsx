@@ -74,7 +74,7 @@ export default function LandingPage() {
             <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.05] mb-6">
               Toute ta culture
               <br />
-              <span className="text-[#FF0071]">manga</span> &amp; <span className="text-[#1198AB]">anime</span>,
+              <span className="text-manga">manga</span> &amp; <span className="text-anime">anime</span>,
               <br />
               en un seul lieu.
             </h1>
@@ -85,13 +85,13 @@ export default function LandingPage() {
             <div className="flex gap-3 flex-wrap">
               <Link
                 href="/register"
-                className="inline-flex items-center px-8 py-4 rounded-xl bg-primary hover:bg-primary/85 text-white font-bold transition-colors"
+                className="inline-flex items-center rounded-full px-8 py-3.5 text-base bg-primary hover:bg-primary/85 text-white font-bold transition-colors"
               >
                 Rejoindre Nakamanet
               </Link>
               <a
                 href="#features"
-                className="inline-flex items-center px-7 py-4 rounded-xl border border-border text-text font-semibold hover:border-primary/50 transition-colors"
+                className="inline-flex items-center rounded-full px-8 py-3.5 text-base border border-border text-text font-bold hover:border-primary hover:bg-primary/10 transition-colors"
               >
                 Voir les fonctionnalités
               </a>
@@ -238,7 +238,7 @@ export default function LandingPage() {
           <div className="flex justify-center mb-10">
             <Link
               href="/register"
-              className="inline-flex items-center gap-2 px-10 py-4 rounded-xl bg-primary hover:bg-primary/85 text-white font-bold text-lg transition-colors"
+              className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-base bg-primary hover:bg-primary/85 text-white font-bold transition-colors"
             >
               Créer mon compte gratuit
             </Link>

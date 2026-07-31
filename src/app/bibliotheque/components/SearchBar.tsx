@@ -5,6 +5,7 @@ import { searchAnime, searchManga } from '@/app/lib/catalogue'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
+import Loader from '@/app/components/Loader'
 
 export default function SearchBarPage({ className }: { className?: string }) {
   const [query, setQuery] = useState('')
@@ -59,10 +60,10 @@ export default function SearchBarPage({ className }: { className?: string }) {
       </div>
 
       {open && debounced.length > 1 && (
-        <div className="absolute top-full mt-2 w-full max-w-xl bg-base-100 border border-base-300 rounded-[15px] shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full mt-2 w-full max-w-xl bg-base-100 border border-base-300 rounded-card shadow-lg z-50 max-h-96 overflow-y-auto">
           {isLoading ? (
             <div className="p-4 flex justify-center">
-              <span className="loading loading-spinner loading-sm text-primary" />
+              <Loader variant="inline" size="sm" />
             </div>
           ) : !hasResults ? (
             <p className="p-4 text-sm text-base-content/50 text-center">Aucun résultat</p>

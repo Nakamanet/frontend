@@ -81,7 +81,7 @@ export default function PostPage() {
       <div className="flex flex-col gap-5">
         <PostCards post={post} detailView />
 
-        <div className="bg-accent border border-border rounded-[15px] p-6 flex flex-col gap-4">
+        <div className="bg-accent border border-border rounded-card p-6 flex flex-col gap-4">
           <h2 className="font-semibold text-lg">
             Commentaires {comments.length > 0 && `(${comments.length})`}
           </h2>
@@ -134,7 +134,7 @@ export default function PostPage() {
                       )}
                     </div>
                   </Link>
-                  <div className="flex-1 bg-base-200/40 rounded-[15px] px-4 py-2">
+                  <div className="flex-1 bg-base-200/40 rounded-card px-4 py-2">
                     <div className="flex items-center justify-between">
                       <Link href={`/profil/${comment.user.id}`} className="font-semibold text-sm hover:underline">
                         {comment.user.username}

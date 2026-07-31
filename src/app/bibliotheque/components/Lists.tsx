@@ -78,12 +78,12 @@ export default function Lists() {
                   alt={item.titleEn ?? ''}
                   width={145}
                   height={210}
-                  className="object-cover rounded-[15px] min-w-[145px]"
+                  className="object-cover rounded-card min-w-[145px]"
                 />
               </Link>
             ) : null
           ))}
-          <Link href="/bibliotheque/manga" className="flex flex-col border border-border gap-2 rounded-[15px] items-center justify-center w-[145px] h-full py-6 px-3 shrink-0">
+          <Link href="/bibliotheque/manga" className="flex flex-col border border-border gap-2 rounded-card items-center justify-center w-[145px] h-full py-6 px-3 shrink-0">
             <Plus size={20} />
             <p className="text-sm text-center">Ajouter un titre</p>
           </Link>

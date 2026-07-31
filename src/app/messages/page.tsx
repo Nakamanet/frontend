@@ -20,14 +20,14 @@ export default function MessagesPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+      <div className="flex items-center justify-center h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)]">
         <p className="text-base-content/60">Vous devez être connecté pour voir vos messages.</p>
       </div>
     )
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 flex flex-col gap-4">
+    <div className="max-w-2xl mx-auto p-6 pb-20 md:pb-6 flex flex-col gap-4">
       <h1 className="text-2xl font-bold flex items-center gap-2">
         <MessageSquare size={22} className="text-primary" />
         Messages
@@ -48,7 +48,7 @@ export default function MessagesPage() {
               <Link
                 key={conv._id}
                 href={`/messages/${otherUserId}`}
-                className="flex items-center gap-3 p-3 rounded-[15px] hover:bg-base-200/60 transition-colors border border-border bg-accent"
+                className="flex items-center gap-3 p-3 rounded-card hover:bg-base-200/60 transition-colors border border-border bg-accent"
               >
                 <div className="w-10 h-10 rounded-full bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
                   {conv.lastMessage.avatar_url ? (
@@ -64,9 +64,7 @@ export default function MessagesPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">
-                    {isMine ? 'Vous' : conv.lastMessage.username}
-                  </p>
+                  <p className="font-medium text-sm truncate">{isMine ? 'Vous' : conv.lastMessage.username}</p>
                   <p className="text-xs text-base-content/60 truncate">{conv.lastMessage.content}</p>
                 </div>
                 <span className="text-xs text-base-content/40 shrink-0">

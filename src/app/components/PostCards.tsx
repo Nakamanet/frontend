@@ -15,6 +15,7 @@ import { unsavePost, savePost, deletePost, archivePost, hidePost } from "../lib/
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { blockFriend } from '../lib/friends'
 import EditPostModal from './EditPostModal'
+import Card from './ui/Card'
 
 export default function PostCards({ post, detailView = false }: { post: Post, detailView?: boolean }) {
   const { user } = useAuth()
@@ -102,13 +103,13 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
   })
 
   return (
-    <div
+    <Card
       key={post.id}
       onClick={() => router.push(`/post/${post.id}`)}
-      className="bg-accent shadow-sm w-full border border-border hover:border-primary/50 rounded-[15px] p-6 transition-colors cursor-pointer"
+      className="shadow-sm w-full hover:border-primary/50 transition-colors cursor-pointer"
     >
       <div className="flex gap-3 justify-between">
-        <div className='flex gap-3'>
+        <div className='flex gap-3 flex-1 min-w-0'>
           <Link
             href={`/profil/${post.user.id}`}
             onClick={(e) => e.stopPropagation()}
@@ -128,8 +129,8 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
               </div>
             )}
           </Link>
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-3 min-w-0">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 min-w-0">
               <Link
                 href={`/profil/${post.user.id}`}
                 onClick={(e) => e.stopPropagation()}
@@ -143,10 +144,10 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
             <p>{post.content}</p>
             <div className="flex">
               <button
-                className='btn btn-ghost flex gap-2 p-2 hover:text-red-400 transition-colors'
+                className='btn btn-ghost flex gap-2 p-2 hover:text-primary transition-colors'
                 onClick={(e) => { e.stopPropagation(); e.preventDefault(); like() }}
               >
-                <Heart size={20} className={liked ? 'fill-red-500 text-red-500' : 'text-text/70'}/>
+                <Heart size={20} className={liked ? 'fill-primary text-primary' : 'text-text/70'}/>
                 <p>{likeCount}</p>
               </button>
               <button className="btn btn-ghost flex gap-2 p-2 text-text/70 hover:text-primary transition-colors">
@@ -184,8 +185,8 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
                 </button>
               </li>
               <li>
-                <button 
-                  className="text-sm border-none rounded-full" 
+                <button
+                  className="text-sm border-none rounded-full text-primary"
                   onClick={handleRemove}
                 >
                   Supprimer
@@ -205,8 +206,8 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
                     </button>
                   </li>
                   <li>
-                    <button 
-                      className="text-sm border-none rounded-full" 
+                    <button
+                      className="text-sm border-none rounded-full text-primary"
                       onClick={handleBlock}
                     >
                       Bloquer l&apos;utilisateur
@@ -234,6 +235,6 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
           )}
         </div>
       </div>
-    </div>
+    </Card>
   )
 }

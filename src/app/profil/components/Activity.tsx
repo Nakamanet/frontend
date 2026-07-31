@@ -51,7 +51,7 @@ export default function Activity({ user }: { user: User }) {
   }
 
   return (
-    <div className="flex flex-col gap-8 p-7">
+    <div className="flex flex-col gap-5 md:gap-8 p-3 md:p-7">
       <FilterTab value={filter} onChange={setFilter} options={isOwnProfil ? FILTER_OPTIONS : FILTER_OPTIONS_OTHER} />
       {isLoading ? (
         <Loader />

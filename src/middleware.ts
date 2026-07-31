@@ -39,6 +39,7 @@ export function middleware() {
   const scriptSrc = [
     "'self'",
     "'unsafe-inline'",
+    'https://challenges.cloudflare.com',
     // HMR / React Refresh en dev ont besoin de eval.
     isDev ? "'unsafe-eval'" : null,
   ].filter(Boolean)
@@ -53,6 +54,7 @@ export function middleware() {
         ai,
         toWsOrigin(lib),
         toWsOrigin(chat),
+        'https://challenges.cloudflare.com',
         // websockets HMR en dev
         isDev ? 'ws:' : null,
       ].filter(Boolean),
@@ -81,6 +83,7 @@ export function middleware() {
     `img-src ${imgSrc.join(' ')}`,
     `font-src 'self' data:`,
     `connect-src ${connectSrc.join(' ')}`,
+    `frame-src https://challenges.cloudflare.com`,
     `worker-src 'self' blob:`,
     `object-src 'none'`,
     `frame-ancestors 'none'`,

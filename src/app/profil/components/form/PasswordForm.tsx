@@ -2,6 +2,7 @@ import { useAuth } from '@/app/context/AuthContext'
 import { useToast } from '@/app/context/ToastContext'
 import { updateProfil } from '@/app/lib/user'
 import { useState } from 'react'
+import Button from '@/app/components/ui/Button'
 
 export default function PasswordForm() {
   const { showToast } = useToast()
@@ -52,7 +53,7 @@ export default function PasswordForm() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
+    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className="text-2xl font-bold">Changer mon mot de passe</h3>
       <form className="flex flex-col gap-4" onSubmit={handleSubmitPassword}>
         <div className="flex gap-2">
@@ -67,7 +68,7 @@ export default function PasswordForm() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {fieldErrors.password && <p className="text-sm text-alerts">{fieldErrors.password}</p>}
+          {fieldErrors.password && <p className="text-sm text-primary">{fieldErrors.password}</p>}
 
           <div className="flex flex-col">
             <label htmlFor="password_confirmation">Confirmation</label>
@@ -81,17 +82,13 @@ export default function PasswordForm() {
             />
           </div>
           {fieldErrors.password_confirmation && (
-            <p className="text-sm text-alerts">{fieldErrors.password_confirmation}</p>
+            <p className="text-sm text-primary">{fieldErrors.password_confirmation}</p>
           )}
         </div>
 
-        <button
-          type="submit"
-          className="grid col-span-2 btn btn-ghost border-none bg-primary text-primary-content"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" disabled={isSubmitting} className="col-span-2">
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-        </button>
+        </Button>
       </form>
     </div>
   )

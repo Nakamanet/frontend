@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { User } from '../../types/auth'
 import { useChat } from '@/app/hooks/useChat'
+import Button from '@/app/components/ui/Button'
 
 export default function Chat({ user }: { user: User | null }) {
   const { messages, connected, sendMessage } = useChat('general')
@@ -24,7 +25,7 @@ export default function Chat({ user }: { user: User | null }) {
   }
 
   return (
-    <div className="flex flex-col w-full bg-accent h-auto py-2 shadow-sm border border-border rounded-[15px]">
+    <div className="flex flex-col w-full bg-accent h-auto py-2 shadow-sm border border-border rounded-card">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between px-3 pr-5">
           <div className="flex">
@@ -77,13 +78,9 @@ export default function Chat({ user }: { user: User | null }) {
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"
             />
-            <button
-              type="button"
-              onClick={handleSend}
-              className="btn btn-circle btn-ghost btn-sm bg-primary hover:bg-primary/80 shrink-0 transition-colors"
-            >
-              <SendHorizonal size={18} className="text-white" />
-            </button>
+            <Button type="button" variant="icon" onClick={handleSend} aria-label="Envoyer">
+              <SendHorizonal size={18} />
+            </Button>
           </div>
         </div>
       </div>

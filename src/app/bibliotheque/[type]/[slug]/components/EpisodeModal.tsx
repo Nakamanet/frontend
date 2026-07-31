@@ -48,7 +48,7 @@ export default function EpisodeModal({ isOpen, onClose, type, item, coverImage }
                 {item.airdate ? format(parseISO(item.airdate), 'dd/MM/yyyy') : 'Date inconnue'}
                 {item.length ? ` — ${item.length} min` : ''}
               </p>
-              <p className="text-sm text-border">Description de l&apos;épisode non disponible</p>
+              <p className="text-sm text-text-muted">Description de l&apos;épisode non disponible</p>
             </div>
             <button className="btn btn-sm btn-circle btn-ghost shrink-0 self-start" onClick={onClose}>
               <X size={20} />
@@ -72,7 +72,7 @@ export default function EpisodeModal({ isOpen, onClose, type, item, coverImage }
                 {item.releaseDate ? format(parseISO(item.releaseDate), 'dd/MM/yyyy') : 'Date inconnue'}
                 {item.volumeNumber ? ` — Volume ${item.volumeNumber}` : ''}
               </p>
-              <p className="text-sm text-border">Description du chapitre non disponible</p>
+              <p className="text-sm text-text-muted">Description du chapitre non disponible</p>
             </div>
             <button className="btn btn-sm btn-circle btn-ghost shrink-0 self-start" onClick={onClose}>
               <X size={20} />

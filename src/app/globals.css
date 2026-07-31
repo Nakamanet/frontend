@@ -9,8 +9,11 @@
   --muted: #374151;
   --accent: #1f2937;
   --border: #535871;
-  --alerts: #e11048;
-  --error: #e11048;
+  --text-muted: #9aa0b4;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --manga: #ff0071;
+  --anime: #1198ab;
 
   /* Rétrocompatibilité / alias */
   --background: var(--bg);
@@ -26,7 +29,12 @@
   --color-muted: var(--muted);
   --color-accent: var(--accent);
   --color-border: var(--border);
-  --color-alerts: var(--alerts);
+  --color-text-muted: var(--text-muted);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-manga: var(--manga);
+  --color-anime: var(--anime);
+  --radius-card: 15px;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-montserrat: var(--font-montserrat);

@@ -124,8 +124,8 @@ export default function DetailPage() {
   if (!item) return null
 
   return (
-    <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
-      <section className="col-span-4 pr-6">
+    <main className="lg:grid lg:grid-cols-5 max-w-[1500px] mx-auto px-4 md:px-8 lg:px-15 py-5 md:py-10 pb-20 md:pb-10">
+      <section className="lg:col-span-4 lg:pr-6">
         {/* Section Header */}
         <div className="flex flex-col w-full h-auto gap-2">
           {/* Breadcrumb */}
@@ -143,7 +143,7 @@ export default function DetailPage() {
             </Link>
           </div>
           {/* Fond */}
-          <div className="relative w-full h-64 shrink-0 rounded-[15px] overflow-hidden bg-primary z-0">
+          <div className="relative w-full h-64 shrink-0 rounded-card overflow-hidden bg-primary z-0">
             {item?.coverImage ? (
               <Image
                 src={item.coverImage}
@@ -160,15 +160,15 @@ export default function DetailPage() {
           </div>
         </div>
         {/* Section Content */}
-        <div className="relative z-10 grid grid-cols-4 w-full px-5 gap-5" style={{ marginTop: '-80px', marginBottom: '30px' }}>
-          <div className="col-span-1 shrink-0 gap-4 flex flex-col items-center">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-4 w-full px-0 md:px-5 gap-5 mb-6" style={{ marginTop: '-80px' }}>
+          <div className="w-32 md:w-auto md:col-span-1 shrink-0 gap-4 flex flex-col items-center">
             {item?.posterImage ? (
               <Image
                 src={item.posterImage}
                 alt="Avatar"
                 width={250}
                 height={390}
-                className="w-full object-cover rounded-[15px]"
+                className="w-full object-cover rounded-card"
               />
             ) : (
               <Image
@@ -176,11 +176,11 @@ export default function DetailPage() {
                 alt="Bannière"
                 width={100}
                 height={100}
-                className="object-cover w-full h-full rounded-[15px]"
+                className="object-cover w-full h-full rounded-card"
               />
             )}
           </div>
-          <div className="col-span-3 min-w-0 flex flex-col gap-10 overflow-hidden">
+          <div className="md:col-span-3 min-w-0 flex flex-col gap-10 overflow-hidden">
             <div className="flex items-end justify-between gap-4 min-w-0">
               <div className="min-w-0">
                 <p className="text-3xl font-bold drop-shadow-md">{item?.titleEn || item?.titleJp}</p>
@@ -211,7 +211,7 @@ export default function DetailPage() {
                       <button
                         onClick={() => removeEntry()}
                         disabled={isMutating}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-accent disabled:opacity-50"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary hover:bg-accent disabled:opacity-50"
                       >
                         <Trash2 size={14} />
                         Supprimer
@@ -229,7 +229,7 @@ export default function DetailPage() {
                 </button>
               ) : null}
             </div>
-            <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
+            <div className="bg-accent rounded-card p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
               <p className="text-xl">Synopsis</p>
               {item?.synopsis ? (
                 <>
@@ -245,36 +245,46 @@ export default function DetailPage() {
                   )}
                 </>
               ) : (
-                <p className="text-border italic">Pas de synopsis pour le moment.</p>
+                <p className="text-text-muted italic">Pas de synopsis pour le moment.</p>
               )}
             </div>
           </div>
         </div>
+        <div className="flex flex-col gap-6">
+        {/* Informations (mobile uniquement, en desktop ça reste dans la colonne latérale) */}
+        <div className="lg:hidden">
+          {item && type === 'anime' ? (
+            <Information type="anime" item={item as Anime} />
+          ) : item && type === 'manga' ? (
+            <Information type="manga" item={item as Manga} />
+          ) : null}
+        </div>
+
         {/* Episodes/Personnages/Thread */}
         <div className="flex flex-col gap-5">
-          <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-6">
-            <div className="flex gap-5 items-center justify-center w-full">
+          <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-3">
+            <div className="flex gap-1 sm:gap-3 items-center justify-center w-full">
               {hasCharacters && (
                 <button
                   onClick={() => setUserFilter('characters')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
+                  className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'characters' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
-                  <span className="hidden md:inline">Personnages</span>
+                  <span>Personnages</span>
                 </button>
               )}
               {hasEpisodes && (
                 <button
                   onClick={() => setUserFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
+                  className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'episode' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
-                  <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
+                  <span>{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
                 </button>
               )}
               <button
                 onClick={() => setUserFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
-                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'thread' ? 'bg-alerts text-white' : 'text-border'}`}
+                className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'thread' ? 'bg-primary text-white' : 'text-text-muted'}`}
               >
-                <span className="hidden md:inline">Fil de discussion</span>
+                <span>Forums</span>
               </button>
             </div>
           </div>
@@ -294,15 +304,22 @@ export default function DetailPage() {
             </div>
           ) : null}
         </div>
+        </div>
       </section>
       <section className="flex flex-col gap-5 py-6">
-        <Chat user={user} />
-        {item && type === 'anime' ? (
-          <Information type="anime" item={item as Anime} />
-        ) : item && type === 'manga' ? (
-          <Information type="manga" item={item as Manga} />
-        ) : null}
-        <Calendar user={user} />
+        <div className="hidden lg:block">
+          <Chat user={user} />
+        </div>
+        <div className="hidden lg:block">
+          {item && type === 'anime' ? (
+            <Information type="anime" item={item as Anime} />
+          ) : item && type === 'manga' ? (
+            <Information type="manga" item={item as Manga} />
+          ) : null}
+        </div>
+        <div className="hidden lg:block">
+          <Calendar user={user} />
+        </div>
       </section>
     </main>
   )

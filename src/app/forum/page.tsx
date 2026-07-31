@@ -10,6 +10,7 @@ import AppLayout from '../components/layout/AppLayout'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
 import { useAuth } from '../context/AuthContext'
+import SectionSwitcher from '../components/ui/SectionSwitcher'
 import Link from 'next/link'
 
 const CATEGORIES = [
@@ -73,13 +74,13 @@ export default function ForumPage() {
         <div className="flex items-center shrink-0">
           <div className="flex flex-wrap gap-3">
             {topBarPinned.length === 0 ? (
-              <span className="text-border text-sm px-4 py-2">Aucun sujet épinglé</span>
+              <span className="text-text-muted text-sm px-4 py-2">Aucun sujet épinglé</span>
             ) : (
               topBarPinned.map((topic) => (
                 <Link
                   key={topic.id}
                   href={`/forum/${topic.id}`}
-                  className="flex px-4 items-center gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full bg-alerts text-white shrink-0"
+                  className="flex px-4 items-center gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full bg-primary text-white shrink-0"
                 >
                   <Paperclip size={18} />
                   <span className="hidden md:inline">{truncate(topic.title, PIN_TITLE_MAX)}</span>
@@ -105,29 +106,15 @@ export default function ForumPage() {
             <div className="w-full">
               <CreateForum onCreated={() => queryClient.invalidateQueries({ queryKey: ['forums'] })} />
             </div>
-            <div className="flex flex-col gap-2 p-4 bg-accent rounded-[15px] border border-border">
-              {CATEGORIES.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCategory(cat.id)}
-                  className={`flex px-4 items-center gap-2 btn btn-ghost border-none btn-sm text-[15px] py-2 font-normal rounded-full transition-colors justify-start ${
-                    activeCategory === cat.id
-                      ? 'bg-alerts text-white hover:bg-alerts'
-                      : 'text-border hover:bg-alerts/50 hover:text-white'
-                  }`}
-                >
-                  <span>{cat.label}</span>
-                </button>
-              ))}
-            </div>
+            <SectionSwitcher items={CATEGORIES} active={activeCategory} onChange={setActiveCategory} />
           </div>
 
           <div className="flex-1 flex flex-col gap-6 min-w-0 mb-10 min-h-[500px]">
             <div className="flex-1 flex flex-col gap-4">
               {isLoading ? (
-                <Loader size="md" color="alerts" className="flex-1" />
+                <Loader size="md" color="primary" className="flex-1" />
               ) : topics.length === 0 ? (
-                <div className="flex justify-center items-center p-10 text-border text-[15px] flex-1 border border-border bg-accent rounded-[15px]">
+                <div className="flex justify-center items-center p-10 text-text-muted text-[15px] flex-1 border border-border bg-accent rounded-card">
                   Aucun sujet trouvé.
                 </div>
               ) : (

@@ -16,7 +16,6 @@ import Loader from '@/app/components/Loader'
 
 export default function Navbar() {
   const { isLoggedIn, isAuthLoading, hasStoredSession, logout, user } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -112,7 +111,7 @@ export default function Navbar() {
           ) : isLoggedIn && user ? (
             <>
             {/* Search */}
-              <span className='tooltip tooltip-bottom hidden md:block' data-tip="Recherche">
+              <span className='tooltip tooltip-bottom' data-tip="Recherche">
                 <Search
                   size={27}
                   className="cursor-pointer hover:text-primary transition-colors"
@@ -120,11 +119,11 @@ export default function Navbar() {
                 />
               </span>
               {/* Notifications */}
-              <div className='dropdown dropdown-end relative hidden md:block tooltip tooltip-bottom' data-tip="Notifications">
+              <div className='dropdown dropdown-end relative tooltip tooltip-bottom' data-tip="Notifications">
                 <div tabIndex={0} role='button' className='relative'>
                   <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
                   {unreadCount > 0 && (
-                    <span className='absolute -top-1 -right-1 bg-alerts text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
+                    <span className='absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
                 </div>
                 <div tabIndex={-1} className='dropdown-content w-100 rounded-box z-10 mt-3 p-3 bg-accent border-border shadow'>
@@ -136,7 +135,7 @@ export default function Navbar() {
                     {notificationsLoading ? (
                       <li><Loader variant="plain" size="md" className="py-4" /></li>
                     ) : notificationsList.length === 0 ? (
-                      <li><span className='text-border'>Aucune notifications</span></li>
+                      <li><span className='text-text-muted'>Aucune notifications</span></li>
                     ) : (
                       notificationsList.map((n) => (
                         <li key={n.id}>
@@ -185,12 +184,12 @@ export default function Navbar() {
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
                   <li>
                     <Link href="/profil">
-                      <User size={20} /> 
+                      <User size={20} />
                       <p>Profil</p>
                     </Link>
                   </li>
                   <li>
-                    <div className='flex'> 
+                    <div className='flex'>
                       <LogOut size={20} />
                       <button onClick={logout}>Déconnexion</button>
                     </div>
@@ -199,66 +198,20 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <div className="hidden md:flex gap-5 p-2">
-              <Link href="/login">Se connecter</Link>
-              <Link href="/register">S&apos;inscrire</Link>
-            </div>
-          )}
-
-          {/* Burger button - mobile only */}
-          <label className="md:hidden btn btn-ghost border-none btn-circle swap swap-rotate" aria-label="Menu">
-            <input type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
-
-            {/* hamburger icon */}
-            <svg
-              className="swap-off fill-current"
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 512 512"
-            >
-              <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
-            </svg>
-
-            {/* close icon */}
-            <svg
-              className="swap-on fill-current"
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 512 512"
-            >
-              <polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
-            </svg>
-          </label>
-        </div>
-      </div>
-
-      {/* Mobile menu */}
-      {menuOpen && (
-        <nav className="md:hidden flex flex-col bg-accent border-t border-border px-6 py-4 gap-5 text-lg">
-          <Link href="/list" onClick={() => setMenuOpen(false)}>
-            Bibliothèque
-          </Link>
-          <Link href="/forum" onClick={() => setMenuOpen(false)}>
-            Forum
-          </Link>
-          <Link href="/chat" onClick={() => setMenuOpen(false)}>
-            Chat
-          </Link>
-          {!isAuthLoading && !isLoggedIn && (
-            <>
-              <hr className="border-border" />
-              <Link href="/login" onClick={() => setMenuOpen(false)}>
+            <div className="flex items-center gap-2 md:gap-5 text-sm md:text-base">
+              <Link href="/login" className="whitespace-nowrap hover:text-primary transition-colors">
                 Se connecter
               </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)}>
+              <Link
+                href="/register"
+                className="whitespace-nowrap inline-flex items-center rounded-full bg-primary hover:bg-primary/85 text-white font-bold px-3.5 py-1.5 transition-colors"
+              >
                 S&apos;inscrire
               </Link>
-            </>
+            </div>
           )}
-        </nav>
-      )}
+        </div>
+      </div>
 
       <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
     </header>

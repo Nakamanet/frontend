@@ -35,7 +35,7 @@ export default function Information({ type, item }: InformationProps) {
   const itemStaffs: AnimeStaff[] | MangaStaff[] = (results[3]?.data as AnimeStaff[] | MangaStaff[]) ?? []
 
   return (
-    <div className="border border-border bg-accent rounded-[15px] p-5">
+    <div className="border border-border bg-accent rounded-card p-5">
       <div className="flex items-center justify-center gap-2 mb-4">
         <Info className="text-primary" />
         <p>Informations</p>
@@ -144,9 +144,9 @@ export default function Information({ type, item }: InformationProps) {
                   <>
                     <td>Staff</td>
                     <td>
-                      {itemStaffs.map((staff) => (
-                        <div className="flex gap-2" key={staff.person.id}>
-                          <span key={staff.person.id}>{staff.person.name}</span>
+                      {itemStaffs.map((staff, index) => (
+                        <div className="flex gap-2" key={`${staff.person.id}-${staff.role}-${index}`}>
+                          <span>{staff.person.name}</span>
                         </div>
                       ))}
                     </td>
