@@ -160,7 +160,7 @@ export default function DetailPage() {
           </div>
         </div>
         {/* Section Content */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-4 w-full px-5 gap-5" style={{ marginTop: '-80px', marginBottom: '30px' }}>
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-4 w-full px-0 md:px-5 gap-5 mb-6" style={{ marginTop: '-80px' }}>
           <div className="w-32 md:w-auto md:col-span-1 shrink-0 gap-4 flex flex-col items-center">
             {item?.posterImage ? (
               <Image
@@ -250,12 +250,15 @@ export default function DetailPage() {
             </div>
           </div>
         </div>
-        {/* Informations */}
-        {item && type === 'anime' ? (
-          <Information type="anime" item={item as Anime} />
-        ) : item && type === 'manga' ? (
-          <Information type="manga" item={item as Manga} />
-        ) : null}
+        <div className="flex flex-col gap-6">
+        {/* Informations (mobile uniquement, en desktop ça reste dans la colonne latérale) */}
+        <div className="lg:hidden">
+          {item && type === 'anime' ? (
+            <Information type="anime" item={item as Anime} />
+          ) : item && type === 'manga' ? (
+            <Information type="manga" item={item as Manga} />
+          ) : null}
+        </div>
 
         {/* Episodes/Personnages/Thread */}
         <div className="flex flex-col gap-5">
@@ -301,10 +304,18 @@ export default function DetailPage() {
             </div>
           ) : null}
         </div>
+        </div>
       </section>
       <section className="flex flex-col gap-5 py-6">
         <div className="hidden lg:block">
           <Chat user={user} />
+        </div>
+        <div className="hidden lg:block">
+          {item && type === 'anime' ? (
+            <Information type="anime" item={item as Anime} />
+          ) : item && type === 'manga' ? (
+            <Information type="manga" item={item as Manga} />
+          ) : null}
         </div>
         <div className="hidden lg:block">
           <Calendar user={user} />

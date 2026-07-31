@@ -2,9 +2,19 @@ export {}
 
 declare global {
   interface Window {
-    grecaptcha?: {
-      ready: (callback: () => void) => void
-      execute: (siteKey: string, options: { action: string }) => Promise<string>
+    turnstile?: {
+      render: (
+        container: string | HTMLElement,
+        options: {
+          sitekey: string
+          action?: string
+          callback: (token: string) => void
+          'error-callback'?: () => void
+          'expired-callback'?: () => void
+        }
+      ) => string
+      reset: (widgetId?: string) => void
+      remove: (widgetId?: string) => void
     }
   }
 }

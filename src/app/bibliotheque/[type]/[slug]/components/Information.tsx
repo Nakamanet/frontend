@@ -144,9 +144,9 @@ export default function Information({ type, item }: InformationProps) {
                   <>
                     <td>Staff</td>
                     <td>
-                      {itemStaffs.map((staff) => (
-                        <div className="flex gap-2" key={staff.person.id}>
-                          <span key={staff.person.id}>{staff.person.name}</span>
+                      {itemStaffs.map((staff, index) => (
+                        <div className="flex gap-2" key={`${staff.person.id}-${staff.role}-${index}`}>
+                          <span>{staff.person.name}</span>
                         </div>
                       ))}
                     </td>

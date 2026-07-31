@@ -160,8 +160,8 @@ export default function InformationModal({
               <p className="font-semibold mb-2">Productions</p>
               <table className="border-separate border-spacing-y-1 w-full">
                 <tbody>
-                  {productions.map((prod) => (
-                    <tr key={prod.company.id}>
+                  {productions.map((prod, index) => (
+                    <tr key={`${prod.company.id}-${prod.role}-${index}`}>
                       <td className="text-base-content/60 w-1/2">{prod.company.name}</td>
                       <td>{prod.role}</td>
                     </tr>
@@ -177,8 +177,8 @@ export default function InformationModal({
               <p className="font-semibold mb-2">Staff</p>
               <table className="border-separate border-spacing-y-1 w-full">
                 <tbody>
-                  {staffs.map((staff) => (
-                    <tr key={staff.person.id}>
+                  {staffs.map((staff, index) => (
+                    <tr key={`${staff.person.id}-${staff.role}-${index}`}>
                       <td className="text-base-content/60 w-1/2">{staff.person.name}</td>
                       <td>{staff.role}</td>
                     </tr>
