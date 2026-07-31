@@ -87,7 +87,7 @@ export default function FriendList() {
               </div>
             ))}
           </div>
-          <Link href="/bibliotheque/friends">
+          <Link href="/profil#amis">
             <div className="flex flex-col border border-border gap-2 rounded-card items-center justify-center w-[145px] h-full">
               <Plus size={35} />
               <p>Tous les amis</p>
