@@ -33,6 +33,9 @@ export async function deleteAdminUser(id: number): Promise<void> {
   await api.delete(`/admin/users/${id}`)
 }
 
+export async function forceDeleteAdminUser(id: number): Promise<void> {
+  await api.delete(`/users/${id}`)
+}
 export async function restoreAdminUser(id: number): Promise<void> {
   await api.patch(`/admin/users/${id}/restore`)
 }

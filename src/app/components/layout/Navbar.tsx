@@ -87,7 +87,7 @@ export default function Navbar() {
           <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
           <Link href="/messages" className="hover:text-primary transition-colors">Messages</Link>
           {user?.is_admin && (
-            <Link href="/admin" className="...">
+            <Link href="/admin" className="hover:text-primary transition-colors">
               Admin
             </Link>
           )}
