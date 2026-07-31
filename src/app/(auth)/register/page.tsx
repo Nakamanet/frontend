@@ -13,7 +13,7 @@ import Loader from '@/app/components/Loader'
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!
 
 export default function RegisterPage() {
-  const { login } = useAuth()
+  const { login, isLoggedIn, isAuthLoading } = useAuth()
   const router = useRouter()
   const { showToast } = useToast()
   const { location, loading, detect } = useGeolocation()
@@ -24,18 +24,23 @@ export default function RegisterPage() {
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
   const [recaptchaReady, setRecaptchaReady] = useState(false)
-  const { isLoggedIn, isAuthLoading } = useAuth()
 
   useEffect(() => {
-      if (!isAuthLoading && isLoggedIn) {
-        router.replace('/')
-      }
-      detect()
-    }, [isAuthLoading, isLoggedIn, router])
-  
-    if (isAuthLoading || isLoggedIn) {
-      return <Loader variant="plain" className="min-h-[80vh]" />
+    if (!isAuthLoading && isLoggedIn) {
+      router.replace('/')
     }
+  }, [isAuthLoading, isLoggedIn, router])
+
+  // géoloc uniquement pour un visiteur non connecté : inutile de demander
+  // la permission à quelqu'un qu'on redirige immédiatement
+  useEffect(() => {
+    if (isAuthLoading || isLoggedIn) return
+    detect()
+  }, [isAuthLoading, isLoggedIn, detect])
+
+  if (isAuthLoading || isLoggedIn) {
+    return <Loader variant="plain" className="min-h-[80vh]" />
+  }
 
   const today = new Date()
   const maxBirthdate = new Date(today.getFullYear() - 15, today.getMonth(), today.getDate())

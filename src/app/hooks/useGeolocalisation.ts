@@ -1,12 +1,12 @@
 // hooks/useGeolocation.ts
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 export function useGeolocation() {
   const [location, setLocation] = useState<string>('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const detect = () => {
+  const detect = useCallback(() => {
     if (!navigator.geolocation) {
       setError('Géolocalisation non supportée')
       return
@@ -41,7 +41,7 @@ export function useGeolocation() {
       },
       { timeout: 10000 }
     )
-  }
+  }, [])
 
   return { location, setLocation, loading, error, detect }
 }
