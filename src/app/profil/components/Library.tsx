@@ -64,7 +64,7 @@ export default function Library() {
     .filter((x): x is MyManga & { detail: Manga } => x !== null)
 
   return (
-    <div className="flex flex-col gap-8 p-7">
+    <div className="flex flex-col gap-5 md:gap-8 p-3 md:p-7">
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
 
       {isLoading ? (
@@ -72,19 +72,19 @@ export default function Library() {
       ) : filter === "manga" ? (
         <div>
           {mangas && mangas.length > 0 ? (
-            <div className='flex gap-2'>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {mangas.map((manga) => (
                 <div
                   key={manga.manga_id}
-                  className='card bg-accent border border-border rounded-card h-[450px] w-[250px] flex flex-col overflow-hidden'
+                  className='card bg-accent border border-border rounded-card flex flex-col overflow-hidden'
                 >
                   <Link href={`/bibliotheque/manga/${manga.detail.slug}`} className="flex flex-col h-full min-h-0">
-                    <figure className="relative h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
+                    <figure className="relative aspect-2/3 w-full shrink-0 overflow-hidden rounded-t-card">
                       <Image
                         src={manga.detail.posterImage || './bg.png'}
                         alt={manga.detail.titleEn}
-                        width={250}
-                        height={350}
+                        fill
+                        className="object-cover"
                       />
                       {manga.status && (
                         <span className="absolute top-2 right-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
@@ -106,19 +106,19 @@ export default function Library() {
       ) : (
         <div>
           {animes && animes.length > 0 ? (
-            <div className='flex gap-2'>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {animes.map((anime) => (
                 <div
                   key={anime.anime_id}
-                  className='card bg-accent border border-border rounded-card h-[450px] w-[250px] flex flex-col overflow-hidden'
+                  className='card bg-accent border border-border rounded-card flex flex-col overflow-hidden'
                 >
                   <Link href={`/bibliotheque/anime/${anime.detail.slug}`} className="flex flex-col h-full min-h-0">
-                    <figure className="relative h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
+                    <figure className="relative aspect-2/3 w-full shrink-0 overflow-hidden rounded-t-card">
                       <Image
                         src={anime.detail.posterImage || './bg.png'}
                         alt={anime.detail.titleEn}
-                        width={250}
-                        height={350}
+                        fill
+                        className="object-cover"
                       />
                       {anime.status && (
                         <span className="absolute top-2 right-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">

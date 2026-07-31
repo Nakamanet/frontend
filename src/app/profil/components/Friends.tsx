@@ -20,18 +20,18 @@ const FILTER_OPTIONS = [
 
 function FriendRow({ friend, children }: { friend: { id: number; username: string; avatar_url: string | null }; children: React.ReactNode }) {
   return (
-    <div className='flex items-center gap-8 p-2 mx-2 bg-accent border border-border rounded-card'>
+    <div className='flex items-center gap-3 md:gap-8 p-2 mx-2 bg-accent border border-border rounded-card'>
       {friend.avatar_url ? (
-        <Image src={friend.avatar_url} alt="pp" width={50} height={50} />
+        <Image src={friend.avatar_url} alt="pp" width={50} height={50} className="w-12.5 h-12.5 rounded-full object-cover shrink-0" />
       ) : (
-        <div className='p-2 bg-accent rounded-full'>
+        <div className='p-2 bg-accent rounded-full shrink-0'>
           <User2 size={30} />
         </div>
       )}
-      <Link className="flex-1" href={`/profil/${friend.id}`}>
-        <p>{friend.username}</p>
+      <Link className="flex-1 min-w-0" href={`/profil/${friend.id}`}>
+        <p className="truncate">{friend.username}</p>
       </Link>
-      {children}
+      <div className="flex flex-wrap justify-end gap-1 shrink-0">{children}</div>
     </div>
   )
 }
@@ -101,10 +101,10 @@ export default function Friends({ user }: { user: User }) {
       <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
 
       {isLoading ? (
-        <Loader className="m-8" />
+        <Loader className="m-4 md:m-8" />
       ) : filter === 'friends' ? (
         friends.length > 0 ? (
-          <div className='flex flex-col gap-5 p-5 m-8 bg-accent border border-border rounded-card'>
+          <div className='flex flex-col gap-5 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
             {friends.map((f) => {
               const friend = f.requester_id === user.id ? f.addressee : f.requester
               return (
@@ -120,13 +120,13 @@ export default function Friends({ user }: { user: User }) {
             })}
           </div>
         ) : (
-          <div className='flex flex-col gap-8 p-5 m-8 bg-accent border border-border rounded-card'>
+          <div className='flex flex-col gap-8 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
             <p>Vous n&apos;avez pas encore d&apos;ami, n&apos;hésitez pas a en ajouter afin de pouvoir discuter avec eux ou encore voir leurs oeuvres préférés</p>
           </div>
         )
       ) : filter === 'block' ? (
         block.length > 0 ? (
-          <div className='flex flex-col gap-5 p-5 m-8 bg-accent border border-border rounded-card'>
+          <div className='flex flex-col gap-5 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
             {block.map((b) => (
               <FriendRow key={b.id} friend={b.addressee}>
                 <button className='btn btn-ghost btn-sm' onClick={() => unblockMutation.mutate(b.id)}>
@@ -136,12 +136,12 @@ export default function Friends({ user }: { user: User }) {
             ))}
           </div>
         ) : (
-          <div className='flex flex-col gap-8 p-5 m-8 bg-accent border border-border rounded-card'>
+          <div className='flex flex-col gap-8 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
             <p>Vous n&apos;avez encore bloqué personne vous êtes encore une bonne personne !</p>
           </div>
         )
       ) : filter === 'invitation' ? (
-        <div className='flex flex-col gap-5 p-5 m-8 bg-accent border border-border rounded-card'>
+        <div className='flex flex-col gap-5 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
           {pending.length === 0 && sent.length === 0 ? (
             <p>Aucune invitation en cours</p>
           ) : (

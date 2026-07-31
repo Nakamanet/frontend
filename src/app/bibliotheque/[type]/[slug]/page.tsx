@@ -124,8 +124,8 @@ export default function DetailPage() {
   if (!item) return null
 
   return (
-    <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto px-4 md:px-15 py-5 md:py-10 pb-20 md:pb-10">
-      <section className="md:col-span-4 md:pr-6">
+    <main className="lg:grid lg:grid-cols-5 max-w-[1500px] mx-auto px-4 md:px-8 lg:px-15 py-5 md:py-10 pb-20 md:pb-10">
+      <section className="lg:col-span-4 lg:pr-6">
         {/* Section Header */}
         <div className="flex flex-col w-full h-auto gap-2">
           {/* Breadcrumb */}
@@ -250,14 +250,21 @@ export default function DetailPage() {
             </div>
           </div>
         </div>
+        {/* Informations */}
+        {item && type === 'anime' ? (
+          <Information type="anime" item={item as Anime} />
+        ) : item && type === 'manga' ? (
+          <Information type="manga" item={item as Manga} />
+        ) : null}
+
         {/* Episodes/Personnages/Thread */}
         <div className="flex flex-col gap-5">
-          <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-6">
-            <div className="flex gap-5 items-center justify-center w-full">
+          <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-3">
+            <div className="flex gap-1 sm:gap-3 items-center justify-center w-full">
               {hasCharacters && (
                 <button
                   onClick={() => setUserFilter('characters')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full ${filter === 'characters' ? 'bg-primary text-white' : 'text-text-muted'}`}
+                  className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'characters' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
                   <span>Personnages</span>
                 </button>
@@ -265,16 +272,16 @@ export default function DetailPage() {
               {hasEpisodes && (
                 <button
                   onClick={() => setUserFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full ${filter === 'episode' ? 'bg-primary text-white' : 'text-text-muted'}`}
+                  className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'episode' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
                   <span>{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
                 </button>
               )}
               <button
                 onClick={() => setUserFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
-                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full ${filter === 'thread' ? 'bg-primary text-white' : 'text-text-muted'}`}
+                className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'thread' ? 'bg-primary text-white' : 'text-text-muted'}`}
               >
-                <span>Fil de discussion</span>
+                <span>Forums</span>
               </button>
             </div>
           </div>
@@ -296,15 +303,10 @@ export default function DetailPage() {
         </div>
       </section>
       <section className="flex flex-col gap-5 py-6">
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <Chat user={user} />
         </div>
-        {item && type === 'anime' ? (
-          <Information type="anime" item={item as Anime} />
-        ) : item && type === 'manga' ? (
-          <Information type="manga" item={item as Manga} />
-        ) : null}
-        <div className="hidden md:block">
+        <div className="hidden lg:block">
           <Calendar user={user} />
         </div>
       </section>

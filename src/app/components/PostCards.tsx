@@ -109,7 +109,7 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
       className="shadow-sm w-full hover:border-primary/50 transition-colors cursor-pointer"
     >
       <div className="flex gap-3 justify-between">
-        <div className='flex gap-3'>
+        <div className='flex gap-3 flex-1 min-w-0'>
           <Link
             href={`/profil/${post.user.id}`}
             onClick={(e) => e.stopPropagation()}
@@ -129,8 +129,8 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
               </div>
             )}
           </Link>
-          <div className="flex flex-col gap-3">
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-3 min-w-0">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 min-w-0">
               <Link
                 href={`/profil/${post.user.id}`}
                 onClick={(e) => e.stopPropagation()}

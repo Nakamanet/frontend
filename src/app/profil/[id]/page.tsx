@@ -101,7 +101,7 @@ export default function ProfilPage() {
   const hasAccess = !!profileUser.role && profileUser.friendship_status !== 'blocked' && profileUser.friendship_status !== 'blocked_by'
 
   return (
-    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-4 md:p-13 pb-20 md:pb-13">
+    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-4 md:p-8 lg:p-13 pb-20 md:pb-13">
       <section className="relative w-full h-40 md:h-[20vh] rounded-card mb-8 overflow-visible">
         <div className="absolute inset-0 bg-primary overflow-hidden rounded-card">
           {profileUser.banner_url ? (
@@ -187,7 +187,7 @@ export default function ProfilPage() {
           </div>
         </div>
       </section>
-      <section className="grid grid-cols-1 md:grid-cols-4">
+      <section className="grid grid-cols-1 lg:grid-cols-4">
         <div className="w-full h-auto flex flex-col gap-5 py-7">
           <div className="flex flex-col justify-center gap-1 bg-accent p-5 border border-border rounded-card">
             <p className="pb-2 whitespace-pre-wrap">{profileUser.bio || 'Pas encore de bio'}</p>
@@ -224,7 +224,7 @@ export default function ProfilPage() {
             />
           )}
         </div>
-        <div className="md:col-span-3 min-h-[70vh]">
+        <div className="lg:col-span-3 min-h-[70vh]">
           {!hasAccess
             ? <ProfilAccessNotice status={profileUser.friendship_status} />
             : <>

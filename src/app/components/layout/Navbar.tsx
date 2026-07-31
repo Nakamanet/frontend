@@ -184,12 +184,12 @@ export default function Navbar() {
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
                   <li>
                     <Link href="/profil">
-                      <User size={20} /> 
+                      <User size={20} />
                       <p>Profil</p>
                     </Link>
                   </li>
                   <li>
-                    <div className='flex'> 
+                    <div className='flex'>
                       <LogOut size={20} />
                       <button onClick={logout}>Déconnexion</button>
                     </div>
@@ -198,9 +198,16 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <div className="flex gap-5 p-2">
-              <Link href="/login">Se connecter</Link>
-              <Link href="/register">S&apos;inscrire</Link>
+            <div className="flex items-center gap-2 md:gap-5 text-sm md:text-base">
+              <Link href="/login" className="whitespace-nowrap hover:text-primary transition-colors">
+                Se connecter
+              </Link>
+              <Link
+                href="/register"
+                className="whitespace-nowrap inline-flex items-center rounded-full bg-primary hover:bg-primary/85 text-white font-bold px-3.5 py-1.5 transition-colors"
+              >
+                S&apos;inscrire
+              </Link>
             </div>
           )}
         </div>

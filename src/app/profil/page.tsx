@@ -84,7 +84,7 @@ export default function ProfilPage() {
   if (!user) redirect('/login')
 
   return (
-    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-4 md:p-13 pb-20 md:pb-13">
+    <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-4 md:p-8 lg:p-13 pb-20 md:pb-13">
       {/* Bannière : même principe que Sidebar */}
       <section className="relative w-full h-40 md:h-[20vh] rounded-card mb-8 overflow-visible">
         <div className="absolute inset-0 bg-primary overflow-hidden rounded-card">
@@ -114,7 +114,7 @@ export default function ProfilPage() {
         </div>
       </section>
       {/* main content */}
-      <section className="grid grid-cols-1 md:grid-cols-4">
+      <section className="grid grid-cols-1 lg:grid-cols-4">
         {/* Menu lateral */}
         <div className="w-full h-auto flex flex-col gap-5 py-7 ">
           <Card className="flex flex-col justify-center gap-1">
@@ -153,7 +153,7 @@ export default function ProfilPage() {
           />
         </div>
         {/* Contenu principal */}
-        <div className="md:col-span-3 min-h-[70vh]">
+        <div className="lg:col-span-3 min-h-[70vh]">
           {activeTab === 'activities' && <Activity user={user} />}
           {/* A faire plus tard */}
           {activeTab === 'forum' && <MyTopics user={user} />}
