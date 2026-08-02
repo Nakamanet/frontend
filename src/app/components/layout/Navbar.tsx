@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search, Bell, User, LogOut } from 'lucide-react'
+import { Search, Bell, User, LogOut, Shield } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { CircleUser } from 'lucide-react'
 import { useState } from 'react'
@@ -86,11 +86,6 @@ export default function Navbar() {
           <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
           <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
           <Link href="/messages" className="hover:text-primary transition-colors">Messages</Link>
-          {user?.is_admin && (
-            <Link href="/admin" className="hover:text-primary transition-colors">
-              Admin
-            </Link>
-          )}
         </div>
 
         {/* Right side */}
@@ -182,6 +177,14 @@ export default function Navbar() {
                   </div>
                 </div>
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
+                   {user?.is_admin && (
+                   <li>
+                    <Link href="/admin" className="hover:text-primary transition-colors flex items-center gap-2">
+                      <Shield size={20} />
+                      <p>Admin</p>
+                    </Link>
+                  </li>
+                  )}
                   <li>
                     <Link href="/profil">
                       <User size={20} />
