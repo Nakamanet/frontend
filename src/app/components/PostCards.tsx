@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { unsavePost, savePost, deletePost, archivePost, hidePost } from "../lib/post"
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { blockFriend } from '../lib/friends'
+import { reportContent } from '../lib/reports'
 import EditPostModal from './EditPostModal'
 import Card from './ui/Card'
 
@@ -100,6 +101,12 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
       if (detailView) router.push('/')
     },
     onError: () => showToast("Erreur pour masquer le post", "error")
+  })
+
+  const reportMutation = useMutation({
+    mutationFn: () => reportContent('post', post.id),
+    onSuccess: () => showToast('Post signalé, merci', 'success'),
+    onError: () => showToast('Erreur lors du signalement', 'error'),
   })
 
   return (
@@ -214,7 +221,10 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
                     </button>
                   </li>
                   <li>
-                    <button className="text-sm border-none rounded-full" >
+                    <button
+                      className="text-sm border-none rounded-full"
+                      onClick={() => reportMutation.mutate()}
+                    >
                       Signaler
                     </button>
                   </li>
