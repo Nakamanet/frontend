@@ -97,7 +97,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-bold text-base text-white truncate">{user.username}</p>
-                <p className="text-sm text-white/60">@{user.username}</p>
+                <p className="text-sm text-white/60">@{user.handle}</p>
               </div>
             </div>
             {/* Stats : Oeuvres, Amis, Posts */}

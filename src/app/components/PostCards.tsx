@@ -145,7 +145,7 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
               >
                 {post.user.username}
               </Link>
-              <p className="text-sm text-text/60">@{post.user.username}</p>
+              <p className="text-sm text-text/60">@{post.user.handle}</p>
               <p className="text-sm text-text/60">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
             </div>
             <p>{post.content}</p>
