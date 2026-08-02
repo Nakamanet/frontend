@@ -81,17 +81,19 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
             {/* Avatar (chevauche la bannière) + pseudo + handle */}
             <div className="flex items-end gap-3 -mt-6">
               <div className="w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden z-10 text-base-content/70">
-                {user.avatar_url ? (
-                  <Image
-                    src={user.avatar_url}
-                    alt="Avatar"
-                    width={65}
-                    height={65}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <CircleUser size={50} strokeWidth={1.5} />
-                )}
+              <Link href={`/profil/${user.id}`}>
+                  {user.avatar_url ? (
+                    <Image
+                      src={user.avatar_url}
+                      alt="Avatar"
+                      width={65}
+                      height={65}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <CircleUser size={50} strokeWidth={1.5} />
+                  )}
+              </Link>
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-bold text-base text-white truncate">{user.username}</p>
