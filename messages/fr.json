@@ -91,6 +91,17 @@
     "reportSuccess": "Post signalé, merci",
     "reportError": "Erreur lors du signalement"
   },
+  "postList": {
+    "placeholder": "Quoi de neuf ?",
+    "post": "Poster",
+    "postSuccess": "Post publié avec succès",
+    "postError": "Echec lors de la publication du post",
+    "trends": "Tendances",
+    "recent": "Récents",
+    "friends": "Amis",
+    "filters": "Filtres",
+    "empty": "Aucun post trouvé"
+  },
   "reports": {
     "title": "Modération des signalements",
     "pending": "élément en attente de traitement",
@@ -110,17 +121,6 @@
     "previous": "Précédent",
     "next": "Suivant",
     "page": "Page"
-  },
-  "postList": {
-    "placeholder": "Quoi de neuf ?",
-    "post": "Poster",
-    "postSuccess": "Post publié avec succès",
-    "postError": "Echec lors de la publication du post",
-    "trends": "Tendances",
-    "recent": "Récents",
-    "friends": "Amis",
-    "filters": "Filtres",
-    "empty": "Aucun post trouvé"
   },
   "sidebar": {
     "works": "Oeuvres",
@@ -230,5 +230,100 @@
     "submit": "Publier le sujet",
     "successToast": "Forum publié avec succès",
     "errorToast": "Erreur lors de la publication du forum"
+  },
+  "search": {
+    "placeholder": "Rechercher une oeuvre",
+    "noResults": "Aucun résultat",
+    "anime": "Animes",
+    "manga": "Mangas"
+  },
+  "lists": {
+    "notLoggedIn": "Vous devez être connecté pour voir votre bibliothèque",
+    "addTitle": "Ajouter un titre"
+  },
+  "information": {
+  "title": "Informations",
+  "seeMore": "Voir plus",
+  "type": "Type",
+  "episodeCount": "Nombre d'épisodes",
+  "status": "Status",
+  "ageRating": "Classification",
+  "startDate": "Diffusion",
+  "episodeLength": "Longueur",
+  "streaming": "Streaming",
+  "streamingIncoming": "À venir",
+  "volumeCount": "Nombre de tomes",
+  "chapterCount": "Nombre de chapitres",
+  "publicationDate": "Date de publication",
+  "staff": "Staff",
+  "statusFinish": "Terminé",
+  "statusOngoing": "En cours",
+  "statusTba": "Date à venir",
+  "statusUpcoming": "À venir",
+  "statusUnreleased": "Non sorti"
+  },
+  "landing": {
+  "heroLine1": "Toute ta culture",
+  "heroManga": "manga",
+  "heroAnime": "anime",
+  "heroLine3": "en un seul lieu.",
+  "heroSubtitle": "Suis tes œuvres, partage avec la communauté en temps réel et découvre ta prochaine série préférée. Gratuit, pour toujours.",
+  "heroCta": "Rejoindre Nakamanet",
+  "heroCtaFeatures": "Voir les fonctionnalités",
+
+  "featurePosts": "Posts",
+  "featurePostsDesc": "Partage & découverte",
+  "featureChat": "Chat temps réel",
+  "featureChatDesc": "En direct",
+  "featureForum": "Forum",
+  "featureForumDesc": "Discussions longues",
+  "featureLibrary": "Bibliothèque",
+  "featureLibraryDesc": "Catalogue complet",
+  "featureMyList": "Ma liste",
+  "featureMyListDesc": "Suivi personnel",
+
+  "row1Title": "Partage tes coups de cœur en temps réel",
+  "row1TitleSub": "avec la communauté.",
+  "row1Desc": "Poste tes réactions à chaud, partage des panels marquants et explore le feed de ta communauté en temps réel.",
+  "row1b1": "Feed personnalisé selon tes abonnements",
+  "row1b2": "Tags automatiques par série et catégorie",
+  "row1b3": "Tendances et classements en direct",
+
+  "row2Title": "Échange en direct avec des fans",
+  "row2TitleSub": "du monde entier.",
+  "row2Desc": "Des salons thématiques organisés par série, genre ou événement. Rejoins la conversation live pendant les sorties de chapitres et d'épisodes.",
+  "row2b1": "Canaux organisés par série et genre",
+  "row2b2": "Messages en temps réel sans délai",
+  "row2b3": "Notifications live lors des sorties",
+
+  "row3Title": "Des débats en profondeur",
+  "row3TitleSub": "sur tes séries préférées.",
+  "row3Desc": "Crée des fils de discussion détaillés, vote pour les meilleures analyses et retrouve toutes les théories de la communauté organisées par série.",
+  "row3b1": "Fils de discussion longs et structurés",
+  "row3b2": "Catégories : Anime, Manga, Sorties, Théories",
+  "row3b3": "Système de votes et top contributeurs",
+
+  "row4Title": "48 000 manga & anime",
+  "row4TitleSub": "dans une seule base de données.",
+  "row4Desc": "Explore le catalogue complet, filtre par genre, statut ou popularité et accède aux fiches détaillées avec synopsis, personnages, épisodes et liens de streaming.",
+  "row4b1": "Fiches détaillées manga et anime",
+  "row4b2": "Synopsis, personnages et épisodes",
+  "row4b3": "Liens streaming, calendrier des sorties",
+
+  "row5Title": "Gère ta collection,",
+  "row5TitleSub": "série par série.",
+  "row5Desc": "Marque tes œuvres comme « en cours », « terminées » ou « à voir », note chaque chapitre et retrouve d'un coup d'œil où tu en es dans chaque série.",
+  "row5b1": "Statuts : En cours, Terminé, À voir, Abandonné",
+  "row5b2": "Suivi du chapitre ou épisode actuel",
+  "row5b3": "Statistiques personnelles de visionnage",
+
+  "ctaTitle": "Ta communauté otaku",
+  "ctaTitleSub": "t'attend déjà.",
+  "ctaSubtitle1": "Gratuit pour toujours. Aucune carte requise.",
+  "ctaSubtitle2": "Lance-toi en moins de 30 secondes.",
+  "ctaButton": "Créer mon compte gratuit",
+  "ctaBadge1": "100% gratuit",
+  "ctaBadge2": "Sans carte bancaire",
+  "ctaBadge3": "Inscription en 30 secondes"
   }
 }

@@ -11,9 +11,11 @@ import { Anime, Manga } from '../../types/catalog'
 import { useQuery, useQueries } from '@tanstack/react-query'
 import ScrollableRow from './ScrollableRow'
 import Loader from '@/app/components/Loader'
+import { useTranslations } from 'next-intl'
 
 export default function Lists() {
   const { user } = useAuth()
+  const t = useTranslations('lists')
 
   const { data: myAnimes = [], isLoading: loadingAnime } = useQuery<MyAnime[]>({
     queryKey: ['library', 'anime'],
@@ -59,7 +61,7 @@ export default function Lists() {
   if (!user) {
     return (
       <div className="flex justify-center items-center h-full mx-auto my-3">
-        <p>Vous devez être connecté pour voir votre bibliothèque</p>
+        <p>{t('notLoggedIn')}</p>
       </div>
     )
   }
@@ -85,7 +87,7 @@ export default function Lists() {
           ))}
           <Link href="/bibliotheque/manga" className="flex flex-col border border-border gap-2 rounded-card items-center justify-center w-[145px] h-full py-6 px-3 shrink-0">
             <Plus size={20} />
-            <p className="text-sm text-center">Ajouter un titre</p>
+            <p className="text-sm text-center">{t('addTitle')}</p>
           </Link>
         </div>
       )}

@@ -6,12 +6,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import Loader from '@/app/components/Loader'
+import { useTranslations } from 'next-intl'
 
 export default function SearchBarPage({ className }: { className?: string }) {
   const [query, setQuery] = useState('')
   const [debounced, setDebounced] = useState('')
   const [open, setOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const t = useTranslations('search')
 
   useEffect(() => {
     const t = setTimeout(() => setDebounced(query), 300)
@@ -49,7 +51,7 @@ export default function SearchBarPage({ className }: { className?: string }) {
         <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-base-content/40" />
         <input
           className="input input-bordered w-full bg-border rounded-full pl-10"
-          placeholder="Rechercher une oeuvre"
+          placeholder={t('placeholder')}
           value={query}
           onChange={(e) => {
             setQuery(e.target.value)
@@ -66,12 +68,12 @@ export default function SearchBarPage({ className }: { className?: string }) {
               <Loader variant="inline" size="sm" />
             </div>
           ) : !hasResults ? (
-            <p className="p-4 text-sm text-base-content/50 text-center">Aucun résultat</p>
+            <p className="p-4 text-sm text-base-content/50 text-center">{t('noResults')}</p>
           ) : (
             <>
               {animeResults.length > 0 && (
                 <div>
-                  <p className="px-4 pt-3 pb-1 text-xs font-semibold uppercase text-base-content/40">Animes</p>
+                  <p className="px-4 pt-3 pb-1 text-xs font-semibold uppercase text-base-content/40">{t('anime')}</p>
                   {animeResults.map((anime) => (
                     <Link
                       key={anime.id}
@@ -94,7 +96,7 @@ export default function SearchBarPage({ className }: { className?: string }) {
 
               {mangaResults.length > 0 && (
                 <div>
-                  <p className="px-4 pt-3 pb-1 text-xs font-semibold uppercase text-base-content/40">Mangas</p>
+                  <p className="px-4 pt-3 pb-1 text-xs font-semibold uppercase text-base-content/40">{t('manga')}</p>
                   {mangaResults.map((manga) => (
                     <Link
                       key={manga.id}
