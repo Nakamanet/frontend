@@ -17,18 +17,20 @@ import { blockFriend } from '../lib/friends'
 import { reportContent } from '../lib/reports'
 import EditPostModal from './EditPostModal'
 import Card from './ui/Card'
+import { useTranslations } from 'next-intl'
 
 export default function PostCards({ post, detailView = false }: { post: Post, detailView?: boolean }) {
   const { user } = useAuth()
   const router = useRouter()
   const { showToast } = useToast()
   const queryClient = useQueryClient()
+  const t = useTranslations('post')
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [likeCount, setLikeCount] = useState(post.likes_count)
   const [likedOverride, setLikedOverride] = useState<boolean | null>(null)
   const liked = likedOverride ?? (post.user_has_liked ?? false)
   const [saved, setSaved] = useState(post.user_has_saved ?? false)
-  const isOwner = post.user.id === user?.id 
+  const isOwner = post.user.id === user?.id
 
   const { mutate: like } = useMutation({
     mutationFn: () => toggleLikePost(post.id),
@@ -36,34 +38,33 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
       setLikeCount(prev => res.liked ? prev + 1 : prev - 1)
       setLikedOverride(res.liked)
     },
-    onError: () => showToast('Erreur lors du like du post', 'error'),
+    onError: () => showToast(t('likeError'), 'error'),
   })
 
   const { mutate: toggleSave } = useMutation({
     mutationFn: () => saved ? unsavePost(post.id) : savePost(post.id),
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       saved
-        ? showToast('Post retiré des sauvegardes', 'success')
-        : showToast('Post sauvegardé', 'success')
+        ? showToast(t('unsaveSuccess'), 'success')
+        : showToast(t('saveSuccess'), 'success')
       setSaved(prev => !prev)
     },
-    onError: () => showToast("Erreur lors de la sauvegarde", "error")
+    onError: () => showToast(t('saveError'), "error")
   })
-  
+
   const deleteMutation = useMutation({
     mutationFn: () => deletePost(post.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
       queryClient.invalidateQueries({ queryKey: ['user', post.user.id, 'posts'] })
-      showToast("Post supprimé", "success")
+      showToast(t('deleteSuccess'), "success")
       if (detailView) router.push('/')
     },
-    onError: () => showToast('Erreur lors de la suppression', 'error')
+    onError: () => showToast(t('deleteError'), 'error')
   })
 
   const handleRemove = () => {
-    const confirmed = confirm('Voulez-vous vraiment supprimer le post ?')
+    const confirmed = confirm(t('confirmDelete'))
     if (confirmed) deleteMutation.mutate()
   }
 
@@ -72,24 +73,24 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
       queryClient.invalidateQueries({ queryKey: ['user', post.user.id, 'posts'] })
-      showToast("Post archivé", "success")
+      showToast(t('archiveSuccess'), "success")
       if (detailView) router.push('/')
     },
-    onError: () => showToast("Erreur lors de l'archivage du post", 'error')
+    onError: () => showToast(t('archiveError'), 'error')
   })
 
   const blockMutation = useMutation({
     mutationFn: () => blockFriend(post.user.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
-      showToast("Utilisateur bloqué", "success")
+      showToast(t('blockSuccess'), "success")
       if (detailView) router.push('/')
     },
-    onError: () => showToast('Erreur lors du bloquage', 'error')
+    onError: () => showToast(t('blockError'), 'error')
   })
 
   const handleBlock = () => {
-    const confirmed = confirm('Voulez-vous vraimetn bloquer cet utilisateur ?')
+    const confirmed = confirm(t('confirmBlock'))
     if (confirmed) blockMutation.mutate()
   }
 
@@ -97,16 +98,16 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
     mutationFn: () => hidePost(post.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] })
-      showToast("Post masqué", "success")
+      showToast(t('hideSuccess'), "success")
       if (detailView) router.push('/')
     },
-    onError: () => showToast("Erreur pour masquer le post", "error")
+    onError: () => showToast(t('hideError'), "error")
   })
 
   const reportMutation = useMutation({
     mutationFn: () => reportContent('post', post.id),
-    onSuccess: () => showToast('Post signalé, merci', 'success'),
-    onError: () => showToast('Erreur lors du signalement', 'error'),
+    onSuccess: () => showToast(t('reportSuccess'), 'success'),
+    onError: () => showToast(t('reportError'), 'error'),
   })
 
   return (
@@ -177,26 +178,18 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
           {isOwner ? (
             <ul tabIndex={-1} className="menu menu-lg dropdown-content w-auto rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
               <li>
-                <button 
-                  className="text-sm border-none rounded-full" 
-                  onClick={() => setIsEditOpen(true)}>
-                  Modifier
+                <button className="text-sm border-none rounded-full" onClick={() => setIsEditOpen(true)}>
+                  {t('edit')}
                 </button>
               </li>
               <li>
-                <button 
-                  className="text-sm border-none rounded-full" 
-                  onClick={() => archiveMutation.mutate()}
-                >
-                  Archiver
+                <button className="text-sm border-none rounded-full" onClick={() => archiveMutation.mutate()}>
+                  {t('archive')}
                 </button>
               </li>
               <li>
-                <button
-                  className="text-sm border-none rounded-full text-primary"
-                  onClick={handleRemove}
-                >
-                  Supprimer
+                <button className="text-sm border-none rounded-full text-primary" onClick={handleRemove}>
+                  {t('delete')}
                 </button>
               </li>
             </ul>
@@ -205,41 +198,29 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
               {user && (
                 <>
                   <li>
-                    <button 
-                      className="text-sm border-none rounded-full" 
-                      onClick={() => hideMutation.mutate()}
-                    >
-                      Masquer
+                    <button className="text-sm border-none rounded-full" onClick={() => hideMutation.mutate()}>
+                      {t('hide')}
                     </button>
                   </li>
                   <li>
-                    <button
-                      className="text-sm border-none rounded-full text-primary"
-                      onClick={handleBlock}
-                    >
-                      Bloquer l&apos;utilisateur
+                    <button className="text-sm border-none rounded-full text-primary" onClick={handleBlock}>
+                      {t('blockUser')}
                     </button>
                   </li>
                   <li>
-                    <button
-                      className="text-sm border-none rounded-full"
-                      onClick={() => reportMutation.mutate()}
-                    >
-                      Signaler
+                    <button className="text-sm border-none rounded-full" onClick={() => reportMutation.mutate()}>
+                      {t('report')}
                     </button>
                   </li>
                 </>
               )}
               <li>
-                <Link 
-                  href={`/profil/${post.user.id}`}
-                  className="text-sm border-none rounded-full" >
-                  Voir le profil
+                <Link href={`/profil/${post.user.id}`} className="text-sm border-none rounded-full">
+                  {t('viewProfile')}
                 </Link>
               </li>
             </ul>
           )}
-
           {isEditOpen && (
             <EditPostModal isOpen={isEditOpen} onClose={() => setIsEditOpen(false)} post={post}/>
           )}

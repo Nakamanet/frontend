@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { User } from '../../types/auth'
 import { Friendship } from '@/app/types/friends'
 import { getFriends, getPendingFriends, getSentFriends, acceptFriend, declineFriend, removeFriend, unblockFriend, getBlockFriends } from '@/app/lib/friends'
@@ -11,12 +12,6 @@ import FilterTab from '@/app/components/FilterTab'
 import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
 import Link from 'next/link'
-
-const FILTER_OPTIONS = [
-  { value: 'friends', label: 'Amis', icon: <Users size={18} /> },
-  { value: 'block', label: 'Bloqué', icon: <UserLock size={18} /> },
-  { value: 'invitation', label: 'Invitation', icon: <Mail size={18} /> },
-]
 
 function FriendRow({ friend, children }: { friend: { id: number; username: string; avatar_url: string | null }; children: React.ReactNode }) {
   return (
@@ -40,8 +35,16 @@ export default function Friends({ user }: { user: User }) {
   const [filter, setFilter] = useState('friends')
   const { showToast } = useToast()
   const [friendToRemove, setFriendToRemove] = useState<{ id: number; username: string } | null>(null)
+  const t = useTranslations('friends')
+
+  const FILTER_OPTIONS = [
+    { value: 'friends', label: t('filterFriends'), icon: <Users size={18} /> },
+    { value: 'block', label: t('filterBlocked'), icon: <UserLock size={18} /> },
+    { value: 'invitation', label: t('filterInvitation'), icon: <Mail size={18} /> },
+  ]
 
   const queryClient = useQueryClient()
+
   const { data: friends = [], isLoading: friendsLoading } = useQuery<Friendship[]>({
     queryKey: ['friends', user.id],
     queryFn: () => getFriends(user.id),
@@ -69,29 +72,29 @@ export default function Friends({ user }: { user: User }) {
 
   const acceptMutation = useMutation({
     mutationFn: acceptFriend,
-    onSuccess: () => invalidateAll("Demande accepté.", 'success'),
-    onError: () => showToast("Erreur lors de l'acceptation.", "error")
+    onSuccess: () => invalidateAll(t('acceptSuccess'), 'success'),
+    onError: () => showToast(t('acceptError'), "error")
   })
 
   const declineMutation = useMutation({
     mutationFn: declineFriend,
-    onSuccess: () => invalidateAll("Demande refusé.", 'success'),
-    onError: () => showToast("Erreur lors du refus.", "error")
+    onSuccess: () => invalidateAll(t('declineSuccess'), 'success'),
+    onError: () => showToast(t('declineError'), "error")
   })
 
   const removeMutation = useMutation({
     mutationFn: removeFriend,
     onSuccess: () => {
-      invalidateAll("Ami supprimé.", 'success')
+      invalidateAll(t('removeSuccess'), 'success')
       setFriendToRemove(null)
     },
-    onError: () => showToast("Erreur lors de la suppression", "error")
+    onError: () => showToast(t('removeError'), "error")
   })
 
   const unblockMutation = useMutation({
     mutationFn: unblockFriend,
-    onSuccess: () => invalidateAll("Utilisateur débloqué.", 'success'),
-    onError: () => showToast("Erreur lors du débloquage", "error")
+    onSuccess: () => invalidateAll(t('unblockSuccess'), 'success'),
+    onError: () => showToast(t('unblockError'), "error")
   })
 
   const isLoading = filter === 'friends' ? friendsLoading : filter === 'block' ? blockLoading : pendingLoading || sentLoading
@@ -113,7 +116,7 @@ export default function Friends({ user }: { user: User }) {
                     className='btn btn-ghost btn-sm text-primary'
                     onClick={() => setFriendToRemove({ id: f.id, username: friend.username })}
                   >
-                    Supprimer
+                    {t('remove')}
                   </button>
                 </FriendRow>
               )
@@ -121,7 +124,7 @@ export default function Friends({ user }: { user: User }) {
           </div>
         ) : (
           <div className='flex flex-col gap-8 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
-            <p>Vous n&apos;avez pas encore d&apos;ami, n&apos;hésitez pas a en ajouter afin de pouvoir discuter avec eux ou encore voir leurs oeuvres préférés</p>
+            <p>{t('noFriends')}</p>
           </div>
         )
       ) : filter === 'block' ? (
@@ -130,31 +133,31 @@ export default function Friends({ user }: { user: User }) {
             {block.map((b) => (
               <FriendRow key={b.id} friend={b.addressee}>
                 <button className='btn btn-ghost btn-sm' onClick={() => unblockMutation.mutate(b.id)}>
-                  Débloquer
+                  {t('unblock')}
                 </button>
               </FriendRow>
             ))}
           </div>
         ) : (
           <div className='flex flex-col gap-8 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
-            <p>Vous n&apos;avez encore bloqué personne vous êtes encore une bonne personne !</p>
+            <p>{t('noBlocked')}</p>
           </div>
         )
       ) : filter === 'invitation' ? (
         <div className='flex flex-col gap-5 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
           {pending.length === 0 && sent.length === 0 ? (
-            <p>Aucune invitation en cours</p>
+            <p>{t('noInvitations')}</p>
           ) : (
             <>
               {pending.map((p) => (
                 <FriendRow key={p.id} friend={p.requester}>
-                  <button className='btn btn-ghost btn-sm' onClick={() => acceptMutation.mutate(p.id)}>Accepter</button>
-                  <button className='btn btn-ghost btn-sm' onClick={() => declineMutation.mutate(p.id)}>Refuser</button>
+                  <button className='btn btn-ghost btn-sm' onClick={() => acceptMutation.mutate(p.id)}>{t('accept')}</button>
+                  <button className='btn btn-ghost btn-sm' onClick={() => declineMutation.mutate(p.id)}>{t('decline')}</button>
                 </FriendRow>
               ))}
               {sent.map((s) => (
                 <FriendRow key={s.id} friend={s.addressee}>
-                  <button className='btn btn-ghost btn-sm' onClick={() => declineMutation.mutate(s.id)}>Annuler</button>
+                  <button className='btn btn-ghost btn-sm' onClick={() => declineMutation.mutate(s.id)}>{t('cancel')}</button>
                 </FriendRow>
               ))}
             </>
@@ -162,24 +165,23 @@ export default function Friends({ user }: { user: User }) {
         </div>
       ) : null}
 
-      {/* Confirmation modal for removing a friend */}
       {friendToRemove && (
         <div className="modal modal-open">
           <div className="modal-box bg-accent border border-border">
-            <h3 className="font-bold text-lg">Supprimer cet ami ?</h3>
+            <h3 className="font-bold text-lg">{t('modalTitle')}</h3>
             <p className="py-4 text-text/70">
-              Voulez-vous vraiment supprimer <span className="font-semibold text-text">{friendToRemove.username}</span> de vos amis ?
+              {t('modalBody')} <span className="font-semibold text-text">{friendToRemove.username}</span> {t('modalBodySuffix')}
             </p>
             <div className="modal-action">
               <button className="btn btn-ghost" onClick={() => setFriendToRemove(null)}>
-                Annuler
+                {t('cancel')}
               </button>
               <button
                 className="btn btn-ghost text-primary"
                 onClick={() => removeMutation.mutate(friendToRemove.id)}
                 disabled={removeMutation.isPending}
               >
-                {removeMutation.isPending ? 'Suppression...' : 'Supprimer'}
+                {removeMutation.isPending ? t('removing') : t('remove')}
               </button>
             </div>
           </div>

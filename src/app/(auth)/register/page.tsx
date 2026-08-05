@@ -9,6 +9,7 @@ import { useGeolocation } from '../../hooks/useGeolocalisation'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
+import { useTranslations } from 'next-intl'
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const router = useRouter()
   const { showToast } = useToast()
   const { location, loading, detect } = useGeolocation()
+  const t = useTranslations('register')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -33,8 +35,6 @@ export default function RegisterPage() {
     }
   }, [isAuthLoading, isLoggedIn, router])
 
-  // géoloc uniquement pour un visiteur non connecté : inutile de demander
-  // la permission à quelqu'un qu'on redirige immédiatement
   useEffect(() => {
     if (isAuthLoading || isLoggedIn) return
     detect()
@@ -67,27 +67,23 @@ export default function RegisterPage() {
     e.preventDefault()
     try {
       if (password !== passwordConfirmation) {
-        setError('Les mots de passe ne correspondent pas')
+        setError(t('errorPasswordMatch'))
         return
       }
-
       if (birthdate > maxBirthdate) {
-        setError('Vous devez avoir au moins 15 ans pour vous inscrire')
+        setError(t('errorMinAge'))
         return
       }
-
       if (birthdate < minBirthdate) {
-        setError('Veuillez saisir une date de naissance valide')
+        setError(t('errorInvalidDate'))
         return
       }
-
       if (loading) {
-        setError('Localisation en cours de détection, veuillez patienter...')
+        setError(t('errorLocationLoading'))
         return
       }
-
       if (!turnstileToken) {
-        setError('Vérification anti-robot en cours, veuillez patienter...')
+        setError(t('errorTurnstile'))
         return
       }
 
@@ -100,12 +96,12 @@ export default function RegisterPage() {
         localisation: location || null,
         turnstile_token: turnstileToken,
       })
-      showToast('Inscription réussi', 'success')
+      showToast(t('successToast'), 'success')
       login(response.data.token, response.data.user, response.data.expires_in)
       router.push('/')
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
-      showToast('Echec lors de la création de compte', 'error')
+      showToast(t('errorToast'), 'error')
     }
   }
 
@@ -118,7 +114,6 @@ export default function RegisterPage() {
         strategy="afterInteractive"
         onLoad={renderTurnstile}
       />
-      {/* Background effect */}
       <div
         className="absolute inset-0"
         style={{
@@ -132,17 +127,16 @@ export default function RegisterPage() {
         }}
       />
 
-      {/* Form */}
       <div className="relative z-10 w-full max-w-md mx-4 flex flex-col gap-4">
         <div className="bg-accent/80 backdrop-blur-sm border border-border rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Créer un compte</h2>
+          <h2 className="text-2xl font-bold text-white mb-6">{t('title')}</h2>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Nom d&apos;utilisateur</label>
+              <label className="text-sm font-medium text-white/70">{t('username')}</label>
               <input
                 type="text"
-                placeholder="Pseudo"
+                placeholder={t('usernamePlaceholder')}
                 className={inputClass}
                 required
                 onChange={(e) => setUsername(e.target.value)}
@@ -151,10 +145,10 @@ export default function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Email</label>
+              <label className="text-sm font-medium text-white/70">{t('email')}</label>
               <input
                 type="email"
-                placeholder="email@exemple.com"
+                placeholder={t('emailPlaceholder')}
                 className={inputClass}
                 required
                 onChange={(e) => setEmail(e.target.value)}
@@ -163,7 +157,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Date de naissance</label>
+              <label className="text-sm font-medium text-white/70">{t('birthdate')}</label>
               <input
                 type="date"
                 className={inputClass}
@@ -175,7 +169,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Mot de passe</label>
+              <label className="text-sm font-medium text-white/70">{t('password')}</label>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -187,7 +181,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Confirmation du mot de passe</label>
+              <label className="text-sm font-medium text-white/70">{t('passwordConfirm')}</label>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -206,15 +200,15 @@ export default function RegisterPage() {
               type="submit"
               className="w-full py-3 rounded-xl bg-primary hover:bg-primary/85 text-white font-bold text-base transition-colors mt-2 cursor-pointer"
             >
-              S&apos;inscrire
+              {t('submit')}
             </button>
           </form>
         </div>
 
         <p className="text-center text-white/50 text-sm">
-          Ou si vous avez déjà un compte,{' '}
+          {t('hasAccount')}{' '}
           <Link href="/login" className="text-white underline hover:text-white/80 transition-colors">
-            Se connecter
+            {t('login')}
           </Link>
         </p>
       </div>

@@ -11,23 +11,25 @@ import { useAuth } from '@/app/context/AuthContext'
 import Loader from '@/app/components/Loader'
 import { getMyArchivedPost, getMySavedPosts, getUserLikedPosts } from '@/app/lib/post'
 import { PaginatedPosts } from '@/app/types/post'
-
-const FILTER_OPTIONS = [
-  { value: 'mine', label: 'Mes Posts', icon: <Flame size={18} /> },
-  { value: 'save', label: 'Sauvegardés', icon: <Bookmark size={18} /> },
-  { value: 'liked', label: 'Posts Liké', icon: <ThumbsUp size={18} /> },
-  { value: 'deleted', label: 'Archivés', icon: <Trash size={18} /> },
-]
-
-const FILTER_OPTIONS_OTHER = [
-  { value: 'mine', label: 'Posts Publiés', icon: <Flame size={18} /> },
-  { value: 'liked', label: 'Posts Likés', icon: <ThumbsUp size={18} /> },
-]
+import { useTranslations } from 'next-intl'
 
 export default function Activity({ user }: { user: User }) {
   const [filter, setFilter] = useState('mine')
   const { user: connectedUser } = useAuth()
   const isOwnProfil = connectedUser?.id === user.id
+  const t = useTranslations('activity')
+
+  const FILTER_OPTIONS = [
+    { value: 'mine', label: t('myPosts'), icon: <Flame size={18} /> },
+    { value: 'save', label: t('saved'), icon: <Bookmark size={18} /> },
+    { value: 'liked', label: t('liked'), icon: <ThumbsUp size={18} /> },
+    { value: 'deleted', label: t('archived'), icon: <Trash size={18} /> },
+  ]
+
+  const FILTER_OPTIONS_OTHER = [
+    { value: 'mine', label: t('publishedPosts'), icon: <Flame size={18} /> },
+    { value: 'liked', label: t('likedPosts'), icon: <ThumbsUp size={18} /> },
+  ]
 
   const fetchers: Record<string, () => Promise<PaginatedPosts>> = {
     mine: () => getUserPosts(user.id),
@@ -44,10 +46,10 @@ export default function Activity({ user }: { user: User }) {
   const posts = data?.data ?? []
 
   const emptyMessages: Record<string, string> = {
-    mine: isOwnProfil ? "Vous n'avez pas encore de posts" : "Cet utilisateur n'a pas encore posté",
-    save: "Vous n'avez pas encore sauvegardé de posts",
-    liked: isOwnProfil ? "Vous n'avez pas encore liké de posts" : "Cet utilisateur n'a pas encore liké de posts",
-    deleted: "Vous n'avez pas encore de posts archivés",
+    mine: isOwnProfil ? t('emptyMine') : t('emptyMineOther'),
+    save: t('emptySave'),
+    liked: isOwnProfil ? t('emptyLiked') : t('emptyLikedOther'),
+    deleted: t('emptyDeleted'),
   }
 
   return (

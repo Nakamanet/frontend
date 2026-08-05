@@ -9,13 +9,17 @@ import { Flag, Trash2, X, CircleUser, AlertTriangle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { fr, enUS } from 'date-fns/locale'
 import AdminGuard from '../components/AdminGuard'
+import { useTranslations, useLocale } from 'next-intl'
 
 export default function AdminReportsPage() {
   const { showToast } = useToast()
   const queryClient = useQueryClient()
   const [page, setPage] = useState(1)
+  const t = useTranslations('reports')
+  const locale = useLocale()
+  const dateLocale = locale === 'fr' ? fr : enUS
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'reports', page],
@@ -26,22 +30,22 @@ export default function AdminReportsPage() {
     mutationFn: (item: ReportedItem) => dismissReport(item.reportable_type, item.reportable_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'reports'] })
-      showToast('Signalement ignoré', 'success')
+      showToast(t('dismissSuccess'), 'success')
     },
-    onError: () => showToast('Erreur lors du traitement', 'error'),
+    onError: () => showToast(t('dismissError'), 'error'),
   })
 
   const { mutate: deleteContent } = useMutation({
     mutationFn: (item: ReportedItem) => takeReportAction(item.reportable_type, item.reportable_id, 'delete_content'),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'reports'] })
-      showToast('Contenu supprimé', 'success')
+      showToast(t('deleteSuccess'), 'success')
     },
-    onError: () => showToast('Erreur lors de la suppression', 'error'),
+    onError: () => showToast(t('deleteError'), 'error'),
   })
 
   const handleDelete = (item: ReportedItem) => {
-    if (confirm('Supprimer ce contenu signalé ? Cette action est irréversible.')) {
+    if (confirm(t('confirmDelete'))) {
       deleteContent(item)
     }
   }
@@ -54,11 +58,11 @@ export default function AdminReportsPage() {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Flag size={24} className="text-primary" />
-            Modération des signalements
+            {t('title')}
           </h1>
           {reports.length > 0 && (
             <p className="text-sm text-text/50 mt-1">
-              {reports.length} élément{reports.length > 1 ? 's' : ''} en attente de traitement
+              {reports.length} {reports.length > 1 ? t('pendingPlural') : t('pending')}
             </p>
           )}
         </div>
@@ -70,7 +74,7 @@ export default function AdminReportsPage() {
             <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
               <Flag size={20} className="text-success" />
             </div>
-            <p className="text-text/60 text-sm">Aucun signalement en attente. Bien joué à tout le monde.</p>
+            <p className="text-text/60 text-sm">{t('empty')}</p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -79,11 +83,10 @@ export default function AdminReportsPage() {
                 key={`${item.reportable_type}-${item.reportable_id}`}
                 className="bg-accent border border-border rounded-[15px] overflow-hidden"
               >
-                {/* Header strip: severity + type */}
                 <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-error/5">
                   <span className="inline-flex items-center gap-1.5 text-sm font-medium text-error">
                     <AlertTriangle size={15} />
-                    {item.report_count} signalement{item.report_count > 1 ? 's' : ''}
+                    {item.report_count} {item.report_count > 1 ? t('reportPlural') : t('report')}
                   </span>
                   <span className="text-xs font-medium text-text/40 uppercase tracking-wide px-2 py-0.5 rounded-full bg-base-200">
                     {item.reportable_type}
@@ -114,21 +117,21 @@ export default function AdminReportsPage() {
                             {item.target.user.username}
                           </Link>
                           <span className="text-xs text-text/40">
-                            {formatDistanceToNow(new Date(item.target.created_at), { addSuffix: true, locale: fr })}
+                            {formatDistanceToNow(new Date(item.target.created_at), { addSuffix: true, locale: dateLocale })}
                           </span>
                         </div>
                         <p className="text-sm mt-1.5 text-text/90">{item.target.content}</p>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-sm text-text/40 italic">Contenu déjà supprimé</p>
+                    <p className="text-sm text-text/40 italic">{t('alreadyDeleted')}</p>
                   )}
 
                   {(item.latest_reason || item.latest_details) && (
                     <div className="bg-base-200/60 rounded-[10px] px-4 py-3 text-sm flex flex-col gap-1">
                       {item.latest_reason && (
                         <p>
-                          <span className="font-medium text-text/70">Motif :</span>{' '}
+                          <span className="font-medium text-text/70">{t('reason')}</span>{' '}
                           <span className="text-text/90">{item.latest_reason}</span>
                         </p>
                       )}
@@ -144,7 +147,7 @@ export default function AdminReportsPage() {
                       onClick={() => dismiss(item)}
                     >
                       <X size={14} />
-                      Ignorer
+                      {t('ignore')}
                     </button>
                     <button
                       className="btn btn-sm bg-error/10 hover:bg-error/20 text-error border-none gap-1.5"
@@ -152,7 +155,7 @@ export default function AdminReportsPage() {
                       disabled={!item.target}
                     >
                       <Trash2 size={14} />
-                      Supprimer le contenu
+                      {t('deleteContent')}
                     </button>
                   </div>
                 </div>
@@ -164,13 +167,13 @@ export default function AdminReportsPage() {
         {data && data.last_page > 1 && (
           <div className="flex justify-center gap-2">
             <button className="btn btn-sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-              Précédent
+              {t('previous')}
             </button>
             <span className="flex items-center px-3 text-sm">
-              Page {data.current_page} / {data.last_page}
+              {t('page')} {data.current_page} / {data.last_page}
             </span>
             <button className="btn btn-sm" disabled={page >= data.last_page} onClick={() => setPage((p) => p + 1)}>
-              Suivant
+              {t('next')}
             </button>
           </div>
         )}

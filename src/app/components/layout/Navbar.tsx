@@ -13,6 +13,8 @@ import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/context/ToastContext'
 import { acceptFriend } from '@/app/lib/friends'
 import Loader from '@/app/components/Loader'
+import { useTranslations } from 'next-intl'
+import LanguageSwitcher from '../LanguageSwitcher'
 
 export default function Navbar() {
   const { isLoggedIn, isAuthLoading, hasStoredSession, logout, user } = useAuth()
@@ -20,6 +22,7 @@ export default function Navbar() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const { showToast } = useToast()
+  const t = useTranslations('nav')
   const DAY_MS = 24 * 60 * 60 * 1000
 
   const { data: unreadCount = 0 } = useQuery({
@@ -53,21 +56,21 @@ export default function Navbar() {
     onSuccess:() => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       queryClient.invalidateQueries({ queryKey: ['friends'] })
-      showToast("Invitation accepté.", "success")
+      showToast(t('invitationAccepted'), "success")
     },
-    onError: () => showToast("Erreur lors de l'acceptation.", "error")
+    onError: () => showToast(t('invitationAcceptError'), "error")
   })
 
   const markAsReadMutation = useMutation({
     mutationFn: markAsRead,
     onSuccess: invalidateNotifications,
-    onError: () => showToast("Erreur lors de la lecture des notifications", "error")
+    onError: () => showToast(t('notificationReadError'), "error")
   })
 
   const markAllAsReadMutation = useMutation({
     mutationFn: markAllAsRead,
     onSuccess: invalidateNotifications,
-    onError: () => showToast("Erreur lors de la lecture des notifications", "error")
+    onError: () => showToast(t('notificationReadError'), "error")
   })
 
 
@@ -82,10 +85,10 @@ export default function Navbar() {
 
         {/* Nav links - desktop only */}
         <div className="hidden md:flex gap-20">
-          <Link href="/bibliotheque" className="hover:text-primary transition-colors">Bibliothèque</Link>
-          <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
-          <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
-          <Link href="/messages" className="hover:text-primary transition-colors">Messages</Link>
+          <Link href="/bibliotheque" className="hover:text-primary transition-colors">{t('library')}</Link>
+          <Link href="/forum" className="hover:text-primary transition-colors">{t('forum')}</Link>
+          <Link href="/chat" className="hover:text-primary transition-colors">{t('chat')}</Link>
+          <Link href="/messages" className="hover:text-primary transition-colors">{t('messages')}</Link>
         </div>
 
         {/* Right side */}
@@ -106,7 +109,7 @@ export default function Navbar() {
           ) : isLoggedIn && user ? (
             <>
             {/* Search */}
-              <span className='tooltip tooltip-bottom' data-tip="Recherche">
+              <span className='tooltip tooltip-bottom md:mr-10' data-tip={t('search')}>
                 <Search
                   size={27}
                   className="cursor-pointer hover:text-primary transition-colors"
@@ -114,7 +117,7 @@ export default function Navbar() {
                 />
               </span>
               {/* Notifications */}
-              <div className='dropdown dropdown-end relative tooltip tooltip-bottom' data-tip="Notifications">
+              <div className='dropdown dropdown-end relative tooltip tooltip-bottom' data-tip={t('notifications')}>
                 <div tabIndex={0} role='button' className='relative'>
                   <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
                   {unreadCount > 0 && (
@@ -123,14 +126,14 @@ export default function Navbar() {
                 </div>
                 <div tabIndex={-1} className='dropdown-content w-100 rounded-box z-10 mt-3 p-3 bg-accent border-border shadow'>
                   <div className='flex justify-between items-center gap-2 p-3'>
-                    <span className='font-bold'>Notifications</span>
-                    <button className='btn btn-ghost text-xs text-primary' onClick={() => markAllAsReadMutation.mutate()}>Tout marquer comme lu</button>
+                    <span className='font-bold'>{t('notifications')}</span>
+                    <button className='btn btn-ghost text-xs text-primary' onClick={() => markAllAsReadMutation.mutate()}>{t('markAllRead')}</button>
                   </div>
                   <ul className='menu menu-lg p-2 pt-0'>
                     {notificationsLoading ? (
                       <li><Loader variant="plain" size="md" className="py-4" /></li>
                     ) : notificationsList.length === 0 ? (
-                      <li><span className='text-text-muted'>Aucune notifications</span></li>
+                      <li><span className='text-text-muted'>{t('noNotifications')}</span></li>
                     ) : (
                       notificationsList.map((n) => (
                         <li key={n.id}>
@@ -153,9 +156,9 @@ export default function Navbar() {
                                 )}
                                 <p className=''>
                                   <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
-                                {" "} vous a envoyé une demande d&apos;ami
+                                {" "}{t('friendRequestFrom')}
                                 </p>
-                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number, { onSuccess: () => markAsReadMutation.mutate(n.id) })}}>Accepter</button>
+                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number, { onSuccess: () => markAsReadMutation.mutate(n.id) })}}>{t('accept')}</button>
                               </div>
                             )}
                           </div>
@@ -165,8 +168,10 @@ export default function Navbar() {
                   </ul>
                 </div>
               </div>
+              {/* Language switcher */}
+              <LanguageSwitcher />
               {/* PP */}
-              <div className="dropdown dropdown-end tooltip tooltip-bottom z-10" data-tip="Profil">
+              <div className="dropdown dropdown-end tooltip tooltip-bottom z-10" data-tip={t('profile')}>
                 <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
                   <div className="w-10 rounded-full">
                     {user.avatar_url ? (
@@ -177,24 +182,24 @@ export default function Navbar() {
                   </div>
                 </div>
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
+                  <li>
+                    <Link href="/profil">
+                      <User size={20} />
+                      <p>{t('profile')}</p>
+                    </Link>
+                  </li>
                    {user?.is_admin && (
                    <li>
                     <Link href="/admin" className="hover:text-primary transition-colors flex items-center gap-2">
                       <Shield size={20} />
-                      <p>Admin</p>
+                      <p>{t('admin')}</p>
                     </Link>
                   </li>
                   )}
                   <li>
-                    <Link href="/profil">
-                      <User size={20} />
-                      <p>Profil</p>
-                    </Link>
-                  </li>
-                  <li>
                     <div className='flex'>
                       <LogOut size={20} />
-                      <button onClick={logout}>Déconnexion</button>
+                      <button onClick={logout}>{t('logout')}</button>
                     </div>
                   </li>
                 </ul>
@@ -202,14 +207,15 @@ export default function Navbar() {
             </>
           ) : (
             <div className="flex items-center gap-2 md:gap-5 text-sm md:text-base">
+              <LanguageSwitcher />
               <Link href="/login" className="whitespace-nowrap hover:text-primary transition-colors">
-                Se connecter
+                {t('login')}
               </Link>
               <Link
                 href="/register"
                 className="whitespace-nowrap inline-flex items-center rounded-full bg-primary hover:bg-primary/85 text-white font-bold px-3.5 py-1.5 transition-colors"
               >
-                S&apos;inscrire
+                {t('register')}
               </Link>
             </div>
           )}

@@ -12,15 +12,7 @@ import Loader from '@/app/components/Loader'
 import { useAuth } from '../context/AuthContext'
 import SectionSwitcher from '../components/ui/SectionSwitcher'
 import Link from 'next/link'
-
-const CATEGORIES = [
-  { id: '', label: 'Récents' },
-  { id: 'general', label: 'Général' },
-  { id: 'anime', label: 'Anime' },
-  { id: 'manga', label: 'Manga' },
-  { id: 'recommendations', label: 'Recommandations' },
-  { id: 'spoilers', label: 'Spoilers' },
-]
+import { useTranslations } from 'next-intl'
 
 const PIN_TITLE_MAX = 30
 
@@ -34,6 +26,16 @@ export default function ForumPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const queryClient = useQueryClient()
   const { isLoggedIn } = useAuth()
+  const t = useTranslations('forum')
+
+  const CATEGORIES = [
+    { id: '', label: t('categories.recent') },
+    { id: 'general', label: t('categories.general') },
+    { id: 'anime', label: t('categories.anime') },
+    { id: 'manga', label: t('categories.manga') },
+    { id: 'recommendations', label: t('categories.recommendations') },
+    { id: 'spoilers', label: t('categories.spoilers') },
+  ]
 
   useEffect(() => {
     const timer = setTimeout(() => setSearchQuery(searchInput), 300)
@@ -74,7 +76,7 @@ export default function ForumPage() {
         <div className="flex items-center shrink-0">
           <div className="flex flex-wrap gap-3">
             {topBarPinned.length === 0 ? (
-              <span className="text-text-muted text-sm px-4 py-2">Aucun sujet épinglé</span>
+              <span className="text-text-muted text-sm px-4 py-2">{t('noPinned')}</span>
             ) : (
               topBarPinned.map((topic) => (
                 <Link
@@ -94,7 +96,7 @@ export default function ForumPage() {
           <div className="flex justify-center w-full">
             <input
               className="input input-bordered w-full bg-border rounded-full border-none focus:outline-none"
-              placeholder="Rechercher dans le forum"
+              placeholder={t('searchPlaceholder')}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
@@ -115,7 +117,7 @@ export default function ForumPage() {
                 <Loader size="md" color="primary" className="flex-1" />
               ) : topics.length === 0 ? (
                 <div className="flex justify-center items-center p-10 text-text-muted text-[15px] flex-1 border border-border bg-accent rounded-card">
-                  Aucun sujet trouvé.
+                  {t('noTopics')}
                 </div>
               ) : (
                 topics.map((topic) => (

@@ -1,5 +1,4 @@
 'use client'
-
 import Image from 'next/image'
 import { User } from '../../types/auth'
 import Link from 'next/link'
@@ -10,8 +9,11 @@ import { getMyAnime, getMyManga, getTopAnime, getTopManga } from '@/app/lib/libr
 import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
 import { Anime, Manga } from '@/app/types/catalog'
 import { useQueries, useQuery } from '@tanstack/react-query'
+import { useTranslations } from 'next-intl'
 
 export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { isLoggedIn: boolean; isAuthLoading?: boolean; user: User | null }) {
+  const t = useTranslations('sidebar')
+
   const results = useQueries({
     queries: [
       { queryKey: ['user', user?.id, 'posts'], queryFn: () => getUserPosts(user!.id), enabled: !!user },
@@ -20,6 +22,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
       { queryKey: ['friends', user!.id], queryFn: () => getFriends(user!.id), enabled: !!user },
     ],
   })
+
   const postCounts = results[0]?.data?.total ?? 0
   const workCount = (results[1]?.data?.length ?? 0) + (results[2]?.data?.length ?? 0)
   const friendsCount = results[3]?.data?.length ?? 0
@@ -64,8 +67,6 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
       {!isAuthLoading && isLoggedIn && user ? (
         <div className="card w-full bg-accent shadow-sm border border-border overflow-hidden rounded-card">
-          {/* Bloc identité de l'utilisateur */}
-          {/* Bannière : image ou fond rouge */}
           <div className="relative w-full h-20 shrink-0 rounded-t-[8px] overflow-hidden bg-primary">
             {user.banner_url ? (
               <Image
@@ -78,10 +79,9 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
             ) : null}
           </div>
           <div className="card-body pt-0 px-4 pb-4">
-            {/* Avatar (chevauche la bannière) + pseudo + handle */}
             <div className="flex items-end gap-3 -mt-6">
               <div className="w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden z-10 text-base-content/70">
-              <Link href={`/profil/${user.id}`}>
+                <Link href={`/profil/${user.id}`}>
                   {user.avatar_url ? (
                     <Image
                       src={user.avatar_url}
@@ -93,67 +93,59 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
                   ) : (
                     <CircleUser size={50} strokeWidth={1.5} />
                   )}
-              </Link>
+                </Link>
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-bold text-base text-white truncate">{user.username}</p>
                 <p className="text-sm text-white/60">@{user.handle}</p>
               </div>
             </div>
-            {/* Stats : Oeuvres, Amis, Posts */}
             <div className="mt-2 p-2 rounded-[8px] bg-muted border border-border">
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div>
                   <p className="text-xl font-bold text-white">{workCount}</p>
-                  <p className="text-sm text-white/60">Oeuvres</p>
+                  <p className="text-sm text-white/60">{t('works')}</p>
                 </div>
                 <div>
                   <p className="text-xl font-bold text-white">{friendsCount}</p>
-                  <p className="text-sm text-white/60">Amis</p>
+                  <p className="text-sm text-white/60">{t('friends')}</p>
                 </div>
                 <div>
                   <p className="text-xl font-bold text-white">{postCounts}</p>
-                  <p className="text-sm text-white/60">Posts</p>
+                  <p className="text-sm text-white/60">{t('posts')}</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
       ) : null}
-      {/* Bloc Activité des amis a remplir quand l'API fonctionnera*/}
+
       <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-card">
         <div className="card-body flex justify-center w-full">
           {isAuthLoading ? null : isLoggedIn ? (
             <div className="flex gap-2">
               <Users size={20} />
-              <p className="text-sm"> Activité amis</p>
-              {/* Ajouter les activités des amis */}
+              <p className="text-sm">{t('friendActivity')}</p>
             </div>
           ) : (
             <div>
-              <Link
-                href="/login"
-                className="flex justify-center border-2 border-primary rounded-full p-2 pr-3 pl-3 bg-primary"
-              >
-                Se connecter
+              <Link href="/login" className="flex justify-center border-2 border-primary rounded-full p-2 pr-3 pl-3 bg-primary">
+                {t('login')}
               </Link>
-              <p className="flex justify-center p-2">ou</p>
-              <Link
-                href="/register"
-                className="flex justify-center border-2 border-primary rounded-full p-2 pr-3 pl-3 bg-primary"
-              >
-                S&apos;inscrire
+              <p className="flex justify-center p-2">{t('or')}</p>
+              <Link href="/register" className="flex justify-center border-2 border-primary rounded-full p-2 pr-3 pl-3 bg-primary">
+                {t('register')}
               </Link>
             </div>
           )}
         </div>
       </div>
-      {/* Bloc Top Mangas */}
+
       <div className="card w-full bg-accent shadow-sm border border-border rounded-card">
         <div className="card-body w-full">
           <div className="flex gap-2 items-center">
             <Flame size={20} />
-            <h3 className="text-sm font-semibold">Top Mangas</h3>
+            <h3 className="text-sm font-semibold">{t('topManga')}</h3>
           </div>
           {topManga.length > 0 ? (
             <ul className="flex flex-col gap-2 mt-2">
@@ -177,16 +169,16 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-text/60">Aucune donnée pour l&apos;instant</p>
+            <p className="text-sm text-text/60">{t('noData')}</p>
           )}
         </div>
       </div>
-      {/* Bloc Top Anime */}
+
       <div className="card w-full bg-accent shadow-sm border border-border rounded-card">
         <div className="card-body w-full">
           <div className="flex gap-2 items-center">
             <Flame size={20} />
-            <h3 className="text-sm font-semibold">Top Anime</h3>
+            <h3 className="text-sm font-semibold">{t('topAnime')}</h3>
           </div>
           {topAnime.length > 0 ? (
             <ul className="flex flex-col gap-2 mt-2">
@@ -210,7 +202,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-text/60">Aucune donnée pour l&apos;instant</p>
+            <p className="text-sm text-text/60">{t('noData')}</p>
           )}
         </div>
       </div>
