@@ -7,17 +7,20 @@ import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
 import { Trash2, Pencil, Plus, Hash } from 'lucide-react'
 import AdminGuard from '../components/AdminGuard'
+import { useTranslations } from 'next-intl'
 
 const ICON_OPTIONS = ['hash', 'tag', 'book-open']
-const GROUP_OPTIONS = ['Général', 'Genres', 'Œuvres']
 
 export default function AdminChannelsPage() {
+  const t = useTranslations('adminChannels')
   const { showToast } = useToast()
   const queryClient = useQueryClient()
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [form, setForm] = useState({ room: '', label: '', group: 'Général', icon: 'hash' })
+  const [form, setForm] = useState({ room: '', label: '', group: t('groupGeneral'), icon: 'hash' })
+
+  const GROUP_OPTIONS = [t('groupGeneral'), t('groupGenres'), t('groupWorks')]
 
   const { data: channels = [], isLoading: loadingChannels } = useQuery<Channel[]>({
     queryKey: ['channels'],
@@ -27,7 +30,7 @@ export default function AdminChannelsPage() {
   })
 
   const resetForm = () => {
-    setForm({ room: '', label: '', group: 'Général', icon: 'hash' })
+    setForm({ room: '', label: '', group: t('groupGeneral'), icon: 'hash' })
     setEditingId(null)
     setShowForm(false)
   }
@@ -37,10 +40,10 @@ export default function AdminChannelsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'channels'] })
       queryClient.invalidateQueries({ queryKey: ['channels'] })
-      showToast('Channel créé', 'success')
+      showToast(t('createSuccess'), 'success')
       resetForm()
     },
-    onError: (err: any) => showToast(err?.response?.data?.message ?? 'Erreur lors de la création', 'error'),
+    onError: (err: any) => showToast(err?.response?.data?.message ?? t('createError'), 'error'),
   })
 
   const { mutate: update, isPending: updating } = useMutation({
@@ -48,10 +51,10 @@ export default function AdminChannelsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'channels'] })
       queryClient.invalidateQueries({ queryKey: ['channels'] })
-      showToast('Channel mis à jour', 'success')
+      showToast(t('updateSuccess'), 'success')
       resetForm()
     },
-    onError: (err: any) => showToast(err?.response?.data?.message ?? 'Erreur lors de la mise à jour', 'error'),
+    onError: (err: any) => showToast(err?.response?.data?.message ?? t('updateError'), 'error'),
   })
 
   const { mutate: remove } = useMutation({
@@ -59,9 +62,9 @@ export default function AdminChannelsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin', 'channels'] })
       queryClient.invalidateQueries({ queryKey: ['channels'] })
-      showToast('Channel supprimé', 'success')
+      showToast(t('deleteSuccess'), 'success')
     },
-    onError: (err: any) => showToast(err?.response?.data?.message ?? 'Erreur lors de la suppression', 'error'),
+    onError: (err: any) => showToast(err?.response?.data?.message ?? t('deleteError'), 'error'),
   })
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -82,10 +85,10 @@ export default function AdminChannelsPage() {
 
   const handleDelete = (channel: Channel) => {
     if (channel.room === 'general') {
-      showToast('Impossible de supprimer le channel general', 'error')
+      showToast(t('deleteGeneralError'), 'error')
       return
     }
-    if (confirm(`Supprimer le channel "${channel.label}" ?`)) {
+    if (confirm(t('deleteConfirm', { label: channel.label }))) {
       remove(channel._id)
     }
   }
@@ -96,7 +99,7 @@ export default function AdminChannelsPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <Hash size={24} className="text-primary" />
-            Gestion des channels
+            {t('title')}
           </h1>
           <button
             className="btn btn-primary btn-sm"
@@ -106,16 +109,16 @@ export default function AdminChannelsPage() {
             }}
           >
             <Plus size={16} />
-            Nouveau channel
+            {t('newChannel')}
           </button>
         </div>
 
         {showForm && (
           <form onSubmit={handleSubmit} className="bg-accent border border-border rounded-card p-5 flex flex-col gap-3">
-            <h2 className="font-semibold">{editingId ? 'Modifier le channel' : 'Nouveau channel'}</h2>
+            <h2 className="font-semibold">{editingId ? t('formTitleEdit') : t('formTitleNew')}</h2>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-text/60">Room ID (identifiant unique, ex: one-piece)</label>
+              <label className="text-sm text-text/60">{t('fieldRoom')}</label>
               <input
                 className="input input-bordered"
                 value={form.room}
@@ -126,7 +129,7 @@ export default function AdminChannelsPage() {
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-sm text-text/60">Label affiché</label>
+              <label className="text-sm text-text/60">{t('fieldLabel')}</label>
               <input
                 className="input input-bordered"
                 value={form.label}
@@ -137,7 +140,7 @@ export default function AdminChannelsPage() {
 
             <div className="flex gap-3">
               <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm text-text/60">Groupe</label>
+                <label className="text-sm text-text/60">{t('fieldGroup')}</label>
                 <select
                   className="select select-bordered"
                   value={form.group}
@@ -150,7 +153,7 @@ export default function AdminChannelsPage() {
               </div>
 
               <div className="flex flex-col gap-1 flex-1">
-                <label className="text-sm text-text/60">Icône</label>
+                <label className="text-sm text-text/60">{t('fieldIcon')}</label>
                 <select
                   className="select select-bordered"
                   value={form.icon}
@@ -165,10 +168,10 @@ export default function AdminChannelsPage() {
 
             <div className="flex gap-2 justify-end mt-2">
               <button type="button" className="btn btn-ghost btn-sm" onClick={resetForm}>
-                Annuler
+                {t('cancel')}
               </button>
               <button type="submit" className="btn btn-primary btn-sm" disabled={creating || updating}>
-                {editingId ? 'Mettre à jour' : 'Créer'}
+                {editingId ? t('update') : t('create')}
               </button>
             </div>
           </form>
@@ -181,11 +184,11 @@ export default function AdminChannelsPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>Room</th>
-                  <th>Label</th>
-                  <th>Groupe</th>
-                  <th>Icône</th>
-                  <th>Actions</th>
+                  <th>{t('colRoom')}</th>
+                  <th>{t('colLabel')}</th>
+                  <th>{t('colGroup')}</th>
+                  <th>{t('colIcon')}</th>
+                  <th>{t('colActions')}</th>
                 </tr>
               </thead>
               <tbody>

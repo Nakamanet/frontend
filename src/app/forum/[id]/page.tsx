@@ -12,6 +12,7 @@ import { useAuth } from '@/app/context/AuthContext'
 import type { ForumReply } from '@/app/types/forum'
 import Loader from '@/app/components/Loader'
 import { useToast } from '@/app/context/ToastContext'
+import { useTranslations, useLocale } from 'next-intl'
 
 function groupReplies(replies: ForumReply[]): ForumReply[] {
   const topLevel = replies.filter(r => !r.parent_id).sort((a, b) => (b.votes_count ?? 0) - (a.votes_count ?? 0))
@@ -31,6 +32,9 @@ function groupReplies(replies: ForumReply[]): ForumReply[] {
 }
 
 export default function TopicDetailPage() {
+  const t = useTranslations('topicDetail')
+  const locale = useLocale()
+
   const params = useParams()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -38,16 +42,19 @@ export default function TopicDetailPage() {
   const { isLoggedIn, user } = useAuth()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
 
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-GB')
+
   const topicVoteMutation = useMutation({
     mutationFn: (id: number) => voteOnTopic(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] }),
-    onError: () => showToast("Erreur lors du vote", 'error')
+    onError: () => showToast(t('voteError'), 'error'),
   })
 
   const topicArchiveMutation = useMutation({
     mutationFn: (id: number) => archiveTopic(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums'] }),
-    onError: () => showToast("Erreur lors de l'archivage", 'error')
+    onError: () => showToast(t('archiveError'), 'error'),
   })
 
   const topicPinMutation = useMutation({
@@ -56,13 +63,13 @@ export default function TopicDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] })
       queryClient.invalidateQueries({ queryKey: ['user-pins'] })
     },
-    onError: () => showToast("Erreur lors de l'épinglage", 'error')
+    onError: () => showToast(t('pinError'), 'error'),
   })
 
   const replyVoteMutation = useMutation({
     mutationFn: (id: number) => voteOnReply(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] }),
-    onError: () => showToast("Erreur lors du vote", 'error')
+    onError: () => showToast(t('voteError'), 'error'),
   })
 
   const handleVote = (type: 'topic' | 'reply', id: number) => {
@@ -89,9 +96,12 @@ export default function TopicDetailPage() {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center p-10 border border-border bg-accent rounded-card text-text-muted text-[15px] gap-4">
-          Impossible de charger ce sujet.
-          <Link href="/forum" className="inline-flex items-center justify-center gap-1.5 rounded-full font-bold px-5 py-2.5 text-[15px] bg-primary text-white hover:bg-primary/85 transition-colors">
-            Retour au forum
+          {t('loadError')}
+          <Link
+            href="/forum"
+            className="inline-flex items-center justify-center gap-1.5 rounded-full font-bold px-5 py-2.5 text-[15px] bg-primary text-white hover:bg-primary/85 transition-colors"
+          >
+            {t('backToForum')}
           </Link>
         </div>
       </AppLayout>
@@ -101,14 +111,17 @@ export default function TopicDetailPage() {
   return (
     <AppLayout>
       <div className="flex flex-col gap-6 overflow-y-auto scrollbar-hide pb-10">
-        <Link href="/forum" className="inline-flex items-center gap-1.5 rounded-full border border-border text-text hover:border-primary hover:bg-primary/10 px-5 py-2.5 text-[15px] font-bold w-fit transition-colors">
-          ← Retour au forum
+        <Link
+          href="/forum"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border text-text hover:border-primary hover:bg-primary/10 px-5 py-2.5 text-[15px] font-bold w-fit transition-colors"
+        >
+          ← {t('backToForum')}
         </Link>
 
         {topic.is_archived && (
           <div className="flex items-center gap-2 px-4 py-3 bg-border/20 border border-border rounded-card text-text-muted text-sm">
             <Archive size={15} />
-            Ce sujet est archivé. Les nouvelles réponses sont désactivées.
+            {t('archivedNotice')}
           </div>
         )}
 
@@ -120,18 +133,18 @@ export default function TopicDetailPage() {
             {!!user && (user.id === topic.user_id || ['moderator', 'admin'].includes(user.role)) && (
               <button
                 onClick={() => topicArchiveMutation.mutate(topic.id)}
-                title={topic.is_archived ? 'Désarchiver' : 'Archiver ce sujet'}
+                title={topic.is_archived ? t('unarchive') : t('archive')}
                 className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-primary/20 hover:text-primary flex items-center gap-1.5 shrink-0"
               >
                 <Archive size={14} />
-                {topic.is_archived ? 'Désarchiver' : 'Archiver'}
+                {topic.is_archived ? t('unarchive') : t('archive')}
               </button>
             )}
           </div>
           <h1 className="text-2xl font-bold text-white mt-6">{topic.title}</h1>
           <p className="text-sm text-text-muted mt-2 mb-6">
-            Par <span className="font-bold text-white">{topic.user?.username || 'Anonyme'}</span> •{' '}
-            {new Date(topic.created_at).toLocaleDateString('fr-FR')}
+            {t('by')} <span className="font-bold text-white">{topic.user?.username || t('anonymous')}</span>{' '}
+            • {formatDate(topic.created_at)}
           </p>
           <div className="whitespace-pre-wrap text-[15px] text-white">{topic.content}</div>
           <div className="mt-4 flex items-center gap-2">
@@ -150,24 +163,26 @@ export default function TopicDetailPage() {
                   if (!isLoggedIn) { router.push('/login'); return }
                   topicPinMutation.mutate(topic.id)
                 }}
-                title={topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
+                title={topic.user_has_pinned ? t('unpinTitle') : t('pinTitle')}
                 className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
                   topic.user_has_pinned ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
                 }`}
               >
                 <Pin size={14} fill={topic.user_has_pinned ? 'currentColor' : 'none'} />
-                {topic.user_has_pinned ? 'Épinglé' : 'Épingler'}
+                {topic.user_has_pinned ? t('pinned') : t('pin')}
               </button>
             )}
           </div>
         </div>
 
         <div className="border-t border-border pt-6">
-          <h2 className="text-xl font-bold text-white mb-4">Participer à la discussion</h2>
+          <h2 className="text-xl font-bold text-white mb-4">{t('participate')}</h2>
           <ReplyForum topicId={topic.id} />
         </div>
 
-        <h2 className="text-xl font-bold text-white">Réponses ({topic.replies?.length || 0})</h2>
+        <h2 className="text-xl font-bold text-white">
+          {t('replies', { count: topic.replies?.length || 0 })}
+        </h2>
 
         <div className="flex flex-col gap-4">
           {topic.replies && topic.replies.length > 0 ? (() => {
@@ -175,46 +190,47 @@ export default function TopicDetailPage() {
             return groupReplies(topic.replies!).map((reply) => {
               const parentAuthor = reply.parent_id ? replyMap.get(reply.parent_id)?.user?.username : null
               return (
-              <div key={reply.id} className={`border border-border bg-accent rounded-card p-4 ${reply.parent_id ? 'ml-8' : ''}`}>
-                <p className="text-sm text-text-muted mb-3">
-                  <span className="font-bold text-white">{reply.user?.username || 'Anonyme'}</span> •{' '}
-                  {new Date(reply.created_at).toLocaleDateString('fr-FR')}
-                  {parentAuthor && (
-                    <span className="ml-2 text-[10px] font-bold px-2 py-0.5 bg-muted text-text-muted rounded-full uppercase tracking-wide">
-                      ↩ {parentAuthor}
-                    </span>
-                  )}
-                </p>
-                <div className="whitespace-pre-wrap text-[14px] text-text-muted mb-4">{reply.content}</div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleVote('reply', reply.id)}
-                    className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
-                      reply.user_has_voted ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
-                    }`}
-                  >
-                    <ThumbsUp size={14} />
-                    {reply.votes_count ?? 0}
-                  </button>
-                  {!reply.parent_id && (
+                <div key={reply.id} className={`border border-border bg-accent rounded-card p-4 ${reply.parent_id ? 'ml-8' : ''}`}>
+                  <p className="text-sm text-text-muted mb-3">
+                    <span className="font-bold text-white">{reply.user?.username || t('anonymous')}</span>{' '}
+                    • {formatDate(reply.created_at)}
+                    {parentAuthor && (
+                      <span className="ml-2 text-[10px] font-bold px-2 py-0.5 bg-muted text-text-muted rounded-full uppercase tracking-wide">
+                        ↩ {parentAuthor}
+                      </span>
+                    )}
+                  </p>
+                  <div className="whitespace-pre-wrap text-[14px] text-text-muted mb-4">{reply.content}</div>
+                  <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setReplyingTo(reply.id)}
-                      className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal hover:bg-primary rounded-full bg-primary/20 text-primary"
+                      onClick={() => handleVote('reply', reply.id)}
+                      className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
+                        reply.user_has_voted ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
+                      }`}
                     >
-                      Répondre
+                      <ThumbsUp size={14} />
+                      {reply.votes_count ?? 0}
                     </button>
+                    {!reply.parent_id && (
+                      <button
+                        onClick={() => setReplyingTo(reply.id)}
+                        className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal hover:bg-primary rounded-full bg-primary/20 text-primary"
+                      >
+                        {t('reply')}
+                      </button>
+                    )}
+                  </div>
+                  {replyingTo === reply.id && (
+                    <div className="mt-4">
+                      <ReplyForum topicId={topic.id} parentId={reply.id} onCancel={() => setReplyingTo(null)} />
+                    </div>
                   )}
                 </div>
-                {replyingTo === reply.id && (
-                  <div className="mt-4">
-                    <ReplyForum topicId={topic.id} parentId={reply.id} onCancel={() => setReplyingTo(null)} />
-                  </div>
-                )}
-              </div>
-            )})
+              )
+            })
           })() : (
             <div className="flex justify-center items-center p-10 text-text-muted text-[15px] border border-border bg-accent rounded-card">
-              Aucune réponse pour le moment. Soyez le premier !
+              {t('noReplies')}
             </div>
           )}
         </div>

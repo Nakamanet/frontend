@@ -3,12 +3,17 @@ import { useState, useEffect, useRef } from 'react'
 import { Smile, SendHorizonal, CircleUser } from 'lucide-react'
 import Image from 'next/image'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { fr, enUS } from 'date-fns/locale'
 import { User } from '../../types/auth'
 import { useChat } from '@/app/hooks/useChat'
 import Button from '@/app/components/ui/Button'
+import { useTranslations, useLocale } from 'next-intl'
 
 export default function Chat({ user }: { user: User | null }) {
+  const t = useTranslations('chatWidget')
+  const locale = useLocale()
+  const dateLocale = locale === 'fr' ? fr : enUS
+
   const { messages, connected, sendMessage } = useChat('general')
   const [input, setInput] = useState('')
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -25,64 +30,84 @@ export default function Chat({ user }: { user: User | null }) {
   }
 
   return (
-    <div className="flex flex-col w-full bg-accent h-auto py-2 shadow-sm border border-border rounded-card">
-      <div className="flex flex-col gap-2">
-        <div className="flex items-center justify-between px-3 pr-5">
-          <div className="flex">
-            <span className="text-primary text-4xl px-3">#</span>
-            <p className="text-xl py-2">Général</p>
-          </div>
-          <p className={`text-xs font-medium ${connected ? 'text-green-400' : 'text-primary'}`}>
-            {connected ? '● en ligne' : 'X en lignes'}
-          </p>
+    <div className="flex flex-col w-full bg-accent border border-border rounded-card overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-border">
+        <div className="flex items-center gap-1.5">
+          <span className="text-primary font-bold text-lg leading-none">#</span>
+          <p className="text-sm font-semibold">{t('channelName')}</p>
         </div>
-        <div>
-          <div ref={messagesContainerRef} className="flex flex-col gap-2 max-h-[280px] h-[280px] px-2 pb-2 overflow-y-auto scrollbar-hide">
-            {messages.map((message) => {
-              const isMe = user && message.username === user.username
-              return (
-                <div key={message._id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : ''}`}>
-                  <div className="w-8 h-8 shrink-0 rounded-full overflow-hidden bg-muted border-2 border-border flex items-center justify-center">
-                    {message.avatar_url ? (
-                      <Image
-                        src={message.avatar_url}
-                        alt="Avatar"
-                        width={32}
-                        height={32}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <CircleUser size={18} strokeWidth={1.5} className="text-base-content/70" />
-                    )}
-                  </div>
-                  <div className={`flex flex-col gap-0.5 max-w-[85%] ${isMe ? 'items-end' : 'items-start'}`}>
-                    <div className={`px-3 py-2 rounded-2xl ${isMe ? 'bg-primary rounded-tr-md' : 'bg-muted rounded-tl-md'}`}>
-                      <p className="text-xs font-medium opacity-90">{isMe ? 'Moi' : message.username}</p>
-                      <p className="text-sm">{message.content}</p>
-                    </div>
-                    <p className="text-xs text-base-content/60 px-1">
-                      {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: fr })}
-                    </p>
-                  </div>
+        <span className="flex items-center gap-1 text-[11px] font-medium">
+          <span className={`relative flex h-1.5 w-1.5`}>
+            {connected && (
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
+            )}
+            <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${connected ? 'bg-success' : 'bg-error'}`} />
+          </span>
+          <span className={connected ? 'text-success' : 'text-error'}>
+            {connected ? t('online') : t('offline')}
+          </span>
+        </span>
+      </div>
+
+      {/* Messages */}
+      <div
+        ref={messagesContainerRef}
+        className="flex flex-col gap-2 h-[260px] px-2 py-2 overflow-y-auto scrollbar-hide"
+      >
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-xs text-base-content/40">{t('empty')}</p>
+          </div>
+        ) : (
+          messages.map((message) => {
+            const isMe = user && message.username === user.username
+            return (
+              <div key={message._id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : ''}`}>
+                <div className="w-7 h-7 shrink-0 rounded-full overflow-hidden bg-muted border border-border flex items-center justify-center">
+                  {message.avatar_url ? (
+                    <Image
+                      src={message.avatar_url}
+                      alt="Avatar"
+                      width={28}
+                      height={28}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <CircleUser size={16} strokeWidth={1.5} className="text-base-content/70" />
+                  )}
                 </div>
-              )
-            })}
-          </div>
-          <div className="flex items-center gap-2 mx-2 mt-2 p-2 bg-muted rounded-full border border-border">
-            <Smile size={20} className="text-text/50 shrink-0 hover:text-primary transition-colors cursor-pointer" />
-            <input
-              type="text"
-              placeholder="Envoyer un message"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"
-            />
-            <Button type="button" variant="icon" onClick={handleSend} aria-label="Envoyer">
-              <SendHorizonal size={18} />
-            </Button>
-          </div>
-        </div>
+                <div className={`flex flex-col gap-0.5 max-w-[80%] ${isMe ? 'items-end' : 'items-start'}`}>
+                  <div className={`px-2.5 py-1.5 rounded-2xl ${isMe ? 'bg-primary rounded-tr-sm' : 'bg-muted rounded-tl-sm'}`}>
+                    <p className="text-[11px] font-medium opacity-75 mb-0.5">
+                      {isMe ? t('me') : message.username}
+                    </p>
+                    <p className="text-xs leading-snug">{message.content}</p>
+                  </div>
+                  <p className="text-[10px] text-base-content/40 px-1">
+                    {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: dateLocale })}
+                  </p>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="flex items-center gap-1.5 mx-2 mb-2 px-2 py-1 bg-muted rounded-full border border-border">
+        <Smile size={16} className="text-text/40 shrink-0 hover:text-primary transition-colors cursor-pointer" />
+        <input
+          type="text"
+          placeholder={t('placeholder')}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          className="input input-ghost w-full min-w-0 bg-transparent text-xs text-text placeholder:text-text/35 focus:outline-none py-1"
+        />
+        <Button type="button" variant="icon" onClick={handleSend} aria-label={t('send')}>
+          <SendHorizonal size={15} />
+        </Button>
       </div>
     </div>
   )

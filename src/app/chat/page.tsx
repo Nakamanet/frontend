@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 import Button from '../components/ui/Button'
 import Loader from '../components/Loader'
 import SectionSwitcher from '../components/ui/SectionSwitcher'
+import { useTranslations } from 'next-intl'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   hash: <Hash size={16} />,
@@ -17,6 +18,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 }
 
 export default function ChatPage() {
+  const t = useTranslations('chat')
   const { user, isLoggedIn } = useAuth()
   const [activeRoom, setActiveRoom] = useState('general')
   const { messages, connected, sendMessage } = useChat(activeRoom)
@@ -52,6 +54,7 @@ export default function ChatPage() {
           onClick={() => setSidebarOpen(false)}
         />
       )}
+
       {/* Sidebar */}
       <aside
         className={`${sidebarOpen ? 'flex' : 'hidden'} md:flex w-72 max-w-[85vw] border-r border-base-300 flex-col bg-base-200/30 fixed md:static inset-y-0 left-0 z-60 md:z-auto`}
@@ -59,9 +62,14 @@ export default function ChatPage() {
         <div className="p-4 border-b border-base-300 flex items-center justify-between">
           <h1 className="font-semibold text-lg flex items-center gap-2">
             <Users size={18} className="text-primary" />
-            Salons
+            {t('channels')}
           </h1>
-          <button type="button" className="md:hidden btn btn-ghost btn-sm btn-circle" onClick={() => setSidebarOpen(false)} aria-label="Fermer">
+          <button
+            type="button"
+            className="md:hidden btn btn-ghost btn-sm btn-circle"
+            onClick={() => setSidebarOpen(false)}
+            aria-label={t('close')}
+          >
             <X size={18} />
           </button>
         </div>
@@ -73,7 +81,7 @@ export default function ChatPage() {
             </div>
           ) : channels.length === 0 ? (
             <p className="text-center text-xs text-base-content/40 px-3 py-6">
-              Aucun channel disponible pour le moment.
+              {t('noChannels')}
             </p>
           ) : (
             Object.entries(groupedChannels).map(([group, groupChannels]) => (
@@ -97,20 +105,27 @@ export default function ChatPage() {
         </div>
 
         <div className="p-3 border-t border-base-300 flex items-center gap-2 text-xs">
-          <span className={`relative flex h-2 w-2`}>
+          <span className="relative flex h-2 w-2">
             {connected && (
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" />
             )}
             <span className={`relative inline-flex rounded-full h-2 w-2 ${connected ? 'bg-success' : 'bg-error'}`} />
           </span>
-          <span className="text-base-content/60">{connected ? 'Connecté' : 'Déconnecté'}</span>
+          <span className="text-base-content/60">
+            {connected ? t('connected') : t('disconnected')}
+          </span>
         </div>
       </aside>
 
       {/* Main chat area */}
       <main className="flex-1 flex flex-col">
         <div className="px-5 py-4 border-b border-base-300 flex items-center gap-2 bg-base-100/50 backdrop-blur-sm">
-          <button type="button" className="md:hidden btn btn-ghost btn-sm btn-circle" onClick={() => setSidebarOpen(true)} aria-label="Salons">
+          <button
+            type="button"
+            className="md:hidden btn btn-ghost btn-sm btn-circle"
+            onClick={() => setSidebarOpen(true)}
+            aria-label={t('channels')}
+          >
             <Menu size={18} />
           </button>
           <span className="text-primary">
@@ -123,9 +138,7 @@ export default function ChatPage() {
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-2">
               <Hash size={32} className="text-base-content/20" />
-              <p className="text-base-content/40 text-sm">
-                Aucun message pour l&apos;instant. Soyez le premier à écrire !
-              </p>
+              <p className="text-base-content/40 text-sm">{t('noMessages')}</p>
             </div>
           ) : (
             messages.map((m) => {
@@ -149,7 +162,7 @@ export default function ChatPage() {
           <div className="p-4 border-t border-base-300">
             <div className="alert alert-warning text-sm">
               <LogIn size={18} />
-              <span>Vous devez être connecté pour envoyer des messages.</span>
+              <span>{t('loginToSend')}</span>
             </div>
           </div>
         ) : (
@@ -158,11 +171,15 @@ export default function ChatPage() {
               className="input input-bordered flex-1"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={connected ? `Écrire dans #${activeChannel?.label ?? activeRoom}...` : 'Connexion en cours...'}
+              placeholder={
+                connected
+                  ? t('inputPlaceholder', { channel: activeChannel?.label ?? activeRoom })
+                  : t('connecting')
+              }
               disabled={!canSend}
             />
             <Button type="submit" disabled={!canSend || !input.trim()}>
-              Envoyer
+              {t('send')}
             </Button>
           </form>
         )}

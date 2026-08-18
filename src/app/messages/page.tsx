@@ -3,15 +3,19 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useQuery } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
+import { fr, enUS } from 'date-fns/locale'
 import { MessageSquare, CircleUser } from 'lucide-react'
 import { useAuth } from '@/app/context/AuthContext'
 import { getMyDms, getOtherUserId } from '@/app/lib/dm'
 import Loader from '@/app/components/Loader'
+import { useTranslations, useLocale } from 'next-intl'
 
 export default function MessagesPage() {
-  const { user, isLoggedIn } = useAuth()
+  const t = useTranslations('messages')
+  const locale = useLocale()
+  const dateLocale = locale === 'fr' ? fr : enUS
 
+  const { user, isLoggedIn } = useAuth()
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ['dms'],
     queryFn: getMyDms,
@@ -21,7 +25,7 @@ export default function MessagesPage() {
   if (!isLoggedIn) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-8rem)] md:h-[calc(100vh-4rem)]">
-        <p className="text-base-content/60">Vous devez être connecté pour voir vos messages.</p>
+        <p className="text-base-content/60">{t('notLoggedIn')}</p>
       </div>
     )
   }
@@ -30,15 +34,12 @@ export default function MessagesPage() {
     <div className="max-w-2xl mx-auto p-6 pb-20 md:pb-6 flex flex-col gap-4">
       <h1 className="text-2xl font-bold flex items-center gap-2">
         <MessageSquare size={22} className="text-primary" />
-        Messages
+        {t('title')}
       </h1>
-
       {isLoading ? (
         <Loader />
       ) : conversations.length === 0 ? (
-        <p className="text-base-content/60 text-sm">
-          Aucune conversation pour l&apos;instant. Rendez-vous sur le profil de quelqu&apos;un pour lui écrire.
-        </p>
+        <p className="text-base-content/60 text-sm">{t('empty')}</p>
       ) : (
         <div className="flex flex-col gap-1">
           {conversations.map((conv) => {
@@ -64,11 +65,16 @@ export default function MessagesPage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{isMine ? 'Vous' : conv.lastMessage.username}</p>
+                  <p className="font-medium text-sm truncate">
+                    {isMine ? t('you') : conv.lastMessage.username}
+                  </p>
                   <p className="text-xs text-base-content/60 truncate">{conv.lastMessage.content}</p>
                 </div>
                 <span className="text-xs text-base-content/40 shrink-0">
-                  {formatDistanceToNow(new Date(conv.lastMessage.created_at), { addSuffix: true, locale: fr })}
+                  {formatDistanceToNow(new Date(conv.lastMessage.created_at), {
+                    addSuffix: true,
+                    locale: dateLocale,
+                  })}
                 </span>
               </Link>
             )

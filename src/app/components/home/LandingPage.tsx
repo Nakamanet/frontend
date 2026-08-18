@@ -1,7 +1,63 @@
-
 import Link from 'next/link'
 import { PenLine, MessageCircle, Users, BookOpen, Star, Check } from 'lucide-react'
-import { getTranslations } from 'next-intl/server'
+
+export type LandingTranslations = {
+  heroLine1: string
+  heroManga: string
+  heroAnime: string
+  heroLine3: string
+  heroSubtitle: string
+  heroCta: string
+  heroCtaFeatures: string
+  featurePosts: string
+  featurePostsDesc: string
+  featureChat: string
+  featureChatDesc: string
+  featureForum: string
+  featureForumDesc: string
+  featureLibrary: string
+  featureLibraryDesc: string
+  featureMyList: string
+  featureMyListDesc: string
+  row1Title: string
+  row1TitleSub: string
+  row1Desc: string
+  row1b1: string
+  row1b2: string
+  row1b3: string
+  row2Title: string
+  row2TitleSub: string
+  row2Desc: string
+  row2b1: string
+  row2b2: string
+  row2b3: string
+  row3Title: string
+  row3TitleSub: string
+  row3Desc: string
+  row3b1: string
+  row3b2: string
+  row3b3: string
+  row4Title: string
+  row4TitleSub: string
+  row4Desc: string
+  row4b1: string
+  row4b2: string
+  row4b3: string
+  row5Title: string
+  row5TitleSub: string
+  row5Desc: string
+  row5b1: string
+  row5b2: string
+  row5b3: string
+  ctaTitle: string
+  ctaTitleSub: string
+  ctaSubtitle1: string
+  ctaSubtitle2: string
+  ctaButton: string
+  ctaBadge1: string
+  ctaBadge2: string
+  ctaBadge3: string
+}
 
 function Bullet({ children }: { children: React.ReactNode }) {
   return (
@@ -51,15 +107,13 @@ function FeatureRow({
   )
 }
 
-export default async function LandingPage() {
-  const t = await getTranslations('landing')
-
+export default function LandingPage({ tr }: { tr: LandingTranslations }) {
   const FEATURES = [
-    { icon: PenLine,       title: t('featurePosts'),   desc: t('featurePostsDesc') },
-    { icon: MessageCircle, title: t('featureChat'),    desc: t('featureChatDesc') },
-    { icon: Users,         title: t('featureForum'),   desc: t('featureForumDesc') },
-    { icon: BookOpen,      title: t('featureLibrary'), desc: t('featureLibraryDesc') },
-    { icon: Star,          title: t('featureMyList'),  desc: t('featureMyListDesc') },
+    { icon: PenLine,       title: tr.featurePosts,   desc: tr.featurePostsDesc },
+    { icon: MessageCircle, title: tr.featureChat,    desc: tr.featureChatDesc },
+    { icon: Users,         title: tr.featureForum,   desc: tr.featureForumDesc },
+    { icon: BookOpen,      title: tr.featureLibrary, desc: tr.featureLibraryDesc },
+    { icon: Star,          title: tr.featureMyList,  desc: tr.featureMyListDesc },
   ]
 
   return (
@@ -76,33 +130,32 @@ export default async function LandingPage() {
         <div className="max-w-6xl mx-auto px-6 md:px-12 py-20 md:py-28 grid md:grid-cols-5 gap-14 items-center">
           <div className="md:col-span-3">
             <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.05] mb-6">
-              {t('heroLine1')}
+              {tr.heroLine1}
               <br />
-              <span className="text-manga">{t('heroManga')}</span>
+              <span className="text-manga">{tr.heroManga}</span>
               {' & '}
-              <span className="text-anime">{t('heroAnime')}</span>,
+              <span className="text-anime">{tr.heroAnime}</span>,
               <br />
-              {t('heroLine3')}
+              {tr.heroLine3}
             </h1>
             <p className="text-text/55 text-lg leading-relaxed mb-10 max-w-md">
-              {t('heroSubtitle')}
+              {tr.heroSubtitle}
             </p>
             <div className="flex gap-3 flex-wrap">
               <Link
                 href="/register"
                 className="inline-flex items-center rounded-full px-8 py-3.5 text-base bg-primary hover:bg-primary/85 text-white font-bold transition-colors"
               >
-                {t('heroCta')}
+                {tr.heroCta}
               </Link>
               <a
                 href="#features"
                 className="inline-flex items-center rounded-full px-8 py-3.5 text-base border border-border text-text font-bold hover:border-primary hover:bg-primary/10 transition-colors"
               >
-                {t('heroCtaFeatures')}
+                {tr.heroCtaFeatures}
               </a>
             </div>
           </div>
-
           <div className="hidden md:block md:col-span-2">
             <IllustrationPlaceholder />
           </div>
@@ -135,13 +188,13 @@ export default async function LandingPage() {
         id="feat-posts"
         title={
           <>
-            {t('row1Title')}
+            {tr.row1Title}
             <br />
-            <span className="text-text/30">{t('row1TitleSub')}</span>
+            <span className="text-text/30">{tr.row1TitleSub}</span>
           </>
         }
-        description={t('row1Desc')}
-        bullets={[t('row1b1'), t('row1b2'), t('row1b3')]}
+        description={tr.row1Desc}
+        bullets={[tr.row1b1, tr.row1b2, tr.row1b3]}
       />
 
       <FeatureRow
@@ -150,26 +203,26 @@ export default async function LandingPage() {
         reverse
         title={
           <>
-            {t('row2Title')}
+            {tr.row2Title}
             <br />
-            <span className="text-text/30">{t('row2TitleSub')}</span>
+            <span className="text-text/30">{tr.row2TitleSub}</span>
           </>
         }
-        description={t('row2Desc')}
-        bullets={[t('row2b1'), t('row2b2'), t('row2b3')]}
+        description={tr.row2Desc}
+        bullets={[tr.row2b1, tr.row2b2, tr.row2b3]}
       />
 
       <FeatureRow
         id="feat-forum"
         title={
           <>
-            {t('row3Title')}
+            {tr.row3Title}
             <br />
-            <span className="text-text/30">{t('row3TitleSub')}</span>
+            <span className="text-text/30">{tr.row3TitleSub}</span>
           </>
         }
-        description={t('row3Desc')}
-        bullets={[t('row3b1'), t('row3b2'), t('row3b3')]}
+        description={tr.row3Desc}
+        bullets={[tr.row3b1, tr.row3b2, tr.row3b3]}
       />
 
       <FeatureRow
@@ -178,26 +231,26 @@ export default async function LandingPage() {
         reverse
         title={
           <>
-            {t('row4Title')}
+            {tr.row4Title}
             <br />
-            <span className="text-text/30">{t('row4TitleSub')}</span>
+            <span className="text-text/30">{tr.row4TitleSub}</span>
           </>
         }
-        description={t('row4Desc')}
-        bullets={[t('row4b1'), t('row4b2'), t('row4b3')]}
+        description={tr.row4Desc}
+        bullets={[tr.row4b1, tr.row4b2, tr.row4b3]}
       />
 
       <FeatureRow
         id="feat-mylib"
         title={
           <>
-            {t('row5Title')}
+            {tr.row5Title}
             <br />
-            <span className="text-text/30">{t('row5TitleSub')}</span>
+            <span className="text-text/30">{tr.row5TitleSub}</span>
           </>
         }
-        description={t('row5Desc')}
-        bullets={[t('row5b1'), t('row5b2'), t('row5b3')]}
+        description={tr.row5Desc}
+        bullets={[tr.row5b1, tr.row5b2, tr.row5b3]}
       />
 
       {/* CTA */}
@@ -211,32 +264,32 @@ export default async function LandingPage() {
         />
         <div className="max-w-2xl mx-auto px-6 py-24 md:py-32 text-center">
           <h2 className="text-4xl md:text-6xl font-extrabold leading-[1.08] mb-6">
-            {t('ctaTitle')}
+            {tr.ctaTitle}
             <br />
-            {t('ctaTitleSub')}
+            {tr.ctaTitleSub}
           </h2>
           <p className="text-text/55 text-lg leading-relaxed mb-12">
-            {t('ctaSubtitle1')}
+            {tr.ctaSubtitle1}
             <br />
-            {t('ctaSubtitle2')}
+            {tr.ctaSubtitle2}
           </p>
           <div className="flex justify-center mb-10">
             <Link
               href="/register"
               className="inline-flex items-center gap-2 rounded-full px-8 py-3.5 text-base bg-primary hover:bg-primary/85 text-white font-bold transition-colors"
             >
-              {t('ctaButton')}
+              {tr.ctaButton}
             </Link>
           </div>
           <div className="flex items-center justify-center gap-6 flex-wrap text-text/45 text-sm">
             <span className="flex items-center gap-1.5">
-              <Check size={14} className="text-primary" /> {t('ctaBadge1')}
+              <Check size={14} className="text-primary" /> {tr.ctaBadge1}
             </span>
             <span className="flex items-center gap-1.5">
-              <Check size={14} className="text-primary" /> {t('ctaBadge2')}
+              <Check size={14} className="text-primary" /> {tr.ctaBadge2}
             </span>
             <span className="flex items-center gap-1.5">
-              <Check size={14} className="text-primary" /> {t('ctaBadge3')}
+              <Check size={14} className="text-primary" /> {tr.ctaBadge3}
             </span>
           </div>
         </div>
