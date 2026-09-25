@@ -2,16 +2,16 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search, Bell, User, LogOut } from 'lucide-react'
+import { Search, Bell, User, LogOut, Shield } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { CircleUser } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/app/lib/notifications'
 import SearchModal from '../SearchModal'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/context/ToastContext'
-import { acceptFriend } from '@/app/lib/friends'
+import { acceptFriend, declineFriend } from '@/app/lib/friends'
 import Loader from '@/app/components/Loader'
 
 export default function Navbar() {
@@ -22,12 +22,31 @@ export default function Navbar() {
   const { showToast } = useToast()
   const DAY_MS = 24 * 60 * 60 * 1000
 
+  const [prevUnreadCount, setPrevUnreadCount] = useState<number | null>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
+
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: getUnreadCount,
     enabled: isLoggedIn,
-    refetchInterval: 30000,
+    refetchInterval: 3000,
   })
+  useEffect(() => {
+    // Only play sound if it's not the initial fetch (prevUnreadCount is not null)
+    if (prevUnreadCount !== null && unreadCount > prevUnreadCount) {
+      // Play sound
+      const audio = document.getElementById('notificationSound') as HTMLAudioElement;
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log('Audio autoplay blocked', e));
+      }
+      
+      // Trigger animation
+      setIsAnimating(true)
+      setTimeout(() => setIsAnimating(false), 1000)
+    }
+    setPrevUnreadCount(unreadCount)
+  }, [unreadCount, prevUnreadCount])
 
   const { data: notifications, isLoading: notificationsLoading } = useQuery({
     queryKey: ['notifications'],
@@ -39,7 +58,7 @@ export default function Navbar() {
       )
     }),
     enabled: isLoggedIn,
-    refetchInterval: 30000,
+    refetchInterval: 3000,
   })
 
   const notificationsList = notifications?.data ?? []
@@ -53,9 +72,19 @@ export default function Navbar() {
     onSuccess:() => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       queryClient.invalidateQueries({ queryKey: ['friends'] })
-      showToast("Invitation accepté.", "success")
+      showToast("Invitation acceptée.", "success")
     },
     onError: () => showToast("Erreur lors de l'acceptation.", "error")
+  })
+
+  const declineMutation = useMutation({
+    mutationFn: declineFriend,
+    onSuccess:() => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: ['friends'] })
+      showToast("Invitation refusée.", "success")
+    },
+    onError: () => showToast("Erreur lors du refus.", "error")
   })
 
   const markAsReadMutation = useMutation({
@@ -72,7 +101,8 @@ export default function Navbar() {
 
 
   return (
-    <header className="w-full border-b border-border bg-accent">
+    <header className="w-full border-b border-border bg-accent relative z-50">
+      <audio id="notificationSound" src="/sounds/notification.mp3" preload="auto" className="hidden"></audio>
       <div className="navbar justify-between p-2 text-xl max-w-[1500px] mx-auto">
         <div className="pl-4 md:pl-10">
           <Link href="/">
@@ -86,11 +116,6 @@ export default function Navbar() {
           <Link href="/forum" className="hover:text-primary transition-colors">Forum</Link>
           <Link href="/chat" className="hover:text-primary transition-colors">Chat</Link>
           <Link href="/messages" className="hover:text-primary transition-colors">Messages</Link>
-          {user?.is_admin && (
-            <Link href="/admin" className="...">
-              Admin
-            </Link>
-          )}
         </div>
 
         {/* Right side */}
@@ -121,7 +146,7 @@ export default function Navbar() {
               {/* Notifications */}
               <div className='dropdown dropdown-end relative tooltip tooltip-bottom' data-tip="Notifications">
                 <div tabIndex={0} role='button' className='relative'>
-                  <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
+                  <Bell size={27} className={`cursor-pointer hover:text-primary transition-colors ${isAnimating ? 'animate-bounce text-primary' : ''}`} />
                   {unreadCount > 0 && (
                     <span className='absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
@@ -144,23 +169,52 @@ export default function Navbar() {
                             onClick={() => { markAsReadMutation.mutate(n.id); router.push('/profil#amis') } }
                           >
                             {n.type === 'friend_request' && (
-                              <div className='flex text-base'>
-                                {n.sender.avatar_url ? (
-                                  <Image
-                                    src={n.sender.avatar_url}
-                                    alt='pp'
-                                    width={55}
-                                    height={20}
-                                    className='rounded-full m-2'
-                                  />
-                                ) : (
-                                  <User size={40} className='rounded-full m-2' />
-                                )}
-                                <p className=''>
-                                  <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
-                                {" "} vous a envoyé une demande d&apos;ami
-                                </p>
-                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number, { onSuccess: () => markAsReadMutation.mutate(n.id) })}}>Accepter</button>
+                              <div className='flex flex-col text-sm w-full pt-1'>
+                                <div className='flex items-center px-1'>
+                                  {n.sender.avatar_url ? (
+                                    <Image
+                                      src={n.sender.avatar_url}
+                                      alt='pp'
+                                      width={40}
+                                      height={40}
+                                      className='rounded-full m-2 object-cover aspect-square shrink-0'
+                                    />
+                                  ) : (
+                                    <User size={30} className='rounded-full m-2 shrink-0' />
+                                  )}
+                                  <p className='ml-1 flex-1 leading-tight'>
+                                    <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`} className="font-bold hover:underline">
+                                      {n.sender.username}
+                                    </Link>
+                                    {" "} vous a envoyé une demande d&apos;ami
+                                  </p>
+                                </div>
+                                <div className='flex gap-2 justify-end px-3 pb-2 mt-1 relative z-[110]'>
+                                  <button
+                                    className='btn btn-primary btn-sm rounded-full'
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      acceptMutation.mutate(n.payload.friendship_id as number, {
+                                        onSuccess: () => markAsReadMutation.mutate(n.id)
+                                      })
+                                    }}
+                                  >
+                                    Accepter
+                                  </button>
+                                  <button
+                                    className='btn btn-outline btn-error btn-sm rounded-full'
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      declineMutation.mutate(n.payload.friendship_id as number, {
+                                        onSuccess: () => markAsReadMutation.mutate(n.id)
+                                      })
+                                    }}
+                                  >
+                                    Refuser
+                                  </button>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -182,6 +236,14 @@ export default function Navbar() {
                   </div>
                 </div>
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
+                   {user?.is_admin && (
+                   <li>
+                    <Link href="/admin" className="hover:text-primary transition-colors flex items-center gap-2">
+                      <Shield size={20} />
+                      <p>Admin</p>
+                    </Link>
+                  </li>
+                  )}
                   <li>
                     <Link href="/profil">
                       <User size={20} />

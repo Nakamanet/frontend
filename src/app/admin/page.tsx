@@ -1,12 +1,13 @@
 'use client'
 
 import Link from 'next/link'
-import { Users, Hash, Shield } from 'lucide-react'
+import { Users, Hash, Shield, Flag } from 'lucide-react'
 import AdminGuard from './components/AdminGuard'
 
 const SECTIONS = [
   { href: '/admin/users', label: 'Utilisateurs', icon: Users, description: 'Gérer les comptes, rôles et accès' },
   { href: '/admin/channels', label: 'Channels', icon: Hash, description: 'Gérer les salons de discussion' },
+  { href: '/admin/reports', label: 'Signalements', icon: Flag, description: 'Modérer les contenus signalés' },
 ]
 
 export default function AdminPage() {
@@ -23,7 +24,7 @@ export default function AdminPage() {
             <Link
               key={section.href}
               href={section.href}
-              className="bg-accent border border-border rounded-card p-5 flex flex-col gap-2 hover:border-primary/50 transition-colors"
+              className="bg-accent border border-border rounded-[15px] p-5 flex flex-col gap-2 hover:border-primary/50 transition-colors"
             >
               <div className="flex items-center gap-2">
                 <section.icon size={20} className="text-primary" />

@@ -183,7 +183,7 @@ export default function ProfilPage() {
           </div>
           <div className="flex flex-col absolute bottom-1 left-24 md:left-30 max-w-[130px] md:max-w-none">
             <p className="text-lg truncate">{profileUser.username}</p>
-            <p className="text-white/70 truncate">@{profileUser.username}</p>
+            <p className="text-white/70 truncate">@{profileUser.handle}</p>
           </div>
         </div>
       </section>

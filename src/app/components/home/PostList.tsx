@@ -19,6 +19,7 @@ import { useToast } from '@/app/context/ToastContext'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
 import Button from '@/app/components/ui/Button'
+import MentionInput from '../MentionInput'
 
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
   const [filter, setFilter] = useState('all')
@@ -71,13 +72,11 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
             </div>
             <div className="flex flex-col gap-2 w-full">
               <div>
-                <input
-                  type="text"
+               <MentionInput
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Partage ton avis sur un manga, un anime, etc"
-                  maxLength={500}
-                  className="input text-text placeholder:text-text/40 input-ghost w-full h-10"
+                  onChange={setContent}
+                  placeholder="Quoi de neuf?"
+                  className="textarea textarea-ghost bg-border w-full resize-none rounded-2xl"
                 />
               </div>
               <div className="flex justify-between gap-2">

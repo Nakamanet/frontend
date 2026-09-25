@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { getMangas } from '@/app/lib/catalogue'
 import { ChevronRight, SlidersHorizontal } from 'lucide-react'
-import SearchBarPage from '../../components/SearchBar'
 import Pagination from './Pagination'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -35,8 +34,7 @@ export default function MangaPage() {
           <ChevronRight size={16} />
           Manga
         </p>
-        <div className="flex gap-10 w-full h-full">
-          <SearchBarPage className="w-full" />
+        <div className="flex justify-end w-full h-full">
           <button onClick={() => setOpenModal(true)} className="btn btn-ghost bg-accent rounded-card">
             <SlidersHorizontal />
             <p>Filtres</p>
