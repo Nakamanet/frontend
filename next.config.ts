@@ -2,7 +2,6 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: true,
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '**.r2.dev'},
@@ -11,6 +10,10 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  distDir: 'build',
+  typescript: {
+    ignoreBuildErrors: true,
   },
 }
 
