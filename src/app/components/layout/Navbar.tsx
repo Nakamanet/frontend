@@ -22,7 +22,7 @@ export default function Navbar() {
   const { showToast } = useToast()
   const DAY_MS = 24 * 60 * 60 * 1000
 
-  const [prevUnreadCount, setPrevUnreadCount] = useState(0)
+  const [prevUnreadCount, setPrevUnreadCount] = useState<number | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
 
   const { data: unreadCount = 0 } = useQuery({
@@ -32,10 +32,12 @@ export default function Navbar() {
     refetchInterval: 3000,
   })
   useEffect(() => {
-    if (unreadCount > prevUnreadCount) {
+    // Only play sound if it's not the initial fetch (prevUnreadCount is not null)
+    if (prevUnreadCount !== null && unreadCount > prevUnreadCount) {
       // Play sound
       const audio = document.getElementById('notificationSound') as HTMLAudioElement;
       if (audio) {
+        audio.currentTime = 0;
         audio.play().catch(e => console.log('Audio autoplay blocked', e));
       }
       
