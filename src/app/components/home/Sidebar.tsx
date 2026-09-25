@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { User } from '../../types/auth'
 import Link from 'next/link'
-import { CircleUser, Users, Flame } from 'lucide-react'
+import { CircleUser, Flame } from 'lucide-react'
 import { getUserPosts } from '@/app/lib/user'
 import { getFriends } from '@/app/lib/friends'
 import { getMyAnime, getMyManga, getTopAnime, getTopManga } from '@/app/lib/library'
@@ -120,16 +120,9 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
           </div>
         </div>
       ) : null}
-      {/* Bloc Activité des amis a remplir quand l'API fonctionnera*/}
-      <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-card">
-        <div className="card-body flex justify-center w-full">
-          {isAuthLoading ? null : isLoggedIn ? (
-            <div className="flex gap-2">
-              <Users size={20} />
-              <p className="text-sm"> Activité amis</p>
-              {/* Ajouter les activités des amis */}
-            </div>
-          ) : (
+      {!isAuthLoading && !isLoggedIn && (
+        <div className="card w-full bg-accent shadow-sm place-items-center border border-border rounded-card">
+          <div className="card-body flex justify-center w-full">
             <div>
               <Link
                 href="/login"
@@ -145,9 +138,9 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
                 S&apos;inscrire
               </Link>
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
       {/* Bloc Top Mangas */}
       <div className="card w-full bg-accent shadow-sm border border-border rounded-card">
         <div className="card-body w-full">

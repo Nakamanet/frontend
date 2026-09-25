@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Flame,
   Clock,
@@ -14,24 +14,56 @@ import {
 import Image from 'next/image'
 import { User } from '../../types/auth'
 import PostCards from '../PostCards'
-import { getPosts, createPost,GetPostsParams } from '@/app/lib/post'
+import { getPosts, createPost, GetPostsParams } from '@/app/lib/post'
 import { useToast } from '@/app/context/ToastContext'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
 import Button from '@/app/components/ui/Button'
 import MentionInput from '../MentionInput'
 
+// Le back pagine par 20 : on affiche par blocs de 10 côté front
+const POSTS_PER_BLOCK = 10
+
 export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; user: User | null }) {
   const [filter, setFilter] = useState('all')
+  const [visibleCount, setVisibleCount] = useState(POSTS_PER_BLOCK)
   const [content, setContent] = useState('')
   const { showToast } = useToast()
   const queryClient = useQueryClient()
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['posts', { userId: user?.id, filter }],
-    queryFn: () => getPosts({ filter: filter as GetPostsParams['filter'] }),
+    queryFn: ({ pageParam }) =>
+      getPosts({ page: pageParam, filter: filter as GetPostsParams['filter'] }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.current_page < lastPage.last_page ? lastPage.current_page + 1 : undefined,
   })
-  const posts = data?.data ?? []
+  const allPosts = data?.pages.flatMap((page) => page.data) ?? []
+  const posts = allPosts.slice(0, visibleCount)
+  const hasHiddenPosts = visibleCount < allPosts.length
+
+  const changeFilter = (next: string) => {
+    setFilter(next)
+    setVisibleCount(POSTS_PER_BLOCK)
+  }
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel || (!hasHiddenPosts && !hasNextPage)) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0].isIntersecting) return
+        if (hasHiddenPosts) setVisibleCount((count) => count + POSTS_PER_BLOCK)
+        else if (!isFetchingNextPage) fetchNextPage()
+      },
+      { rootMargin: '300px' }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [hasHiddenPosts, hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const { mutate: postPosts } = useMutation({
     mutationFn: () => createPost({
@@ -99,9 +131,9 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
           <button
             onClick={() => {
               if (filter === 'trends') {
-                setFilter('all')
+                changeFilter('all')
               } else {
-                setFilter('trends')
+                changeFilter('trends')
               }
             }}
             className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'trends' ? 'bg-primary text-white' : 'text-text-muted hover:bg-primary/20 hover:text-text'}`}
@@ -112,9 +144,9 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
           <button
             onClick={() => {
               if (filter === 'recent') {
-                setFilter('all')
+                changeFilter('all')
               } else {
-                setFilter('recent')
+                changeFilter('recent')
               }
             }}
             className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'recent' ? 'bg-primary text-white' : 'text-text-muted hover:bg-primary/20 hover:text-text'}`}
@@ -125,9 +157,9 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
           <button
             onClick={() => {
               if (filter === 'friends') {
-                setFilter('all')
+                changeFilter('all')
               } else {
-                setFilter('friends')
+                changeFilter('friends')
               }
             }}
             className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal transition-colors rounded-full ${filter === 'friends' ? 'bg-primary text-white' : 'text-text-muted hover:bg-primary/20 hover:text-text'}`}
@@ -145,9 +177,13 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
       {isLoading ? (
         <Loader />
       ) : posts.length > 0 ? (
-        posts.map((post) => (
-          <PostCards key={post.id} post={post} />
-        ))
+        <>
+          {posts.map((post) => (
+            <PostCards key={post.id} post={post} />
+          ))}
+          <div ref={sentinelRef} />
+          {isFetchingNextPage && <Loader />}
+        </>
       ) : (
         <p className="text-text/60 text-center py-10">Aucun post trouvé</p>
       )}

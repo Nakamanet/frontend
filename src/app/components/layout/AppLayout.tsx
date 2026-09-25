@@ -3,7 +3,6 @@
 import { useAuth } from '@/app/context/AuthContext'
 import SideBar from '@/app/components/home/Sidebar'
 import Chat from '@/app/components/home/Chat'
-import Calendar from '@/app/components/home/Calendar'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -24,7 +23,6 @@ export default function AppLayout({ children, sidebar = false }: AppLayoutProps)
         </section>
         <section className="hidden lg:flex flex-col w-full mx-auto gap-5">
           <Chat user={user} />
-          <Calendar user={user} />
         </section>
       </main>
     )
@@ -37,7 +35,6 @@ export default function AppLayout({ children, sidebar = false }: AppLayoutProps)
       </section>
       <section className="hidden lg:flex flex-col gap-5">
         <Chat user={user} />
-        <Calendar user={user} />
       </section>
     </main>
   )

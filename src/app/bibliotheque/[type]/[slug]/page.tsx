@@ -9,7 +9,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronRight, ChevronDown, Check, Trash2 } from 'lucide-react'
 import Chat from '@/app/components/home/Chat'
-import Calendar from '@/app/components/home/Calendar'
 import EpisodePage from './components/EpisodePage'
 import Thread from './components/Thread'
 import Information from './components/Information'
@@ -316,9 +315,6 @@ export default function DetailPage() {
           ) : item && type === 'manga' ? (
             <Information type="manga" item={item as Manga} />
           ) : null}
-        </div>
-        <div className="hidden lg:block">
-          <Calendar user={user} />
         </div>
       </section>
     </main>
