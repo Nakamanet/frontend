@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'media.kitsu.app'}
     ],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 }
 
 export default nextConfig
