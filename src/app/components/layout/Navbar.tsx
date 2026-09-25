@@ -31,12 +31,13 @@ export default function Navbar() {
     enabled: isLoggedIn,
     refetchInterval: 3000,
   })
-
   useEffect(() => {
     if (unreadCount > prevUnreadCount) {
       // Play sound
-      const audio = new Audio('/sounds/notification.mp3')
-      audio.play().catch(e => console.error("Audio play failed:", e))
+      const audio = document.getElementById('notificationSound') as HTMLAudioElement;
+      if (audio) {
+        audio.play().catch(e => console.log('Audio autoplay blocked', e));
+      }
       
       // Trigger animation
       setIsAnimating(true)
@@ -98,7 +99,8 @@ export default function Navbar() {
 
 
   return (
-    <header className="w-full border-b border-border bg-accent">
+    <header className="w-full border-b border-border bg-accent relative z-50">
+      <audio id="notificationSound" src="/sounds/notification.mp3" preload="auto" className="hidden"></audio>
       <div className="navbar justify-between p-2 text-xl max-w-[1500px] mx-auto">
         <div className="pl-4 md:pl-10">
           <Link href="/">
@@ -185,10 +187,11 @@ export default function Navbar() {
                                     {" "} vous a envoyé une demande d&apos;ami
                                   </p>
                                 </div>
-                                <div className='flex gap-2 justify-end px-3 pb-2 mt-1'>
+                                <div className='flex gap-2 justify-end px-3 pb-2 mt-1 relative z-[110]'>
                                   <button
                                     className='btn btn-primary btn-sm rounded-full'
                                     onClick={(e) => {
+                                      e.preventDefault();
                                       e.stopPropagation();
                                       acceptMutation.mutate(n.payload.friendship_id as number, {
                                         onSuccess: () => markAsReadMutation.mutate(n.id)
@@ -200,6 +203,7 @@ export default function Navbar() {
                                   <button
                                     className='btn btn-outline btn-error btn-sm rounded-full'
                                     onClick={(e) => {
+                                      e.preventDefault();
                                       e.stopPropagation();
                                       declineMutation.mutate(n.payload.friendship_id as number, {
                                         onSuccess: () => markAsReadMutation.mutate(n.id)
