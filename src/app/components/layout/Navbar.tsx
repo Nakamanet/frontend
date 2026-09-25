@@ -11,7 +11,7 @@ import { getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/a
 import SearchModal from '../SearchModal'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/context/ToastContext'
-import { acceptFriend } from '@/app/lib/friends'
+import { acceptFriend, declineFriend } from '@/app/lib/friends'
 import Loader from '@/app/components/Loader'
 
 export default function Navbar() {
@@ -53,9 +53,19 @@ export default function Navbar() {
     onSuccess:() => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       queryClient.invalidateQueries({ queryKey: ['friends'] })
-      showToast("Invitation accepté.", "success")
+      showToast("Invitation acceptée.", "success")
     },
     onError: () => showToast("Erreur lors de l'acceptation.", "error")
+  })
+
+  const declineMutation = useMutation({
+    mutationFn: declineFriend,
+    onSuccess:() => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: ['friends'] })
+      showToast("Invitation refusée.", "success")
+    },
+    onError: () => showToast("Erreur lors du refus.", "error")
   })
 
   const markAsReadMutation = useMutation({
@@ -139,23 +149,50 @@ export default function Navbar() {
                             onClick={() => { markAsReadMutation.mutate(n.id); router.push('/profil#amis') } }
                           >
                             {n.type === 'friend_request' && (
-                              <div className='flex text-base'>
-                                {n.sender.avatar_url ? (
-                                  <Image
-                                    src={n.sender.avatar_url}
-                                    alt='pp'
-                                    width={55}
-                                    height={20}
-                                    className='rounded-full m-2'
-                                  />
-                                ) : (
-                                  <User size={40} className='rounded-full m-2' />
-                                )}
-                                <p className=''>
-                                  <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
-                                {" "} vous a envoyé une demande d&apos;ami
-                                </p>
-                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number, { onSuccess: () => markAsReadMutation.mutate(n.id) })}}>Accepter</button>
+                              <div className='flex flex-col text-sm w-full pt-1'>
+                                <div className='flex items-center px-1'>
+                                  {n.sender.avatar_url ? (
+                                    <Image
+                                      src={n.sender.avatar_url}
+                                      alt='pp'
+                                      width={40}
+                                      height={40}
+                                      className='rounded-full m-2 object-cover aspect-square shrink-0'
+                                    />
+                                  ) : (
+                                    <User size={30} className='rounded-full m-2 shrink-0' />
+                                  )}
+                                  <p className='ml-1 flex-1 leading-tight'>
+                                    <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`} className="font-bold hover:underline">
+                                      {n.sender.username}
+                                    </Link>
+                                    {" "} vous a envoyé une demande d&apos;ami
+                                  </p>
+                                </div>
+                                <div className='flex gap-2 justify-end px-3 pb-2 mt-1'>
+                                  <button
+                                    className='btn btn-primary btn-sm rounded-full'
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      acceptMutation.mutate(n.payload.friendship_id as number, {
+                                        onSuccess: () => markAsReadMutation.mutate(n.id)
+                                      })
+                                    }}
+                                  >
+                                    Accepter
+                                  </button>
+                                  <button
+                                    className='btn btn-outline btn-error btn-sm rounded-full'
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      declineMutation.mutate(n.payload.friendship_id as number, {
+                                        onSuccess: () => markAsReadMutation.mutate(n.id)
+                                      })
+                                    }}
+                                  >
+                                    Refuser
+                                  </button>
+                                </div>
                               </div>
                             )}
                           </div>
