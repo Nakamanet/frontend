@@ -56,34 +56,34 @@ export default function PasswordForm() {
     <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className="text-2xl font-bold">Changer mon mot de passe</h3>
       <form className="flex flex-col gap-4" onSubmit={handleSubmitPassword}>
-        <div className="flex gap-2">
-          <div className="flex flex-col">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-2">
+          <div className="flex flex-col flex-1 min-w-0">
             <label htmlFor="password">Mot de passe</label>
             <input
               type="password"
               id="password"
               name="password"
-              className="input input-ghost bg-border rounded-full"
+              className="input input-ghost bg-border rounded-full w-full"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
+            {fieldErrors.password && <p className="text-sm text-primary">{fieldErrors.password}</p>}
           </div>
-          {fieldErrors.password && <p className="text-sm text-primary">{fieldErrors.password}</p>}
 
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 min-w-0">
             <label htmlFor="password_confirmation">Confirmation</label>
             <input
               type="password"
               id="password_confirmation"
               name="password_confirmation"
-              className="input input-ghost bg-border rounded-full"
+              className="input input-ghost bg-border rounded-full w-full"
               value={password_confirmation}
               onChange={(e) => setPassword_confirmation(e.target.value)}
             />
+            {fieldErrors.password_confirmation && (
+              <p className="text-sm text-primary">{fieldErrors.password_confirmation}</p>
+            )}
           </div>
-          {fieldErrors.password_confirmation && (
-            <p className="text-sm text-primary">{fieldErrors.password_confirmation}</p>
-          )}
         </div>
 
         <Button type="submit" disabled={isSubmitting} className="col-span-2">

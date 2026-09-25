@@ -52,11 +52,11 @@ export default function DeleteForm({ user }: { user: User }) {
   }
 
   return (
-    <div className="grid grid-cols-2 border border-primary rounded-card overflow-hidden">
+    <div className="grid grid-cols-1 sm:grid-cols-2 border border-primary rounded-card overflow-hidden">
       <button
         onClick={() => handleDisable(user.id)}
         disabled={isSubmitting}
-        className="flex flex-col items-center gap-2 p-5 bg-accent hover:bg-primary/10 transition-colors cursor-pointer border-r border-primary disabled:opacity-50"
+        className="flex flex-col items-center gap-2 p-5 bg-accent hover:bg-primary/10 transition-colors cursor-pointer border-b sm:border-b-0 sm:border-r border-primary disabled:opacity-50"
       >
         <span className="font-semibold text-primary">Désactiver mon compte</span>
         <p className="text-sm text-text-muted text-center">

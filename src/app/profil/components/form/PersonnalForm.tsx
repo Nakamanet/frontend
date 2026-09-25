@@ -47,32 +47,32 @@ export default function PersonnalForm({ user }: { user: User }) {
     <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className="text-2xl font-bold">Informations personnelles</h3>
       <form className="flex flex-col gap-4" onSubmit={handleSubmitPersonal}>
-        <div className="flex gap-2">
-          <div className="flex flex-col">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-2">
+          <div className="flex flex-col flex-1 min-w-0">
             <label htmlFor="username">Nom d&apos;utilisateur</label>
             <input
               type="text"
               id="username"
               name="username"
-              className="input input-ghost bg-border rounded-full"
+              className="input input-ghost bg-border rounded-full w-full"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
+            {fieldErrors.username && <p className="text-sm text-primary">{fieldErrors.username}</p>}
           </div>
-          {fieldErrors.username && <p className="text-sm text-primary">{fieldErrors.username}</p>}
 
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 min-w-0">
             <label htmlFor="email">Email</label>
             <input
               type="email"
               id="email"
               name="email"
-              className="input input-ghost bg-border rounded-full"
+              className="input input-ghost bg-border rounded-full w-full"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+            {fieldErrors.email && <p className="text-sm text-primary">{fieldErrors.email}</p>}
           </div>
-          {fieldErrors.email && <p className="text-sm text-primary">{fieldErrors.email}</p>}
         </div>
 
         <Button type="submit" disabled={isSubmitting} className="col-span-2">
