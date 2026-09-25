@@ -92,7 +92,7 @@ export default function Footer() {
               </Link>
             </li>
             <li>
-              <Link href="/donnees-personnelles" className="hover:text-primary transition-colors">
+              <Link href="/donnees-personnelles" prefetch={false} className="hover:text-primary transition-colors">
                 Données personnelles
               </Link>
             </li>
