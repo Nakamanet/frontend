@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Search, Bell, User, LogOut, Shield } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { CircleUser } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/app/lib/notifications'
 import SearchModal from '../SearchModal'
@@ -22,12 +22,28 @@ export default function Navbar() {
   const { showToast } = useToast()
   const DAY_MS = 24 * 60 * 60 * 1000
 
+  const [prevUnreadCount, setPrevUnreadCount] = useState(0)
+  const [isAnimating, setIsAnimating] = useState(false)
+
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: getUnreadCount,
     enabled: isLoggedIn,
-    refetchInterval: 30000,
+    refetchInterval: 3000,
   })
+
+  useEffect(() => {
+    if (unreadCount > prevUnreadCount) {
+      // Play sound
+      const audio = new Audio('/sounds/notification.mp3')
+      audio.play().catch(e => console.error("Audio play failed:", e))
+      
+      // Trigger animation
+      setIsAnimating(true)
+      setTimeout(() => setIsAnimating(false), 1000)
+    }
+    setPrevUnreadCount(unreadCount)
+  }, [unreadCount, prevUnreadCount])
 
   const { data: notifications, isLoading: notificationsLoading } = useQuery({
     queryKey: ['notifications'],
@@ -39,7 +55,7 @@ export default function Navbar() {
       )
     }),
     enabled: isLoggedIn,
-    refetchInterval: 30000,
+    refetchInterval: 3000,
   })
 
   const notificationsList = notifications?.data ?? []
@@ -126,7 +142,7 @@ export default function Navbar() {
               {/* Notifications */}
               <div className='dropdown dropdown-end relative tooltip tooltip-bottom' data-tip="Notifications">
                 <div tabIndex={0} role='button' className='relative'>
-                  <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
+                  <Bell size={27} className={`cursor-pointer hover:text-primary transition-colors ${isAnimating ? 'animate-bounce text-primary' : ''}`} />
                   {unreadCount > 0 && (
                     <span className='absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
