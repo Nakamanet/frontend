@@ -30,6 +30,19 @@ export default function AdminReportsPage() {
     }
   }
 
+  const handleAction = async (reportable_type: string, reportable_id: number, action: string) => {
+    try {
+      if (action === 'dismiss') {
+        await api.post('/admin/reports/dismiss', { reportable_type, reportable_id })
+      } else {
+        await api.post('/admin/reports/action', { reportable_type, reportable_id, action })
+      }
+      fetchReports(currentPage)
+    } catch (err) {
+      alert("Erreur lors de l'exécution de l'action")
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between">
@@ -84,13 +97,13 @@ export default function AdminReportsPage() {
                   <tr key={idx} className="hover:bg-accent/20 transition-colors">
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-accent border border-border/50 capitalize">
-                        <MessageSquare size={12} /> {report.target_type}
+                        <MessageSquare size={12} /> {report.reportable_type}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="max-w-[300px] truncate text-sm">
-                        {report.target_content ? (
-                          <span className="text-text/80">"{report.target_content}"</span>
+                        {report.target?.content ? (
+                          <span className="text-text/80">"{report.target.content}"</span>
                         ) : (
                           <span className="text-text/40 italic">Contenu indisponible</span>
                         )}
@@ -103,15 +116,29 @@ export default function AdminReportsPage() {
                     </td>
                     <td className="px-6 py-4 text-sm text-text/70">
                       {report.latest_reason || 'Aucune raison spécifiée'}
+                      {report.latest_details && <span className="block text-xs text-text/40 mt-1 truncate">{report.latest_details}</span>}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button className="p-2 hover:bg-accent rounded-full transition-colors text-primary hover:text-primary/80" title="Voir le contenu">
                           <ExternalLink size={18} />
                         </button>
-                        <button className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text" onClick={() => alert('À venir : Traiter le signalement')}>
-                          <MoreVertical size={18} />
-                        </button>
+                        <div className="dropdown dropdown-end">
+                          <div tabIndex={0} role="button" className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text cursor-pointer">
+                            <MoreVertical size={18} />
+                          </div>
+                          <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow bg-accent border border-border/50 rounded-box w-48 text-left mt-1">
+                            <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Actions</li>
+                            <li><button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'delete_content')} className="text-sm text-red-500">Supprimer contenu</button></li>
+                            <li><button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'warn_user')} className="text-sm text-yellow-500">Avertir l'auteur</button></li>
+                            <div className="divider my-1 opacity-50"></div>
+                            <li>
+                              <button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'dismiss')} className="text-sm text-text/60">
+                                Ignorer (Faux positif)
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
                       </div>
                     </td>
                   </tr>
