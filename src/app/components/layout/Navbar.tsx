@@ -217,6 +217,20 @@ export default function Navbar() {
                                 </div>
                               </div>
                             )}
+
+                            {n.type === 'system_warning' && (
+                              <div className='flex flex-col text-sm w-full p-3' onClick={(e) => { e.stopPropagation(); markAsReadMutation.mutate(n.id) }}>
+                                <div className='flex items-start gap-3'>
+                                  <div className="bg-red-500/10 text-red-500 p-2 rounded-full shrink-0">
+                                    <Shield size={20} />
+                                  </div>
+                                  <div className='flex-1 leading-tight text-text/80'>
+                                    <p className="font-bold text-red-400 mb-1">Avertissement de modération</p>
+                                    <p className="text-xs">{n.payload.message}</p>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </li>
                       ))
