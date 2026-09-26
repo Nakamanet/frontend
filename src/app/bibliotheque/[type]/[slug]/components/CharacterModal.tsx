@@ -48,13 +48,15 @@ export default function CharacterModal({ isOpen, onClose, type, item }: Characte
                             {item.persons.map((person) => (
                                 <div key={person.id} className='flex items-center gap-3 bg-accent rounded-card overflow-hidden'>
                                     {person.imageUrl && (
-                                        <Image
-                                            src={person.imageUrl}
-                                            alt={person.name}
-                                            width={40}
-                                            height={60}
-                                            className="shrink-0"
-                                        />
+                                        <div className="relative w-10 h-15 shrink-0 overflow-hidden bg-primary">
+                                            <Image
+                                                src={person.imageUrl}
+                                                alt={person.name}
+                                                fill
+                                                sizes="40px"
+                                                className="object-cover"
+                                            />
+                                        </div>
                                     )}
                                     <p>{person.name}</p>
                                 </div>
