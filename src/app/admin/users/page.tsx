@@ -9,21 +9,21 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1)
 
   useEffect(() => {
-    fetchUsers()
-  }, [])
+    fetchUsers(search, currentPage)
+  }, [currentPage])
 
-  const fetchUsers = async (query = '') => {
+  const fetchUsers = async (query = '', page = 1) => {
     setLoading(true)
     setError('')
     try {
-      // Forcing the new layout to use the existing endpoint
-      // If it still returns 500 we will replace the backend endpoint later
-      const { data } = await api.get(`/admin/users?search=${query}&page=1`)
-      
-      
+      const { data } = await api.get(`/admin/users?search=${query}&page=${page}`)
       setUsers(data.data || [])
+      setCurrentPage(data.current_page || 1)
+      setLastPage(data.last_page || 1)
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue')
     } finally {
@@ -33,7 +33,30 @@ export default function AdminUsersPage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
-    fetchUsers(search)
+    setCurrentPage(1)
+    fetchUsers(search, 1)
+  }
+
+  const toggleBan = async (user: any) => {
+    try {
+      if (user.is_deleted) {
+        await api.post(`/admin/users/${user.id}/restore`)
+      } else {
+        await api.delete(`/admin/users/${user.id}`)
+      }
+      fetchUsers(search, currentPage)
+    } catch (err) {
+      alert("Erreur lors de la modification du statut")
+    }
+  }
+
+  const changeRole = async (userId: number, role: string) => {
+    try {
+      await api.patch(`/admin/users/${userId}`, { role })
+      fetchUsers(search, currentPage)
+    } catch (err) {
+      alert("Erreur lors de la modification du rôle")
+    }
   }
 
   return (
@@ -45,7 +68,7 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      <div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden shadow-sm pb-4">
         <div className="p-4 border-b border-border/50 bg-accent/50 flex justify-between items-center">
           <form onSubmit={handleSearch} className="relative w-full max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text/40" size={18} />
@@ -59,7 +82,7 @@ export default function AdminUsersPage() {
           </form>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto min-h-[400px]">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-accent/40 text-text/60 text-sm">
@@ -83,7 +106,7 @@ export default function AdminUsersPage() {
                   <td colSpan={5} className="px-6 py-12 text-center text-red-400">
                     <XCircle className="mx-auto mb-2 opacity-50" size={32} />
                     <p>{error}</p>
-                    <button onClick={() => fetchUsers(search)} className="mt-4 text-primary hover:underline text-sm">
+                    <button onClick={() => fetchUsers(search, currentPage)} className="mt-4 text-primary hover:underline text-sm">
                       Réessayer
                     </button>
                   </td>
@@ -100,7 +123,7 @@ export default function AdminUsersPage() {
                   <tr key={user.id} className="hover:bg-accent/20 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary overflow-hidden">
+                        <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary overflow-hidden shrink-0">
                           {user.avatar_url ? (
                             <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
                           ) : (
@@ -137,9 +160,23 @@ export default function AdminUsersPage() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text">
-                        <MoreVertical size={18} />
-                      </button>
+                      <div className="dropdown dropdown-end">
+                        <div tabIndex={0} role="button" className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text cursor-pointer">
+                          <MoreVertical size={18} />
+                        </div>
+                        <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow bg-accent border border-border/50 rounded-box w-48 text-left mt-1">
+                          <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Changer rôle</li>
+                          <li><button onClick={() => changeRole(user.id, 'user')} className="text-sm">Utilisateur</button></li>
+                          <li><button onClick={() => changeRole(user.id, 'moderator')} className="text-sm">Modérateur</button></li>
+                          <li><button onClick={() => changeRole(user.id, 'admin')} className="text-sm">Admin</button></li>
+                          <div className="divider my-1 opacity-50"></div>
+                          <li>
+                            <button onClick={() => toggleBan(user)} className={`text-sm ${user.is_deleted ? 'text-green-500' : 'text-red-500'}`}>
+                              {user.is_deleted ? 'Débannir' : 'Bannir'}
+                            </button>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -147,6 +184,27 @@ export default function AdminUsersPage() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination UI */}
+        {lastPage > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-4 px-6">
+            <button 
+              className="btn btn-sm btn-ghost" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            >
+              Précédent
+            </button>
+            <span className="text-sm text-text/60">Page {currentPage} sur {lastPage}</span>
+            <button 
+              className="btn btn-sm btn-ghost" 
+              disabled={currentPage === lastPage}
+              onClick={() => setCurrentPage(p => Math.min(lastPage, p + 1))}
+            >
+              Suivant
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )
