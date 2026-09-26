@@ -57,6 +57,7 @@ export default function DetailPage() {
   })
 
   const hasCharacters = characters.length > 0
+  const showCharactersTab = !charactersFetched || hasCharacters
   const hasEpisodes = type === 'anime' ? (episodeData?.meta.total ?? 0) > 0 : (chapterData?.meta.total ?? 0) > 0
   const contentFetched = charactersFetched && (type === 'anime' ? episodesFetched : chaptersFetched)
   const defaultFilter = !contentFetched 
@@ -263,7 +264,7 @@ export default function DetailPage() {
         <div className="flex flex-col gap-5">
           <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-3">
             <div className="flex gap-1 sm:gap-3 items-center justify-center w-full">
-              {hasCharacters && (
+              {showCharactersTab && (
                 <button
                   onClick={() => setUserFilter('characters')}
                   className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'characters' ? 'bg-primary text-white' : 'text-text-muted'}`}
@@ -273,14 +274,14 @@ export default function DetailPage() {
               )}
               {hasEpisodes && (
                 <button
-                  onClick={() => setUserFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
+                  onClick={() => setUserFilter(filter === 'episode' ? (showCharactersTab ? 'characters' : 'thread') : 'episode')}
                   className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'episode' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
                   <span>{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
                 </button>
               )}
               <button
-                onClick={() => setUserFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
+                onClick={() => setUserFilter(filter === 'thread' ? (showCharactersTab ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
                 className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'thread' ? 'bg-primary text-white' : 'text-text-muted'}`}
               >
                 <span>Forums</span>

@@ -14,8 +14,6 @@ export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> 
   persons: Person[]
 }
 
-// Environ 3 rangées avant de charger la suite au scroll (approximatif : le nombre
-// de colonnes varie selon la largeur d'écran, donc ce n'est pas un calcul exact).
 const PAGE_SIZE = 15
 
 export default function CharacterPage({ type, item }: Character) {
@@ -23,7 +21,8 @@ export default function CharacterPage({ type, item }: Character) {
     { type: 'anime'; item: GroupedAnimeCharacter } | { type: 'manga'; item: MangaCharacter }
   >()
   const [characterModal, setCharacterModal] = useState(false)
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+  const [requestedCount, setRequestedCount] = useState(PAGE_SIZE)
+  const [loadedIds, setLoadedIds] = useState<Set<number>>(() => new Set())
   const sentinelRef = useRef<HTMLDivElement>(null)
 
   const { data: animeCharacters = [], isLoading: animeLoading } = useQuery({
@@ -61,77 +60,83 @@ export default function CharacterPage({ type, item }: Character) {
     return rank(a.role) - rank(b.role) || a.character.name.localeCompare(b.character.name)
   })
 
-  const totalCount = type === 'anime' ? groupedAnimeCharacters.length : sortedMangaCharacters.length
-  const hasMore = visibleCount < totalCount
+  const characterIds = (type === 'anime' ? groupedAnimeCharacters : sortedMangaCharacters).map((c) => c.characterId)
+  const renderedCount = Math.min(requestedCount, characterIds.length)
+
+  let visibleCount = 0
+  while (
+    visibleCount < renderedCount &&
+    characterIds.slice(visibleCount, visibleCount + PAGE_SIZE).every((id) => loadedIds.has(id))
+  ) {
+    visibleCount = Math.min(visibleCount + PAGE_SIZE, renderedCount)
+  }
+
+  const isBlockLoading = visibleCount < renderedCount
+  const hasMore = renderedCount < characterIds.length
+
+  const markLoaded = (id: number) =>
+    setLoadedIds((prev) => (prev.has(id) ? prev : new Set(prev).add(id)))
 
   useEffect(() => {
     const el = sentinelRef.current
-    if (!el || !hasMore) return
+    if (!el || isBlockLoading || !hasMore) return
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) setVisibleCount((prev) => prev + PAGE_SIZE)
+        if (entries[0].isIntersecting) setRequestedCount((prev) => prev + PAGE_SIZE)
       },
       { rootMargin: '200px' }
     )
     observer.observe(el)
     return () => observer.disconnect()
-  }, [hasMore])
+  }, [isBlockLoading, hasMore, visibleCount])
+
+  const renderCard = (index: number, id: number, name: string, imageUrl: string | null, onClick: () => void) => (
+    <button
+      key={id}
+      onClick={onClick}
+      className={`${index < visibleCount ? 'flex animate-fade-in' : 'hidden'} flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2`}
+    >
+      <div className="relative w-full aspect-2/3 rounded-card overflow-hidden shrink-0">
+        <Image
+          src={imageUrl || '/logo.png'}
+          alt={name}
+          fill
+          sizes="(min-width: 1024px) 15vw, (min-width: 640px) 25vw, 33vw"
+          loading="eager"
+          onLoad={() => markLoaded(id)}
+          onError={() => markLoaded(id)}
+          className="object-cover"
+        />
+      </div>
+      <p className="text-sm text-center line-clamp-2">{name}</p>
+    </button>
+  )
 
   return (
     <div className="border border-border bg-accent rounded-card p-5">
-      {isLoading && <Loader variant="plain" className="my-[90px]" />}
-      {!isLoading && type === 'anime' && (
+      {(isLoading || (visibleCount === 0 && renderedCount > 0)) && <Loader variant="plain" className="my-[90px]" />}
+      {!isLoading && (
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-          {groupedAnimeCharacters.slice(0, visibleCount).map((ac) => (
-            <button
-              key={ac.characterId}
-              onClick={() => {
+          {type === 'anime' &&
+            groupedAnimeCharacters.slice(0, renderedCount).map((ac, index) =>
+              renderCard(index, ac.characterId, ac.character.name, ac.character.imageUrl, () => {
                 setCharacterModal(true)
                 setDetail({ type: 'anime', item: ac })
-              }}
-              className="flex flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2"
-            >
-              <div className="relative w-full aspect-2/3 rounded-card overflow-hidden shrink-0">
-                <Image
-                  src={ac.character.imageUrl || '/logo.png'}
-                  alt={ac.character.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <p className="text-sm text-center line-clamp-2">{ac.character.name}</p>
-            </button>
-          ))}
-        </div>
-      )}
-      {!isLoading && type === 'manga' && (
-        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
-          {sortedMangaCharacters.slice(0, visibleCount).map((mc) => (
-            <button
-              key={mc.characterId}
-              onClick={() => {
+              })
+            )}
+          {type === 'manga' &&
+            sortedMangaCharacters.slice(0, renderedCount).map((mc, index) =>
+              renderCard(index, mc.characterId, mc.character.name, mc.character.imageUrl, () => {
                 setCharacterModal(true)
                 setDetail({ type: 'manga', item: mc })
-              }}
-              className="flex flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2"
-            >
-              <div className="relative w-full aspect-2/3 rounded-card overflow-hidden shrink-0">
-                <Image
-                  src={mc.character.imageUrl || '/logo.png'}
-                  alt={mc.character.name}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <p className="text-sm text-center line-clamp-2">{mc.character.name}</p>
-            </button>
-          ))}
+              })
+            )}
         </div>
       )}
 
-      {!isLoading && hasMore && (
+      {!isLoading && visibleCount > 0 && (isBlockLoading || hasMore) && (
         <div ref={sentinelRef} className="flex justify-center py-4">
-          <Loader variant="inline" size="sm" />
+          {isBlockLoading && <Loader variant="inline" size="sm" />}
         </div>
       )}
 
