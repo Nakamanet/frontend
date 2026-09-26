@@ -1,40 +1,36 @@
-'use client'
-
-import Link from 'next/link'
-import { Users, Hash, Shield, Flag } from 'lucide-react'
-import AdminGuard from './components/AdminGuard'
-
-const SECTIONS = [
-  { href: '/admin/users', label: 'Utilisateurs', icon: Users, description: 'Gérer les comptes, rôles et accès' },
-  { href: '/admin/channels', label: 'Channels', icon: Hash, description: 'Gérer les salons de discussion' },
-  { href: '/admin/reports', label: 'Signalements', icon: Flag, description: 'Modérer les contenus signalés' },
-]
-
 export default function AdminPage() {
   return (
-    <AdminGuard>
-      <div className="max-w-4xl mx-auto p-8 flex flex-col gap-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Shield size={24} className="text-primary" />
-          Panneau d&apos;administration
-        </h1>
+    <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div>
+        <h1 className="text-3xl font-bold">Tableau de bord</h1>
+        <p className="text-text/60 mt-1">
+          Bienvenue dans l'espace d'administration de NakamaNet.
+        </p>
+      </div>
+      
+      {/* We can add general metrics here later like active users, pending reports, etc */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+        <div className="bg-accent/50 border border-border/50 rounded-2xl p-6 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <h3 className="text-text/70 text-sm font-medium mb-2">Statut du Système</h3>
+          <p className="text-2xl font-bold text-green-500 flex items-center gap-2">
+            <span className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
+            Opérationnel
+          </p>
+        </div>
+        
+        <div className="bg-accent/50 border border-border/50 rounded-2xl p-6 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <h3 className="text-text/70 text-sm font-medium mb-2">Sécurité</h3>
+          <p className="text-2xl font-bold">Niveau Nominal</p>
+        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          {SECTIONS.map((section) => (
-            <Link
-              key={section.href}
-              href={section.href}
-              className="bg-accent border border-border rounded-[15px] p-5 flex flex-col gap-2 hover:border-primary/50 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <section.icon size={20} className="text-primary" />
-                <span className="font-semibold">{section.label}</span>
-              </div>
-              <p className="text-sm text-text/60">{section.description}</p>
-            </Link>
-          ))}
+        <div className="bg-accent/50 border border-border/50 rounded-2xl p-6 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <h3 className="text-text/70 text-sm font-medium mb-2">Action Requise</h3>
+          <p className="text-2xl font-bold">Aucune</p>
         </div>
       </div>
-    </AdminGuard>
+    </div>
   )
 }

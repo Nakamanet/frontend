@@ -1,180 +1,174 @@
 'use client'
 
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAdminReports, dismissReport, takeReportAction, ReportedItem } from '@/app/lib/reports'
-import { useToast } from '@/app/context/ToastContext'
-import Loader from '@/app/components/Loader'
-import { Flag, Trash2, X, CircleUser, AlertTriangle } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
-import { formatDistanceToNow } from 'date-fns'
-import { fr } from 'date-fns/locale'
-import AdminGuard from '../components/AdminGuard'
+import { useState, useEffect } from 'react'
+import { Flag, XCircle, MoreVertical, MessageSquare, ExternalLink, ShieldAlert } from 'lucide-react'
+import api from '@/app/lib/axios'
 
 export default function AdminReportsPage() {
-  const { showToast } = useToast()
-  const queryClient = useQueryClient()
-  const [page, setPage] = useState(1)
+  const [reports, setReports] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1)
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'reports', page],
-    queryFn: () => getAdminReports(page),
-  })
+  useEffect(() => {
+    fetchReports(currentPage)
+  }, [currentPage])
 
-  const { mutate: dismiss } = useMutation({
-    mutationFn: (item: ReportedItem) => dismissReport(item.reportable_type, item.reportable_id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'reports'] })
-      showToast('Signalement ignoré', 'success')
-    },
-    onError: () => showToast('Erreur lors du traitement', 'error'),
-  })
-
-  const { mutate: deleteContent } = useMutation({
-    mutationFn: (item: ReportedItem) => takeReportAction(item.reportable_type, item.reportable_id, 'delete_content'),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'reports'] })
-      showToast('Contenu supprimé', 'success')
-    },
-    onError: () => showToast('Erreur lors de la suppression', 'error'),
-  })
-
-  const handleDelete = (item: ReportedItem) => {
-    if (confirm('Supprimer ce contenu signalé ? Cette action est irréversible.')) {
-      deleteContent(item)
+  const fetchReports = async (page = 1) => {
+    setLoading(true)
+    setError('')
+    try {
+      const { data } = await api.get(`/admin/reports?page=${page}`)
+      setReports(data.data || [])
+      setCurrentPage(data.current_page || 1)
+      setLastPage(data.last_page || 1)
+    } catch (err: any) {
+      setError(err.message || 'Une erreur est survenue')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const reports = data?.data ?? []
+  const handleAction = async (reportable_type: string, reportable_id: number, action: string) => {
+    try {
+      if (action === 'dismiss') {
+        await api.post('/admin/reports/dismiss', { reportable_type, reportable_id })
+      } else {
+        await api.post('/admin/reports/action', { reportable_type, reportable_id, action })
+      }
+      fetchReports(currentPage)
+    } catch (err) {
+      alert("Erreur lors de l'exécution de l'action")
+    }
+  }
 
   return (
-    <AdminGuard>
-      <div className="max-w-4xl mx-auto p-8 flex flex-col gap-6">
+    <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Flag size={24} className="text-primary" />
-            Modération des signalements
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <ShieldAlert className="text-primary" size={32} />
+            Modération des Signalements
           </h1>
-          {reports.length > 0 && (
-            <p className="text-sm text-text/50 mt-1">
-              {reports.length} élément{reports.length > 1 ? 's' : ''} en attente de traitement
-            </p>
-          )}
+          <p className="text-text/60 mt-1">Examinez et traitez les contenus signalés par la communauté.</p>
         </div>
+      </div>
 
-        {isLoading ? (
-          <Loader />
-        ) : reports.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
-            <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center">
-              <Flag size={20} className="text-success" />
-            </div>
-            <p className="text-text/60 text-sm">Aucun signalement en attente. Bien joué à tout le monde.</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {reports.map((item) => (
-              <div
-                key={`${item.reportable_type}-${item.reportable_id}`}
-                className="bg-accent border border-border rounded-[15px] overflow-hidden"
-              >
-                {/* Header strip: severity + type */}
-                <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-error/5">
-                  <span className="inline-flex items-center gap-1.5 text-sm font-medium text-error">
-                    <AlertTriangle size={15} />
-                    {item.report_count} signalement{item.report_count > 1 ? 's' : ''}
-                  </span>
-                  <span className="text-xs font-medium text-text/40 uppercase tracking-wide px-2 py-0.5 rounded-full bg-base-200">
-                    {item.reportable_type}
-                  </span>
-                </div>
-
-                <div className="p-5 flex flex-col gap-4">
-                  {item.target ? (
-                    <div className="flex gap-3">
-                      <Link href={`/profil/${item.target.user.id}`} className="shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-muted border-2 border-border flex items-center justify-center overflow-hidden text-base-content/70">
-                          {item.target.user.avatar_url ? (
-                            <Image
-                              src={item.target.user.avatar_url}
-                              alt={item.target.user.username}
-                              width={40}
-                              height={40}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <CircleUser size={22} strokeWidth={1.5} />
-                          )}
-                        </div>
-                      </Link>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <Link href={`/profil/${item.target.user.id}`} className="font-semibold text-sm hover:underline">
-                            {item.target.user.username}
-                          </Link>
-                          <span className="text-xs text-text/40">
-                            {formatDistanceToNow(new Date(item.target.created_at), { addSuffix: true, locale: fr })}
-                          </span>
-                        </div>
-                        <p className="text-sm mt-1.5 text-text/90">{item.target.content}</p>
+      <div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden shadow-sm pb-4">
+        <div className="overflow-x-auto min-h-[400px]">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-accent/40 text-text/60 text-sm">
+                <th className="px-6 py-4 font-medium">Type</th>
+                <th className="px-6 py-4 font-medium">Cible (Extrait)</th>
+                <th className="px-6 py-4 font-medium text-center">Signalements</th>
+                <th className="px-6 py-4 font-medium">Dernier signalement</th>
+                <th className="px-6 py-4 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-text/60">
+                    <div className="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
+                    <p>Chargement des signalements...</p>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-red-400">
+                    <XCircle className="mx-auto mb-2 opacity-50" size={32} />
+                    <p>{error}</p>
+                    <button onClick={() => fetchReports(currentPage)} className="mt-4 text-primary hover:underline text-sm">
+                      Réessayer
+                    </button>
+                  </td>
+                </tr>
+              ) : reports.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-text/60">
+                    <Flag className="mx-auto mb-2 opacity-50" size={32} />
+                    <p>Aucun signalement en attente. Bien joué à tout le monde !</p>
+                  </td>
+                </tr>
+              ) : (
+                reports.map((report: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-accent/20 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-accent border border-border/50 capitalize">
+                        <MessageSquare size={12} /> {report.reportable_type}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="max-w-[300px] truncate text-sm">
+                        {report.target?.content ? (
+                          <span className="text-text/80">"{report.target.content}"</span>
+                        ) : (
+                          <span className="text-text/40 italic">Contenu indisponible</span>
+                        )}
                       </div>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-text/40 italic">Contenu déjà supprimé</p>
-                  )}
-
-                  {(item.latest_reason || item.latest_details) && (
-                    <div className="bg-base-200/60 rounded-[10px] px-4 py-3 text-sm flex flex-col gap-1">
-                      {item.latest_reason && (
-                        <p>
-                          <span className="font-medium text-text/70">Motif :</span>{' '}
-                          <span className="text-text/90">{item.latest_reason}</span>
-                        </p>
-                      )}
-                      {item.latest_details && (
-                        <p className="text-text/60">{item.latest_details}</p>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 justify-end pt-1">
-                    <button
-                      className="btn btn-ghost btn-sm gap-1.5"
-                      onClick={() => dismiss(item)}
-                    >
-                      <X size={14} />
-                      Ignorer
-                    </button>
-                    <button
-                      className="btn btn-sm bg-error/10 hover:bg-error/20 text-error border-none gap-1.5"
-                      onClick={() => handleDelete(item)}
-                      disabled={!item.target}
-                    >
-                      <Trash2 size={14} />
-                      Supprimer le contenu
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {data && data.last_page > 1 && (
-          <div className="flex justify-center gap-2">
-            <button className="btn btn-sm" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-500/10 text-red-500 font-bold text-sm border border-red-500/20">
+                        {report.report_count}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-text/70">
+                      {report.latest_reason || 'Aucune raison spécifiée'}
+                      {report.latest_details && <span className="block text-xs text-text/40 mt-1 truncate">{report.latest_details}</span>}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button className="p-2 hover:bg-accent rounded-full transition-colors text-primary hover:text-primary/80" title="Voir le contenu">
+                          <ExternalLink size={18} />
+                        </button>
+                        <div className="dropdown dropdown-end">
+                          <div tabIndex={0} role="button" className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text cursor-pointer">
+                            <MoreVertical size={18} />
+                          </div>
+                          <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow bg-accent border border-border/50 rounded-box w-48 text-left mt-1">
+                            <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Actions</li>
+                            <li><button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'delete_content')} className="text-sm text-red-500">Supprimer contenu</button></li>
+                            <li><button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'warn_user')} className="text-sm text-yellow-500">Avertir l'auteur</button></li>
+                            <div className="divider my-1 opacity-50"></div>
+                            <li>
+                              <button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'dismiss')} className="text-sm text-text/60">
+                                Ignorer (Faux positif)
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Pagination UI */}
+        {lastPage > 1 && (
+          <div className="flex justify-center items-center gap-2 mt-4 px-6">
+            <button 
+              className="btn btn-sm btn-ghost" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+            >
               Précédent
             </button>
-            <span className="flex items-center px-3 text-sm">
-              Page {data.current_page} / {data.last_page}
-            </span>
-            <button className="btn btn-sm" disabled={page >= data.last_page} onClick={() => setPage((p) => p + 1)}>
+            <span className="text-sm text-text/60">Page {currentPage} sur {lastPage}</span>
+            <button 
+              className="btn btn-sm btn-ghost" 
+              disabled={currentPage === lastPage}
+              onClick={() => setCurrentPage(p => Math.min(lastPage, p + 1))}
+            >
               Suivant
             </button>
           </div>
         )}
       </div>
-    </AdminGuard>
+    </div>
   )
 }
