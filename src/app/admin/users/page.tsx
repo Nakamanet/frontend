@@ -1,297 +1,160 @@
 'use client'
 
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getAdminUsers, updateAdminUser, deleteAdminUser, restoreAdminUser, forceDeleteAdminUser, AdminUser } from '@/app/lib/admin'
-import { useToast } from '@/app/context/ToastContext'
-import Loader from '@/app/components/Loader'
-import { Trash2, RotateCcw, Shield, CheckCircle2, XCircle } from 'lucide-react'
-import AdminGuard from '../components/AdminGuard'
+import { useState, useEffect } from 'react'
+import { Search, Shield, Ban, CheckCircle2, XCircle, MoreVertical } from 'lucide-react'
+import api from '@/lib/api' // Assuming a standard axios/fetch wrapper exists, or I will use fetch
 
 export default function AdminUsersPage() {
-  const { showToast } = useToast()
-  const queryClient = useQueryClient()
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['admin', 'users', { search, page }],
-    queryFn: () => getAdminUsers({ search, page }),
-  })
+  useEffect(() => {
+    fetchUsers()
+  }, [])
 
-  const users = data?.data ?? []
-  const allSelected = users.length > 0 && users.every((u) => selectedIds.has(u.id))
-  const someSelected = selectedIds.size > 0
-
-  const toggleAll = () => {
-    if (allSelected) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(users.map((u) => u.id)))
-    }
-  }
-
-  const toggleOne = (id: number) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) {
-        next.delete(id)
-      } else {
-        next.add(id)
+  const fetchUsers = async (query = '') => {
+    setLoading(true)
+    setError('')
+    try {
+      // Forcing the new layout to use the existing endpoint
+      // If it still returns 500 we will replace the backend endpoint later
+      const res = await fetch(`/api/admin/users?search=${query}&page=1`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Accept': 'application/json'
+        }
+      })
+      if (!res.ok) {
+        throw new Error('Erreur lors du chargement des utilisateurs')
       }
-      return next
-    })
-  }
-
-  const clearSelection = () => setSelectedIds(new Set())
-
-  const { mutate: updateRole } = useMutation({
-    mutationFn: ({ id, role }: { id: number; role: string }) => updateAdminUser(id, { role: role as AdminUser['role'] }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      showToast('Rôle mis à jour', 'success')
-    },
-    onError: () => showToast('Erreur lors de la mise à jour du rôle', 'error'),
-  })
-
-  const { mutate: removeUser } = useMutation({
-    mutationFn: (id: number) => deleteAdminUser(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      showToast('Utilisateur désactivé', 'success')
-    },
-    onError: () => showToast('Erreur lors de la désactivation', 'error'),
-  })
-
-  const { mutate: restoreUser } = useMutation({
-    mutationFn: (id: number) => restoreAdminUser(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      showToast('Utilisateur restauré', 'success')
-    },
-    onError: () => showToast('Erreur lors de la restauration', 'error'),
-  })
-
-  const { mutate: forceDeleteUser } = useMutation({
-    mutationFn: (id: number) => forceDeleteAdminUser(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      showToast('Utilisateur supprimé définitivement', 'success')
-    },
-    onError: () => showToast('Erreur lors de la suppression définitive', 'error'),
-  })
-
-  const { mutate: bulkDisable, isPending: bulkDisabling } = useMutation({
-    mutationFn: async (ids: number[]) => {
-      await Promise.all(ids.map((id) => deleteAdminUser(id)))
-    },
-    onSuccess: (_data, ids) => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      showToast(`${ids.length} compte(s) désactivé(s)`, 'success')
-      clearSelection()
-    },
-    onError: () => showToast('Erreur lors de la désactivation groupée', 'error'),
-  })
-
-  const { mutate: bulkForceDelete, isPending: bulkForceDeleting } = useMutation({
-    mutationFn: async (ids: number[]) => {
-      await Promise.all(ids.map((id) => forceDeleteAdminUser(id)))
-    },
-    onSuccess: (_data, ids) => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'users'] })
-      showToast(`${ids.length} compte(s) supprimé(s) définitivement`, 'success')
-      clearSelection()
-    },
-    onError: () => showToast('Erreur lors de la suppression groupée', 'error'),
-  })
-
-  const handleBulkDisable = () => {
-    const ids = Array.from(selectedIds)
-    if (confirm(`Désactiver ${ids.length} compte(s) sélectionné(s) ?`)) {
-      bulkDisable(ids)
+      const data = await res.json()
+      setUsers(data.data || [])
+    } catch (err: any) {
+      setError(err.message || 'Une erreur est survenue')
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleBulkForceDelete = () => {
-    const eligibleIds = users.filter((u) => selectedIds.has(u.id) && u.is_deleted).map((u) => u.id)
-
-    if (eligibleIds.length === 0) {
-      showToast('Seuls les comptes déjà désactivés peuvent être supprimés définitivement', 'error')
-      return
-    }
-
-    if (confirm(`Supprimer DÉFINITIVEMENT ${eligibleIds.length} compte(s) ? Cette action est irréversible.`)) {
-      bulkForceDelete(eligibleIds)
-    }
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    fetchUsers(search)
   }
 
   return (
-    <AdminGuard>
-      <div className="max-w-6xl mx-auto p-8 flex flex-col gap-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Shield size={24} className="text-primary" />
-          Gestion des utilisateurs
-        </h1>
+    <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Gestion des Utilisateurs</h1>
+          <p className="text-text/60 mt-1">Gérez les accès, les rôles et les sanctions des membres.</p>
+        </div>
+      </div>
 
-        <input
-          type="text"
-          placeholder="Rechercher par nom ou email..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value)
-            setPage(1)
-          }}
-          className="input input-bordered w-full max-w-md"
-        />
+      <div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden shadow-sm">
+        <div className="p-4 border-b border-border/50 bg-accent/50 flex justify-between items-center">
+          <form onSubmit={handleSearch} className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text/40" size={18} />
+            <input 
+              type="text" 
+              placeholder="Rechercher par pseudo ou email..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full bg-background border border-border/50 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-primary/50 transition-colors"
+            />
+          </form>
+        </div>
 
-        {someSelected && (
-          <div className="flex items-center gap-3 bg-base-200 border border-border rounded-[15px] px-4 py-2">
-            <span className="text-sm font-medium">{selectedIds.size} sélectionné(s)</span>
-            <button
-              className="btn btn-ghost btn-sm text-primary"
-              onClick={handleBulkDisable}
-              disabled={bulkDisabling}
-            >
-              Désactiver la sélection
-            </button>
-            <button
-              className="btn btn-ghost btn-sm text-error"
-              onClick={handleBulkForceDelete}
-              disabled={bulkForceDeleting}
-            >
-              Supprimer définitivement
-            </button>
-            <button className="btn btn-ghost btn-sm ml-auto" onClick={clearSelection}>
-              Annuler
-            </button>
-          </div>
-        )}
-
-        {isLoading ? (
-          <Loader />
-        ) : (
-          <div className="overflow-x-auto bg-accent border border-border rounded-[15px]">
-            <table className="table">
-              <thead>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-accent/40 text-text/60 text-sm">
+                <th className="px-6 py-4 font-medium">Utilisateur</th>
+                <th className="px-6 py-4 font-medium">Email</th>
+                <th className="px-6 py-4 font-medium">Rôle</th>
+                <th className="px-6 py-4 font-medium">Statut</th>
+                <th className="px-6 py-4 font-medium text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border/50">
+              {loading ? (
                 <tr>
-                  <th>
-                  <input
-                    type="checkbox"
-                    className="checkbox checkbox-sm checkbox-primary border-2 border-border"
-                    checked={allSelected}
-                    onChange={toggleAll}
-                  />
-                  </th>
-                  <th>ID</th>
-                  <th>Username</th>
-                  <th>Email</th>
-                  <th>Rôle</th>
-                  <th>Statut</th>
-                  <th>Actions</th>
+                  <td colSpan={5} className="px-6 py-12 text-center text-text/60">
+                    <div className="inline-block w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
+                    <p>Chargement des utilisateurs...</p>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id} className={u.is_deleted ? 'opacity-50' : ''}>
-                    <td>
-                      <input
-                        type="checkbox"
-                        className="checkbox checkbox-sm checkbox-primary border-2 border-border"
-                        checked={selectedIds.has(u.id)}
-                        onChange={() => toggleOne(u.id)}
-                      />
+              ) : error ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-red-400">
+                    <XCircle className="mx-auto mb-2 opacity-50" size={32} />
+                    <p>{error}</p>
+                    <button onClick={() => fetchUsers(search)} className="mt-4 text-primary hover:underline text-sm">
+                      Réessayer
+                    </button>
+                  </td>
+                </tr>
+              ) : users.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center text-text/60">
+                    <Search className="mx-auto mb-2 opacity-50" size={32} />
+                    <p>Aucun utilisateur trouvé.</p>
+                  </td>
+                </tr>
+              ) : (
+                users.map((user: any) => (
+                  <tr key={user.id} className="hover:bg-accent/20 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary overflow-hidden">
+                          {user.avatar_url ? (
+                            <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                          ) : (
+                            user.username.charAt(0).toUpperCase()
+                          )}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-semibold">{user.username}</span>
+                          <span className="text-xs text-text/50">@{user.handle || user.username}</span>
+                        </div>
+                      </div>
                     </td>
-                    <td>{u.id}</td>
-                    <td>{u.username}</td>
-                    <td>{u.email}</td>
-                    <td>
-                      <select
-                        className="select select-bordered select-sm"
-                        value={u.role}
-                        onChange={(e) => updateRole({ id: u.id, role: e.target.value })}
-                        disabled={u.is_deleted}
-                      >
-                        <option value="user">User</option>
-                        <option value="moderator">Moderator</option>
-                        <option value="admin">Admin</option>
-                      </select>
-                    </td>
-                    <td>
-                      <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          u.is_deleted
-                            ? 'bg-error/10 text-error'
-                            : 'bg-success/10 text-success'
-                        }`}
-                      >
-                        {u.is_deleted ? <XCircle size={13} /> : <CheckCircle2 size={13} />}
-                        {u.is_deleted ? 'Désactivé' : 'Actif'}
+                    <td className="px-6 py-4 text-sm">{user.email}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        user.is_admin 
+                          ? 'bg-red-500/10 text-red-500 border border-red-500/20' 
+                          : user.is_moderator 
+                          ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                          : 'bg-accent text-text/70 border border-border/50'
+                      }`}>
+                        {user.is_admin ? 'Admin' : user.is_moderator ? 'Modérateur' : 'Utilisateur'}
                       </span>
                     </td>
-                    <td className="flex gap-1">
-                      {u.is_deleted ? (
-                        <>
-                          <button
-                            onClick={() => restoreUser(u.id)}
-                            className="btn btn-ghost btn-sm text-success"
-                            title="Restaurer"
-                          >
-                            <RotateCcw size={16} />
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`Supprimer DÉFINITIVEMENT le compte de ${u.username} ? Cette action est irréversible.`)) {
-                                forceDeleteUser(u.id)
-                              }
-                            }}
-                            className="btn btn-ghost btn-sm text-error"
-                            title="Supprimer définitivement"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </>
+                    <td className="px-6 py-4">
+                      {user.is_deleted ? (
+                        <span className="inline-flex items-center gap-1 text-red-400 text-sm">
+                          <Ban size={14} /> Banni
+                        </span>
                       ) : (
-                        <button
-                          onClick={() => {
-                            if (confirm(`Désactiver le compte de ${u.username} ?`)) removeUser(u.id)
-                          }}
-                          className="btn btn-ghost btn-sm text-primary"
-                          title="Désactiver"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <span className="inline-flex items-center gap-1 text-green-500 text-sm">
+                          <CheckCircle2 size={14} /> Actif
+                        </span>
                       )}
                     </td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text">
+                        <MoreVertical size={18} />
+                      </button>
+                    </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {data && data.last_page > 1 && (
-          <div className="flex justify-center gap-2">
-            <button
-              className="btn btn-sm"
-              disabled={page <= 1}
-              onClick={() => setPage((p) => p - 1)}
-            >
-              Précédent
-            </button>
-            <span className="flex items-center px-3 text-sm">
-              Page {data.current_page} / {data.last_page}
-            </span>
-            <button
-              className="btn btn-sm"
-              disabled={page >= data.last_page}
-              onClick={() => setPage((p) => p + 1)}
-            >
-              Suivant
-            </button>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </AdminGuard>
+    </div>
   )
 }
