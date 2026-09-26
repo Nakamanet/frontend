@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Search, Shield, Ban, CheckCircle2, XCircle, MoreVertical } from 'lucide-react'
-import api from '@/lib/api' // Assuming a standard axios/fetch wrapper exists, or I will use fetch
+import api from '@/app/lib/axios'
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState([])
@@ -20,16 +20,9 @@ export default function AdminUsersPage() {
     try {
       // Forcing the new layout to use the existing endpoint
       // If it still returns 500 we will replace the backend endpoint later
-      const res = await fetch(`/api/admin/users?search=${query}&page=1`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Accept': 'application/json'
-        }
-      })
-      if (!res.ok) {
-        throw new Error('Erreur lors du chargement des utilisateurs')
-      }
-      const data = await res.json()
+      const { data } = await api.get(`/admin/users?search=${query}&page=1`)
+      
+      
       setUsers(data.data || [])
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue')

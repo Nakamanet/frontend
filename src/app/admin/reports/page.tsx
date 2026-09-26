@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Flag, XCircle, MoreVertical, MessageSquare, ExternalLink, ShieldAlert } from 'lucide-react'
-import api from '@/lib/api' // Or fetch wrapper
+import api from '@/app/lib/axios'
 
 export default function AdminReportsPage() {
   const [reports, setReports] = useState([])
@@ -17,15 +17,7 @@ export default function AdminReportsPage() {
     setLoading(true)
     setError('')
     try {
-      // Again, using the existing endpoint first
-      const res = await fetch(`/api/admin/reports?page=1`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Accept': 'application/json'
-        }
-      })
-      if (!res.ok) throw new Error('Erreur lors du chargement des signalements')
-      const data = await res.json()
+      const { data } = await api.get(`/admin/reports?page=1`)
       setReports(data.data || [])
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue')
