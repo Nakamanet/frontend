@@ -10,6 +10,7 @@ export default function AdminReportsPage() {
   const [error, setError] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
+  const [selectedReport, setSelectedReport] = useState<any>(null)
 
   useEffect(() => {
     fetchReports(currentPage)
@@ -120,7 +121,10 @@ export default function AdminReportsPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="p-2 hover:bg-accent rounded-full transition-colors text-primary hover:text-primary/80" title="Voir le contenu">
+                        <button 
+                          onClick={() => setSelectedReport(report)}
+                          className="p-2 hover:bg-accent rounded-full transition-colors text-primary hover:text-primary/80" title="Voir le contenu"
+                        >
                           <ExternalLink size={18} />
                         </button>
                         <div className="dropdown dropdown-end">
@@ -169,6 +173,71 @@ export default function AdminReportsPage() {
           </div>
         )}
       </div>
+
+      {/* Modal pour afficher le contenu complet */}
+      {selectedReport && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-accent border border-border/50 rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-border/50 flex items-center justify-between">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <MessageSquare className="text-primary" size={24} />
+                Contenu complet ({selectedReport.reportable_type})
+              </h3>
+              <button 
+                onClick={() => setSelectedReport(null)}
+                className="p-2 hover:bg-border/50 rounded-full transition-colors text-text/60 hover:text-text"
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto flex-1">
+              {selectedReport.target ? (
+                <div className="space-y-4">
+                  {selectedReport.target.user && (
+                    <div className="flex items-center gap-3 pb-4 border-b border-border/30">
+                      <div className="w-10 h-10 rounded-full bg-border overflow-hidden">
+                        {selectedReport.target.user.avatar_url ? (
+                          <img src={selectedReport.target.user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary font-bold">
+                            {selectedReport.target.user.username?.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-bold">{selectedReport.target.user.username}</p>
+                        <p className="text-xs text-text/50">Auteur du contenu signalé</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="bg-background/50 p-4 rounded-xl text-text whitespace-pre-wrap font-medium">
+                    {selectedReport.target.content}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-text/60 italic text-center py-8">Le contenu a probablement déjà été supprimé.</p>
+              )}
+            </div>
+            
+            <div className="p-4 border-t border-border/50 bg-background/30 flex justify-end gap-3">
+              <button onClick={() => setSelectedReport(null)} className="btn btn-ghost">
+                Fermer
+              </button>
+              <button 
+                onClick={() => {
+                  handleAction(selectedReport.reportable_type, selectedReport.reportable_id, 'delete_content');
+                  setSelectedReport(null);
+                }} 
+                className="btn btn-error"
+              >
+                Supprimer le contenu
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
