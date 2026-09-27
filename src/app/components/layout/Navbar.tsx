@@ -24,6 +24,7 @@ export default function Navbar() {
 
   const [prevUnreadCount, setPrevUnreadCount] = useState<number | null>(null)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [selectedWarning, setSelectedWarning] = useState<string | null>(null)
 
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications', 'unread-count'],
@@ -219,14 +220,18 @@ export default function Navbar() {
                             )}
 
                             {n.type === 'system_warning' && (
-                              <div className='flex flex-col text-sm w-full p-3' onClick={(e) => { e.stopPropagation(); markAsReadMutation.mutate(n.id) }}>
+                              <div className='flex flex-col text-sm w-full p-3' onClick={(e) => { 
+                                e.stopPropagation(); 
+                                markAsReadMutation.mutate(n.id);
+                                setSelectedWarning(n.payload.message);
+                              }}>
                                 <div className='flex items-start gap-3'>
                                   <div className="bg-red-500/10 text-red-500 p-2 rounded-full shrink-0">
                                     <Shield size={20} />
                                   </div>
                                   <div className='flex-1 leading-tight text-text/80'>
                                     <p className="font-bold text-red-400 mb-1">Avertissement de modération</p>
-                                    <p className="text-xs">{n.payload.message}</p>
+                                    <p className="text-xs line-clamp-2">{n.payload.message}</p>
                                   </div>
                                 </div>
                               </div>
@@ -290,6 +295,35 @@ export default function Navbar() {
       </div>
 
       <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
+
+      {/* Warning Modal */}
+      {selectedWarning && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-accent border border-border/50 rounded-2xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-border/50 flex items-center gap-3">
+              <div className="bg-red-500/10 text-red-500 p-3 rounded-full shrink-0">
+                <Shield size={28} />
+              </div>
+              <h3 className="text-xl font-bold text-red-400">
+                Avertissement de modération
+              </h3>
+            </div>
+            
+            <div className="p-6 overflow-y-auto bg-background/30 text-text/90 font-medium whitespace-pre-wrap leading-relaxed">
+              {selectedWarning}
+            </div>
+            
+            <div className="p-4 border-t border-border/50 bg-accent flex justify-end">
+              <button 
+                onClick={() => setSelectedWarning(null)} 
+                className="btn btn-primary px-6"
+              >
+                J'ai compris
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
