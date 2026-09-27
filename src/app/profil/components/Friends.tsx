@@ -11,11 +11,16 @@ import FilterTab from '@/app/components/FilterTab'
 import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
 import Link from 'next/link'
+import { useAuth } from '@/app/context/AuthContext'
 
 const FILTER_OPTIONS = [
   { value: 'friends', label: 'Amis', icon: <Users size={18} /> },
   { value: 'block', label: 'Bloqué', icon: <UserLock size={18} /> },
   { value: 'invitation', label: 'Invitation', icon: <Mail size={18} /> },
+]
+
+const FILTER_OPTIONS_OTHER = [
+  { value: 'friends', label: 'Amis', icon: <Users size={18} /> },
 ]
 
 function FriendRow({ friend, children }: { friend: { id: number; username: string; avatar_url: string | null }; children: React.ReactNode }) {
@@ -38,6 +43,8 @@ function FriendRow({ friend, children }: { friend: { id: number; username: strin
 
 export default function Friends({ user }: { user: User }) {
   const [filter, setFilter] = useState('friends')
+  const { user: connectedUser } = useAuth()
+  const isOwnProfil = connectedUser?.id === user.id
   const { showToast } = useToast()
   const [friendToRemove, setFriendToRemove] = useState<{ id: number; username: string } | null>(null)
 
@@ -50,16 +57,19 @@ export default function Friends({ user }: { user: User }) {
   const { data: pending = [], isLoading: pendingLoading } = useQuery<Friendship[]>({
     queryKey: ['friends', 'pending'],
     queryFn: getPendingFriends,
+    enabled: isOwnProfil,
   })
 
   const { data: sent = [], isLoading: sentLoading } = useQuery<Friendship[]>({
     queryKey: ['friends', 'sent'],
     queryFn: getSentFriends,
+    enabled: isOwnProfil,
   })
 
   const { data: block = [], isLoading: blockLoading } = useQuery<Friendship[]>({
     queryKey: ['friends', 'block'],
     queryFn: getBlockFriends,
+    enabled: isOwnProfil,
   })
 
   const invalidateAll = (content: string, status: "success" | "error" | "info") => {
@@ -98,7 +108,7 @@ export default function Friends({ user }: { user: User }) {
 
   return (
     <div>
-      <FilterTab value={filter} onChange={setFilter} options={FILTER_OPTIONS} />
+      <FilterTab value={filter} onChange={setFilter} options={isOwnProfil ? FILTER_OPTIONS : FILTER_OPTIONS_OTHER} />
 
       {isLoading ? (
         <Loader className="m-4 md:m-8" />
@@ -109,19 +119,25 @@ export default function Friends({ user }: { user: User }) {
               const friend = f.requester_id === user.id ? f.addressee : f.requester
               return (
                 <FriendRow key={f.id} friend={friend}>
-                  <button
-                    className='btn btn-ghost btn-sm text-primary'
-                    onClick={() => setFriendToRemove({ id: f.id, username: friend.username })}
-                  >
-                    Supprimer
-                  </button>
+                  {isOwnProfil && (
+                    <button
+                      className='btn btn-ghost btn-sm text-primary'
+                      onClick={() => setFriendToRemove({ id: f.id, username: friend.username })}
+                    >
+                      Supprimer
+                    </button>
+                  )}
                 </FriendRow>
               )
             })}
           </div>
         ) : (
           <div className='flex flex-col gap-8 p-3 md:p-5 m-2 md:m-8 bg-accent border border-border rounded-card'>
-            <p>Vous n&apos;avez pas encore d&apos;ami, n&apos;hésitez pas a en ajouter afin de pouvoir discuter avec eux ou encore voir leurs oeuvres préférés</p>
+            <p>
+              {isOwnProfil
+                ? "Vous n'avez pas encore d'ami, n'hésitez pas a en ajouter afin de pouvoir discuter avec eux ou encore voir leurs oeuvres préférés"
+                : "Cet utilisateur n'a pas encore d'ami."}
+            </p>
           </div>
         )
       ) : filter === 'block' ? (
