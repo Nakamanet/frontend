@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { getMyAnime, getMyManga } from '@/app/lib/library'
+import { getMyAnime, getMyManga, getUserAnime, getUserManga } from '@/app/lib/library'
 import { Book, TvMinimalPlay } from 'lucide-react'
 import { MyAnime, MyManga } from '@/app/types/library'
 import { Anime, Manga } from '@/app/types/catalog'
@@ -11,6 +11,7 @@ import Link from 'next/link'
 import FilterTab from '../../components/FilterTab'
 import { useQuery, useQueries } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
+import { User } from '@/app/types/auth'
 
 const FILTER_OPTIONS = [
   { value: 'manga', label: 'Mangas', icon: <Book size={18} /> },
@@ -27,16 +28,16 @@ const STATUS_LABELS: Record<string, string> = {
   dropped:       'Abandonné',
 }
 
-export default function Library() {
+export default function Library({ user }: { user?: User }) {
   const [filter, setFilter] = useState('manga')
 
-  const { data: myAnimes = [], isLoading: loadingAnime } = useQuery<MyAnime[]>({
-    queryKey: ['library', 'anime'],
-    queryFn: getMyAnime,
+  const { data: myAnimes = [], isLoading: loadingAnime, isError: errorAnime } = useQuery<MyAnime[]>({
+    queryKey: user ? ['user', user.id, 'library', 'anime'] : ['library', 'anime'],
+    queryFn: user ? () => getUserAnime(user.id) : getMyAnime,
   })
-  const { data: myMangas = [], isLoading: loadingManga } = useQuery<MyManga[]>({
-    queryKey: ['library', 'manga'],
-    queryFn: getMyManga,
+  const { data: myMangas = [], isLoading: loadingManga, isError: errorManga } = useQuery<MyManga[]>({
+    queryKey: user ? ['user', user.id, 'library', 'manga'] : ['library', 'manga'],
+    queryFn: user ? () => getUserManga(user.id) : getMyManga,
   })
   const isLoading = loadingAnime || loadingManga
 
@@ -69,6 +70,8 @@ export default function Library() {
 
       {isLoading ? (
         <Loader />
+      ) : errorAnime || errorManga ? (
+        <p className="text-text/60">Impossible d&apos;afficher la bibliothèque de cet utilisateur.</p>
       ) : filter === "manga" ? (
         <div>
           {mangas && mangas.length > 0 ? (
@@ -100,7 +103,11 @@ export default function Library() {
               ))}
             </div>
           ) : (
-            <p>Vous n&apos;avez pas encore de manga ajouté dans votre bibliothèque</p>
+            <p className="text-text/60">
+              {user
+                ? "Cet utilisateur n'a pas encore de manga dans sa bibliothèque"
+                : "Vous n'avez pas encore de manga ajouté dans votre bibliothèque"}
+            </p>
           )}
         </div>
       ) : (
@@ -134,7 +141,11 @@ export default function Library() {
               ))}
             </div>
           ) : (
-            <p className="text-text/60">Vous n&apos;avez pas encore d&apos;anime ajouté dans votre bibliothèque</p>
+            <p className="text-text/60">
+              {user
+                ? "Cet utilisateur n'a pas encore d'anime dans sa bibliothèque"
+                : "Vous n'avez pas encore d'anime ajouté dans votre bibliothèque"}
+            </p>
           )}
         </div>
       )}

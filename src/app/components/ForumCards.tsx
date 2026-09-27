@@ -24,12 +24,16 @@ export default function ForumCards({ topic }: { topic: Forum }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['forums'] })
       queryClient.invalidateQueries({ queryKey: ['user-pins'] })
+      queryClient.invalidateQueries({ queryKey: ['user', user?.id, 'forums'] })
     },
   })
 
   const archiveMutation = useMutation({
     mutationFn: () => archiveTopic(topic.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forums'] })
+      queryClient.invalidateQueries({ queryKey: ['user', topic.user_id] })
+    },
   })
 
   const handlePin = (e: React.MouseEvent) => {

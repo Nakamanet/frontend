@@ -41,7 +41,7 @@ export default function MyTopics({ user }: { user: User }) {
     archived: () => getMyArchivedTopics(),
   }
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['user', user.id, 'forums', filter],
     queryFn:  queryFnMap[filter] ?? (() => getUserForum(user.id)),
     enabled:  filter === 'mine' || isOwnProfil,
@@ -58,6 +58,8 @@ export default function MyTopics({ user }: { user: User }) {
       />
       {isLoading ? (
         <Loader />
+      ) : isError ? (
+        <p className="text-text/60">Impossible d&apos;afficher les sujets de cet utilisateur.</p>
       ) : forums.length > 0 ? (
         <div className="flex flex-col gap-2">
           {forums.map((forum) => (

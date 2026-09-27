@@ -40,13 +40,19 @@ export default function TopicDetailPage() {
 
   const topicVoteMutation = useMutation({
     mutationFn: (id: number) => voteOnTopic(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] })
+      queryClient.invalidateQueries({ queryKey: ['user', user?.id, 'forums'] })
+    },
     onError: () => showToast("Erreur lors du vote", 'error')
   })
 
   const topicArchiveMutation = useMutation({
     mutationFn: (id: number) => archiveTopic(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['forums'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['forums'] })
+      queryClient.invalidateQueries({ queryKey: ['user', topic?.user_id] })
+    },
     onError: () => showToast("Erreur lors de l'archivage", 'error')
   })
 
@@ -55,6 +61,7 @@ export default function TopicDetailPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['forums', Number(params.id)] })
       queryClient.invalidateQueries({ queryKey: ['user-pins'] })
+      queryClient.invalidateQueries({ queryKey: ['user', user?.id, 'forums'] })
     },
     onError: () => showToast("Erreur lors de l'épinglage", 'error')
   })

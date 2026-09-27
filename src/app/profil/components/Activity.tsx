@@ -36,7 +36,7 @@ export default function Activity({ user }: { user: User }) {
     deleted: () => getMyArchivedPost(),
   }
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['user', user.id, 'posts', filter],
     queryFn: () => (fetchers[filter] ?? fetchers.mine)(),
   })
@@ -55,6 +55,8 @@ export default function Activity({ user }: { user: User }) {
       <FilterTab value={filter} onChange={setFilter} options={isOwnProfil ? FILTER_OPTIONS : FILTER_OPTIONS_OTHER} />
       {isLoading ? (
         <Loader />
+      ) : isError ? (
+        <p className="text-text/60">Impossible d&apos;afficher les posts de cet utilisateur.</p>
       ) : posts.length > 0 ? (
         <div className='flex flex-col gap-2'>
           {posts.map((post) => (

@@ -7,6 +7,8 @@ import { getUserProfil, getUserPosts } from '../../lib/user'
 import Activity from '../components/Activity'
 import { blockFriend, removeFriend, sendFriendRequest, unblockFriend } from '@/app/lib/friends'
 import Friends from '../components/Friends'
+import MyTopics from '../components/MyTopics'
+import Library from '../components/Library'
 import { User } from '@/app/types/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useToast } from '@/app/context/ToastContext'
@@ -229,9 +231,9 @@ export default function ProfilPage() {
             ? <ProfilAccessNotice status={profileUser.friendship_status} />
             : <>
                 {activeTab === 'activities' && <Activity user={profileUser as User} />}
-                {activeTab === 'forum' && <p className="p-7">Forum à venir</p>}
+                {activeTab === 'forum' && <MyTopics user={profileUser as User} />}
                 {activeTab === 'friends' && <Friends user={profileUser as User} />}
-                {activeTab === 'library' && <p className="p-7">Bibliothèque</p>}
+                {activeTab === 'library' && <Library user={profileUser as User} />}
               </>
           }
         </div>
