@@ -78,8 +78,9 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
       showToast('Post publié avec succès', 'success')
       queryClient.invalidateQueries({ queryKey: ['posts', { userId: user?.id }] })
     },
-    onError: () => {
-      showToast('Echec lors de la publication du post', 'error')
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || 'Echec lors de la publication du post'
+      showToast(message, 'error')
     },
   })
 

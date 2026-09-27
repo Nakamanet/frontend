@@ -45,7 +45,10 @@ export default function PostPage() {
       queryClient.invalidateQueries({ queryKey: ['posts', postId] })
       showToast('Commentaire publié', 'success')
     },
-    onError: () => showToast('Erreur lors de la publication du commentaire', 'error'),
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || 'Erreur lors de la publication du commentaire'
+      showToast(message, 'error')
+    },
   })
 
   const { mutate: removeComment } = useMutation({
