@@ -1,16 +1,18 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Flag, XCircle, MoreVertical, MessageSquare, ExternalLink, ShieldAlert } from 'lucide-react'
+import { Flag, XCircle, MoreVertical, MessageSquare, ExternalLink, ShieldAlert, Trash2, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import api from '@/app/lib/axios'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function AdminReportsPage() {
-  const [reports, setReports] = useState([])
+  const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [selectedReport, setSelectedReport] = useState<any>(null)
+  const { showToast } = useToast()
 
   useEffect(() => {
     fetchReports(currentPage)
@@ -24,6 +26,16 @@ export default function AdminReportsPage() {
       setReports(data.data || [])
       setCurrentPage(data.current_page || 1)
       setLastPage(data.last_page || 1)
+      
+      // If modal is open, keep selectedReport updated with fresh data
+      if (selectedReport) {
+        const updated = (data.data || []).find(
+          (r: any) => r.reportable_type === selectedReport.reportable_type && r.reportable_id === selectedReport.reportable_id
+        )
+        if (updated) {
+          setSelectedReport(updated)
+        }
+      }
     } catch (err: any) {
       setError(err.message || 'Une erreur est survenue')
     } finally {
@@ -33,14 +45,20 @@ export default function AdminReportsPage() {
 
   const handleAction = async (reportable_type: string, reportable_id: number, action: string) => {
     try {
-      if (action === 'dismiss') {
-        await api.post('/admin/reports/dismiss', { reportable_type, reportable_id })
+      if (action === 'dismiss' || action === 'delete_report') {
+        const { data } = await api.post('/admin/reports/dismiss', { reportable_type, reportable_id })
+        showToast(data.message || 'Signalement supprimé du panneau', 'info')
+        if (selectedReport?.reportable_type === reportable_type && selectedReport?.reportable_id === reportable_id) {
+          setSelectedReport(null)
+        }
       } else {
-        await api.post('/admin/reports/action', { reportable_type, reportable_id, action })
+        const { data } = await api.post('/admin/reports/action', { reportable_type, reportable_id, action })
+        showToast(data.message || 'Action exécutée avec succès', 'success')
       }
-      fetchReports(currentPage)
-    } catch (err) {
-      alert("Erreur lors de l'exécution de l'action")
+      await fetchReports(currentPage)
+    } catch (err: any) {
+      const message = err?.response?.data?.message || "Erreur lors de l'exécution de l'action"
+      showToast(message, 'error')
     }
   }
 
@@ -52,7 +70,9 @@ export default function AdminReportsPage() {
             <ShieldAlert className="text-primary" size={32} />
             Modération des Signalements
           </h1>
-          <p className="text-text/60 mt-1">Examinez et traitez les contenus signalés par la communauté.</p>
+          <p className="text-text/60 mt-1">
+            Examinez et traitez les contenus signalés. Les signalements restent visibles jusqu&apos;à leur suppression manuelle.
+          </p>
         </div>
       </div>
 
@@ -62,7 +82,7 @@ export default function AdminReportsPage() {
             <thead>
               <tr className="bg-accent/40 text-text/60 text-sm">
                 <th className="px-6 py-4 font-medium">Type</th>
-                <th className="px-6 py-4 font-medium">Cible (Extrait)</th>
+                <th className="px-6 py-4 font-medium">Cible (Extrait &amp; État)</th>
                 <th className="px-6 py-4 font-medium text-center">Signalements</th>
                 <th className="px-6 py-4 font-medium">Dernier signalement</th>
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
@@ -102,12 +122,34 @@ export default function AdminReportsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="max-w-[300px] truncate text-sm">
-                        {report.target?.content ? (
-                          <span className="text-text/80">"{report.target.content}"</span>
-                        ) : (
-                          <span className="text-text/40 italic">Contenu indisponible</span>
-                        )}
+                      <div className="max-w-[320px] flex flex-col gap-1.5">
+                        <div className="truncate text-sm">
+                          {report.target?.content ? (
+                            <span className={report.is_deleted ? 'text-text/50 line-through' : 'text-text/90 font-medium'}>
+                              &ldquo;{report.target.content}&rdquo;
+                            </span>
+                          ) : (
+                            <span className="text-text/40 italic">Contenu indisponible</span>
+                          )}
+                        </div>
+
+                        {/* Status Badges */}
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          {report.author_warned && (
+                            <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-medium">
+                              <AlertTriangle size={10} /> Auteur averti (30m)
+                            </span>
+                          )}
+                          {report.is_deleted ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-medium">
+                              <Trash2 size={10} /> Contenu supprimé
+                            </span>
+                          ) : !report.author_warned ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">
+                              En attente
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
@@ -116,28 +158,67 @@ export default function AdminReportsPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-text/70">
-                      {report.latest_reason || 'Aucune raison spécifiée'}
-                      {report.latest_details && <span className="block text-xs text-text/40 mt-1 truncate">{report.latest_details}</span>}
+                      <span className="font-medium text-text/90 block">{report.latest_reason || 'Aucune raison spécifiée'}</span>
+                      {report.latest_details && (
+                        <span className="block text-xs text-text/40 mt-1 truncate max-w-[220px]">{report.latest_details}</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
+                      <div className="flex items-center justify-end gap-1.5">
                         <button 
                           onClick={() => setSelectedReport(report)}
-                          className="p-2 hover:bg-accent rounded-full transition-colors text-primary hover:text-primary/80" title="Voir le contenu"
+                          className="p-2 hover:bg-accent rounded-full transition-colors text-primary hover:text-primary/80" 
+                          title="Voir le contenu"
                         >
                           <ExternalLink size={18} />
                         </button>
+                        
                         <div className="dropdown dropdown-end">
                           <div tabIndex={0} role="button" className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text cursor-pointer">
                             <MoreVertical size={18} />
                           </div>
-                          <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow bg-accent border border-border/50 rounded-box w-48 text-left mt-1">
-                            <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Actions</li>
-                            <li><button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'delete_content')} className="text-sm text-red-500">Supprimer contenu</button></li>
-                            <li><button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'warn_user')} className="text-sm text-yellow-500">Avertir l'auteur</button></li>
-                            <div className="divider my-1 opacity-50"></div>
+                          <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow-xl bg-accent border border-border/50 rounded-box w-56 text-left mt-1">
+                            <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Modération</li>
+                            
                             <li>
-                              <button onClick={() => handleAction(report.reportable_type, report.reportable_id, 'dismiss')} className="text-sm text-text/60">
+                              <button 
+                                onClick={() => handleAction(report.reportable_type, report.reportable_id, 'warn_user')} 
+                                className={`text-sm ${report.author_warned ? 'text-text/50 font-normal' : 'text-amber-400 font-medium'}`}
+                              >
+                                {report.author_warned ? (
+                                  <span className="flex items-center gap-1.5"><CheckCircle2 size={14} className="text-amber-400" /> Avertir à nouveau</span>
+                                ) : (
+                                  <span className="flex items-center gap-1.5"><AlertTriangle size={14} /> Avertir l&apos;auteur</span>
+                                )}
+                              </button>
+                            </li>
+
+                            <li>
+                              <button 
+                                disabled={report.is_deleted}
+                                onClick={() => handleAction(report.reportable_type, report.reportable_id, 'delete_content')} 
+                                className={`text-sm ${report.is_deleted ? 'text-text/30 cursor-not-allowed' : 'text-rose-400'}`}
+                              >
+                                {report.is_deleted ? 'Contenu déjà supprimé' : 'Supprimer le contenu'}
+                              </button>
+                            </li>
+
+                            <div className="divider my-1 opacity-50"></div>
+                            <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Gestion Panel</li>
+
+                            <li>
+                              <button 
+                                onClick={() => handleAction(report.reportable_type, report.reportable_id, 'delete_report')} 
+                                className="text-sm text-red-500 font-medium flex items-center gap-1.5 hover:bg-red-500/10"
+                              >
+                                <Trash2 size={14} /> Supprimer le signalement
+                              </button>
+                            </li>
+                            <li>
+                              <button 
+                                onClick={() => handleAction(report.reportable_type, report.reportable_id, 'dismiss')} 
+                                className="text-sm text-text/60"
+                              >
                                 Ignorer (Faux positif)
                               </button>
                             </li>
@@ -177,12 +258,15 @@ export default function AdminReportsPage() {
       {/* Modal pour afficher le contenu complet */}
       {selectedReport && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-accent border border-border/50 rounded-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+          <div className="bg-accent border border-border/50 rounded-2xl w-full max-w-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="p-6 border-b border-border/50 flex items-center justify-between">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <MessageSquare className="text-primary" size={24} />
-                Contenu complet ({selectedReport.reportable_type})
-              </h3>
+              <div>
+                <h3 className="text-xl font-bold flex items-center gap-2">
+                  <MessageSquare className="text-primary" size={24} />
+                  Détails du Signalement ({selectedReport.reportable_type})
+                </h3>
+                <p className="text-xs text-text/50 mt-0.5">Raison : {selectedReport.latest_reason || 'Signalé par la communauté'}</p>
+              </div>
               <button 
                 onClick={() => setSelectedReport(null)}
                 className="p-2 hover:bg-border/50 rounded-full transition-colors text-text/60 hover:text-text"
@@ -191,7 +275,19 @@ export default function AdminReportsPage() {
               </button>
             </div>
             
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              {/* Statuts info banners */}
+              {selectedReport.author_warned && (
+                <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-3 text-sm text-amber-300 flex items-center gap-2">
+                  <AlertTriangle size={16} /> L&apos;auteur a déjà été averti et suspendu temporairement (30 minutes).
+                </div>
+              )}
+              {selectedReport.is_deleted && (
+                <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-3 text-sm text-rose-300 flex items-center gap-2">
+                  <Trash2 size={16} /> Ce contenu a été supprimé de la plateforme (base de données et feed).
+                </div>
+              )}
+
               {selectedReport.target ? (
                 <div className="space-y-4">
                   {selectedReport.target.user && (
@@ -212,28 +308,54 @@ export default function AdminReportsPage() {
                     </div>
                   )}
                   
-                  <div className="bg-background/50 p-4 rounded-xl text-text whitespace-pre-wrap font-medium">
-                    {selectedReport.target.content}
+                  <div>
+                    <label className="text-xs text-text/50 font-semibold uppercase tracking-wider block mb-2">Contenu du message</label>
+                    <div className="bg-background/60 p-4 rounded-xl text-text whitespace-pre-wrap font-medium border border-border/30">
+                      {selectedReport.target.content}
+                    </div>
                   </div>
+
+                  {selectedReport.latest_details && (
+                    <div className="bg-accent/40 p-3 rounded-xl border border-border/30 text-xs text-text/70">
+                      <span className="font-semibold text-text/90">Détails de la détection :</span> {selectedReport.latest_details}
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="text-text/60 italic text-center py-8">Le contenu a probablement déjà été supprimé.</p>
               )}
             </div>
             
-            <div className="p-4 border-t border-border/50 bg-background/30 flex justify-end gap-3">
-              <button onClick={() => setSelectedReport(null)} className="btn btn-ghost">
-                Fermer
-              </button>
+            <div className="p-4 border-t border-border/50 bg-background/30 flex flex-wrap items-center justify-between gap-3">
               <button 
-                onClick={() => {
-                  handleAction(selectedReport.reportable_type, selectedReport.reportable_id, 'delete_content');
-                  setSelectedReport(null);
-                }} 
-                className="btn btn-error"
+                onClick={() => handleAction(selectedReport.reportable_type, selectedReport.reportable_id, 'delete_report')}
+                className="btn btn-sm btn-ghost text-red-400 hover:bg-red-500/10 flex items-center gap-1.5"
+                title="Supprimer ce signalement du panneau admin"
               >
-                Supprimer le contenu
+                <Trash2 size={16} /> Supprimer le signalement
               </button>
+
+              <div className="flex items-center gap-2">
+                <button onClick={() => setSelectedReport(null)} className="btn btn-sm btn-ghost">
+                  Fermer
+                </button>
+                
+                <button 
+                  onClick={() => handleAction(selectedReport.reportable_type, selectedReport.reportable_id, 'warn_user')} 
+                  className={`btn btn-sm ${selectedReport.author_warned ? 'btn-ghost text-amber-400' : 'btn-warning'}`}
+                >
+                  <AlertTriangle size={14} /> {selectedReport.author_warned ? 'Avertir encore' : "Avertir l'auteur"}
+                </button>
+
+                {!selectedReport.is_deleted && (
+                  <button 
+                    onClick={() => handleAction(selectedReport.reportable_type, selectedReport.reportable_id, 'delete_content')} 
+                    className="btn btn-sm btn-error"
+                  >
+                    Supprimer le contenu
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -241,3 +363,4 @@ export default function AdminReportsPage() {
     </div>
   )
 }
+
