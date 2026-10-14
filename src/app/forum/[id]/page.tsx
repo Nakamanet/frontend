@@ -7,11 +7,12 @@ import ReplyForum from '../components/ReplyForum'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import AppLayout from '@/app/components/layout/AppLayout'
-import { ThumbsUp, Pin, Archive } from 'lucide-react'
+import { ThumbsUp, Pin, Archive, Flag } from 'lucide-react'
 import { useAuth } from '@/app/context/AuthContext'
 import type { ForumReply } from '@/app/types/forum'
 import Loader from '@/app/components/Loader'
 import { useToast } from '@/app/context/ToastContext'
+import { reportContent } from '@/app/lib/reports'
 
 function groupReplies(replies: ForumReply[]): ForumReply[] {
   const topLevel = replies.filter(r => !r.parent_id).sort((a, b) => (b.votes_count ?? 0) - (a.votes_count ?? 0))
@@ -37,6 +38,19 @@ export default function TopicDetailPage() {
   const { showToast } = useToast()
   const { isLoggedIn, user } = useAuth()
   const [replyingTo, setReplyingTo] = useState<number | null>(null)
+
+  const handleReport = async (type: 'forum_topic' | 'forum_reply', id: number) => {
+    if (!isLoggedIn) {
+      router.push('/login')
+      return
+    }
+    try {
+      await reportContent(type, id, 'Contenu signalé par un utilisateur')
+      showToast(type === 'forum_topic' ? 'Sujet signalé à la modération' : 'Réponse signalée à la modération', 'success')
+    } catch {
+      showToast('Erreur lors du signalement', 'error')
+    }
+  }
 
   const topicVoteMutation = useMutation({
     mutationFn: (id: number) => voteOnTopic(id),
@@ -166,6 +180,14 @@ export default function TopicDetailPage() {
                 {topic.user_has_pinned ? 'Épinglé' : 'Épingler'}
               </button>
             )}
+            <button
+              onClick={() => handleReport('forum_topic', topic.id)}
+              title="Signaler ce sujet à la modération"
+              className="flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-red-500/10 hover:text-red-400"
+            >
+              <Flag size={14} />
+              Signaler
+            </button>
           </div>
         </div>
 
@@ -211,6 +233,14 @@ export default function TopicDetailPage() {
                       Répondre
                     </button>
                   )}
+                  <button
+                    onClick={() => handleReport('forum_reply', reply.id)}
+                    title="Signaler cette réponse à la modération"
+                    className="flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-red-500/10 hover:text-red-400"
+                  >
+                    <Flag size={13} />
+                    Signaler
+                  </button>
                 </div>
                 {replyingTo === reply.id && (
                   <div className="mt-4">

@@ -24,14 +24,19 @@ export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumPr
 
   const { mutate, isPending: loading } = useMutation({
     mutationFn: () => replyToForum(topicId, content, parentId),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       setContent('')
-      showToast('Réponse au forum publié avec succès', 'success')
+      if (data?.message) {
+        showToast(data.message, 'info')
+      } else {
+        showToast('Réponse publiée avec succès', 'success')
+      }
       queryClient.invalidateQueries({ queryKey: ['forums', topicId] })
       onCancel?.()
     },
-    onError: () => {
-      showToast('Erreur lors de la réponse au forum', 'error')
+    onError: (err: any) => {
+      const msg = err?.response?.data?.message || 'Erreur lors de la réponse au forum'
+      showToast(msg, 'error')
     },
   })
 

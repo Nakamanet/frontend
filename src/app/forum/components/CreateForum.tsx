@@ -26,7 +26,7 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
     setLoading(true)
 
     try {
-      await createForum({
+      const res = await createForum({
         title,
         content,
         category,
@@ -39,12 +39,16 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
       setCategory('general')
       setIsOpen(false)
 
-      showToast('Forum publié avec succès', 'success')
+      if ((res as any)?.message) {
+        showToast((res as any).message, 'info')
+      } else {
+        showToast('Forum publié avec succès', 'success')
+      }
 
       onCreated()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      showToast('Erreur lors de la publication du forum', 'error')
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Erreur lors de la publication du forum'
+      showToast(msg, 'error')
     } finally {
       setLoading(false)
     }

@@ -5,6 +5,20 @@ import { Flag, XCircle, MoreVertical, MessageSquare, ExternalLink, ShieldAlert, 
 import api from '@/app/lib/axios'
 import { useToast } from '@/app/context/ToastContext'
 
+function getReportTypeBadge(type: string) {
+  switch (type) {
+    case 'forum_topic':
+      return { label: 'Forum Sujet', icon: MessageSquare, color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' }
+    case 'forum_reply':
+      return { label: 'Forum Réponse', icon: MessageSquare, color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' }
+    case 'comment':
+      return { label: 'Commentaire', icon: MessageSquare, color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' }
+    case 'post':
+    default:
+      return { label: 'Post', icon: MessageSquare, color: 'text-primary bg-primary/10 border-primary/20' }
+  }
+}
+
 export default function AdminReportsPage() {
   const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -71,7 +85,7 @@ export default function AdminReportsPage() {
             Modération des Signalements
           </h1>
           <p className="text-text/60 mt-1">
-            Examinez et traitez les contenus signalés. Les signalements restent visibles jusqu&apos;à leur suppression manuelle.
+            Examinez et traitez les contenus signalés (posts, commentaires, forums). Les signalements restent visibles jusqu&apos;à leur suppression manuelle.
           </p>
         </div>
       </div>
@@ -114,13 +128,16 @@ export default function AdminReportsPage() {
                   </td>
                 </tr>
               ) : (
-                reports.map((report: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-accent/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-accent border border-border/50 capitalize">
-                        <MessageSquare size={12} /> {report.reportable_type}
-                      </span>
-                    </td>
+                reports.map((report: any, idx: number) => {
+                  const badge = getReportTypeBadge(report.reportable_type)
+                  const Icon = badge.icon
+                  return (
+                    <tr key={idx} className="hover:bg-accent/20 transition-colors">
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${badge.color}`}>
+                          <Icon size={12} /> {badge.label}
+                        </span>
+                      </td>
                     <td className="px-6 py-4">
                       <div className="max-w-[320px] flex flex-col gap-1.5">
                         <div className="truncate text-sm">
@@ -227,8 +244,9 @@ export default function AdminReportsPage() {
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
+                )
+              })
+            )}
             </tbody>
           </table>
         </div>
@@ -263,7 +281,7 @@ export default function AdminReportsPage() {
               <div>
                 <h3 className="text-xl font-bold flex items-center gap-2">
                   <MessageSquare className="text-primary" size={24} />
-                  Détails du Signalement ({selectedReport.reportable_type})
+                  Détails du Signalement ({getReportTypeBadge(selectedReport.reportable_type).label})
                 </h3>
                 <p className="text-xs text-text/50 mt-0.5">Raison : {selectedReport.latest_reason || 'Signalé par la communauté'}</p>
               </div>
@@ -307,9 +325,40 @@ export default function AdminReportsPage() {
                       </div>
                     </div>
                   )}
+
+                  {selectedReport.target.title && (
+                    <div>
+                      <label className="text-xs text-text/50 font-semibold uppercase tracking-wider block mb-1">Titre du sujet</label>
+                      <div className="bg-background/60 p-3 rounded-xl text-text font-bold border border-border/30">
+                        {selectedReport.target.title}
+                      </div>
+                    </div>
+                  )}
                   
                   <div>
-                    <label className="text-xs text-text/50 font-semibold uppercase tracking-wider block mb-2">Contenu du message</label>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs text-text/50 font-semibold uppercase tracking-wider">Contenu du message</label>
+                      {selectedReport.reportable_type === 'forum_topic' && !selectedReport.is_deleted && (
+                        <a
+                          href={`/forum/${selectedReport.reportable_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                        >
+                          <ExternalLink size={12} /> Voir sur le forum
+                        </a>
+                      )}
+                      {selectedReport.reportable_type === 'post' && !selectedReport.is_deleted && (
+                        <a
+                          href={`/post/${selectedReport.reportable_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+                        >
+                          <ExternalLink size={12} /> Voir le post
+                        </a>
+                      )}
+                    </div>
                     <div className="bg-background/60 p-4 rounded-xl text-text whitespace-pre-wrap font-medium border border-border/30">
                       {selectedReport.target.content}
                     </div>
