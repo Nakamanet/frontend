@@ -15,16 +15,22 @@ import Information from './components/Information'
 import CharacterPage from './components/CharacterPage'
 import { addMyAnime, addMyManga, deleteMyAnime, deleteMyManga, getMyAnime, getMyManga } from '@/app/lib/library'
 import { useToast } from '@/app/context/ToastContext'
+import { useTranslation } from '@/app/context/TranslationContext'
+import LanguageToggle from '@/app/components/LanguageToggle'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
+import { useEffect } from 'react'
 
 export default function DetailPage() {
   const { type, slug } = useParams()
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { lang, translateText } = useTranslation()
   const queryClient = useQueryClient()
   const [voirPlus, setVoirPlus] = useState(false)
   const [userFilter, setUserFilter] = useState<string | null>(null)
+  const [translatedSynopsis, setTranslatedSynopsis] = useState<string | null>(null)
+  const [loadingSynopsis, setLoadingSynopsis] = useState(false)
 
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
@@ -34,6 +40,27 @@ export default function DetailPage() {
     enabled: !!type && !!slug,
     staleTime: 5 * 60 * 1000,
   })
+
+  // Automatically fetch translated synopsis when language is French
+  useEffect(() => {
+    let isCancelled = false
+    if (lang === 'fr' && item?.synopsis) {
+      setLoadingSynopsis(true)
+      translateText(item.synopsis)
+        .then((res) => {
+          if (!isCancelled) setTranslatedSynopsis(res)
+        })
+        .finally(() => {
+          if (!isCancelled) setLoadingSynopsis(false)
+        })
+    } else {
+      setTranslatedSynopsis(null)
+      setLoadingSynopsis(false)
+    }
+    return () => {
+      isCancelled = true
+    }
+  }, [lang, item?.synopsis, translateText])
 
   const { data: characters = [], isFetched: charactersFetched } = useQuery<AnimeCharacter[] | MangaCharacter[]>({
     queryKey: [type === 'anime' ? 'anime' : 'manga', item?.id, 'characters'],
@@ -128,19 +155,23 @@ export default function DetailPage() {
       <section className="lg:col-span-4 lg:pr-6">
         {/* Section Header */}
         <div className="flex flex-col w-full h-auto gap-2">
-          {/* Breadcrumb */}
-          <div className="flex gap-1 text-sm items-center">
-            <Link href="/bibliotheque/" className="flex gap-1 text-sm items-center">
-              Bibliothèque
-            </Link>
-            <ChevronRight size={16} />
-            <Link href={`/bibliotheque/${type}`} className="flex gap-1 text-sm items-center">
-              {capitalize(type as string)}
-            </Link>
-            <ChevronRight size={16} />
-            <Link href={`/bibliotheque/${type}/${slug}`} className="flex gap-1 text-sm items-center">
-              {capitalize(slug as string)}
-            </Link>
+          {/* Breadcrumb & Language Switcher */}
+          <div className="flex flex-wrap items-center justify-between gap-3 w-full mb-1">
+            <div className="flex gap-1 text-sm items-center text-text/70">
+              <Link href="/bibliotheque/" className="hover:text-primary transition-colors">
+                Bibliothèque
+              </Link>
+              <ChevronRight size={16} />
+              <Link href={`/bibliotheque/${type}`} className="hover:text-primary transition-colors">
+                {capitalize(type as string)}
+              </Link>
+              <ChevronRight size={16} />
+              <Link href={`/bibliotheque/${type}/${slug}`} className="text-text font-medium">
+                {capitalize(slug as string)}
+              </Link>
+            </div>
+
+            <LanguageToggle />
           </div>
           {/* Fond */}
           <div className="relative w-full h-64 shrink-0 rounded-card overflow-hidden bg-primary z-0">
@@ -229,18 +260,43 @@ export default function DetailPage() {
                 </button>
               ) : null}
             </div>
+            
+            {/* Synopsis Section */}
             <div className="bg-accent rounded-card p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
-              <p className="text-xl">Synopsis</p>
-              {item?.synopsis ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p className="text-xl font-semibold">Synopsis</p>
+                  {lang === 'fr' && (
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium inline-flex items-center gap-1">
+                      🇫🇷 Traduit en français
+                    </span>
+                  )}
+                </div>
+                {loadingSynopsis && (
+                  <span className="text-xs text-text/50 animate-pulse flex items-center gap-1.5">
+                    <Loader variant="inline" size="xs" /> Traduction...
+                  </span>
+                )}
+              </div>
+
+              {((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis) ? (
                 <>
                   {voirPlus ? (
-                    <p className="min-w-0">{item?.synopsis}</p>
+                    <p className="min-w-0 leading-relaxed text-text/90 whitespace-pre-wrap">
+                      {(lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis}
+                    </p>
                   ) : (
-                    <p>{item?.synopsis.split(/\s+/).length > 50 ? item?.synopsis.split(/\s+/).slice(0, 50).join(' ') + '...' : item?.synopsis}</p>
+                    <p className="min-w-0 leading-relaxed text-text/90">
+                      {((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)!.split(/\s+/).length > 50
+                        ? ((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)!.split(/\s+/).slice(0, 50).join(' ') + '...'
+                        : ((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)}
+                    </p>
                   )}
-                  {item?.synopsis.split(/\s+/).length > 50 && (
+                  {((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)!.split(/\s+/).length > 50 && (
                     <div className="flex justify-end">
-                      <button onClick={() => setVoirPlus(!voirPlus)}>{voirPlus ? 'Voir moins' : 'Voir plus'}</button>
+                      <button onClick={() => setVoirPlus(!voirPlus)} className="text-primary hover:underline text-sm font-medium">
+                        {voirPlus ? 'Voir moins' : 'Voir plus'}
+                      </button>
                     </div>
                   )}
                 </>

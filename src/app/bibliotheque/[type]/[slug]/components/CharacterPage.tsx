@@ -8,6 +8,8 @@ import CharacterModal from './CharacterModal'
 import { useQuery } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
 
+import { useTranslation } from '@/app/context/TranslationContext'
+
 type Character = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
 export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> & {
@@ -17,6 +19,7 @@ export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> 
 const PAGE_SIZE = 15
 
 export default function CharacterPage({ type, item }: Character) {
+  const { translateTerm } = useTranslation()
   const [detail, setDetail] = useState<
     { type: 'anime'; item: GroupedAnimeCharacter } | { type: 'manga'; item: MangaCharacter }
   >()
@@ -90,11 +93,18 @@ export default function CharacterPage({ type, item }: Character) {
     return () => observer.disconnect()
   }, [isBlockLoading, hasMore, visibleCount])
 
-  const renderCard = (index: number, id: number, name: string, imageUrl: string | null, onClick: () => void) => (
+  const renderCard = (
+    index: number,
+    id: number,
+    name: string,
+    imageUrl: string | null,
+    role: string | null | undefined,
+    onClick: () => void
+  ) => (
     <button
       key={id}
       onClick={onClick}
-      className={`${index < visibleCount ? 'flex animate-fade-in' : 'hidden'} flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2`}
+      className={`${index < visibleCount ? 'flex animate-fade-in' : 'hidden'} flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2 relative group text-left cursor-pointer transition-all hover:scale-[1.02]`}
     >
       <div className="relative w-full aspect-2/3 rounded-card overflow-hidden shrink-0">
         <Image
@@ -107,6 +117,11 @@ export default function CharacterPage({ type, item }: Character) {
           onError={() => markLoaded(id)}
           className="object-cover"
         />
+        {role && (
+          <span className="absolute bottom-1 right-1 text-[10px] px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-white font-medium">
+            {translateTerm(role)}
+          </span>
+        )}
       </div>
       <p className="text-sm text-center line-clamp-2">{name}</p>
     </button>
@@ -119,14 +134,14 @@ export default function CharacterPage({ type, item }: Character) {
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
           {type === 'anime' &&
             groupedAnimeCharacters.slice(0, renderedCount).map((ac, index) =>
-              renderCard(index, ac.characterId, ac.character.name, ac.character.imageUrl, () => {
+              renderCard(index, ac.characterId, ac.character.name, ac.character.imageUrl, ac.role, () => {
                 setCharacterModal(true)
                 setDetail({ type: 'anime', item: ac })
               })
             )}
           {type === 'manga' &&
             sortedMangaCharacters.slice(0, renderedCount).map((mc, index) =>
-              renderCard(index, mc.characterId, mc.character.name, mc.character.imageUrl, () => {
+              renderCard(index, mc.characterId, mc.character.name, mc.character.imageUrl, mc.role, () => {
                 setCharacterModal(true)
                 setDetail({ type: 'manga', item: mc })
               })

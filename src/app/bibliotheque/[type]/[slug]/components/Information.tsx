@@ -13,11 +13,13 @@ import {
   getMangaStaffs,
   getMangaGenres,
 } from '@/app/lib/catalogue'
+import { useTranslation } from '@/app/context/TranslationContext'
 import { useQueries } from '@tanstack/react-query'
 
 type InformationProps = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
 export default function Information({ type, item }: InformationProps) {
+  const { translateTerm } = useTranslation()
   const [voirPlus, setVoirPlus] = useState(false)
 
   const results = useQueries({
@@ -46,7 +48,7 @@ export default function Information({ type, item }: InformationProps) {
             <tbody>
               <tr>
                 <td>Type</td>
-                <td className="capitalize">{item.subtype}</td>
+                <td className="capitalize">{translateTerm(item.subtype)}</td>
               </tr>
               {item.episodeCount !== null && item.episodeCount !== 0 && (
                 <tr>
@@ -56,19 +58,7 @@ export default function Information({ type, item }: InformationProps) {
               )}
               <tr>
                 <td>Status</td>
-                <td>
-                  {item.status === 'finish'
-                    ? 'Terminé'
-                    : item.status === 'ongoing'
-                      ? 'En cours'
-                      : item.status === 'tba'
-                        ? 'Date à venir'
-                        : item.status === 'upcoming'
-                          ? 'À venir'
-                          : item.status === 'unreleased'
-                            ? 'Non sorti'
-                            : 'N/A'}
-                </td>
+                <td>{translateTerm(item.status)}</td>
               </tr>
               {item.ageRating && (
                 <tr>
@@ -115,19 +105,7 @@ export default function Information({ type, item }: InformationProps) {
               )}
               <tr>
                 <td>Status</td>
-                <td>
-                  {item.status === 'finish'
-                    ? 'Terminé'
-                    : item.status === 'ongoing'
-                      ? 'En cours'
-                      : item.status === 'tba'
-                        ? 'Date à venir'
-                        : item.status === 'upcoming'
-                          ? 'À venir'
-                          : item.status === 'unreleased'
-                            ? 'Non sorti'
-                            : 'N/A'}
-                </td>
+                <td>{translateTerm(item.status)}</td>
               </tr>
               {/* {item.ageRating && (
                 <tr>
@@ -145,8 +123,9 @@ export default function Information({ type, item }: InformationProps) {
                     <td>Staff</td>
                     <td>
                       {itemStaffs.map((staff, index) => (
-                        <div className="flex gap-2" key={`${staff.person.id}-${staff.role}-${index}`}>
+                        <div className="flex items-center gap-1.5 flex-wrap" key={`${staff.person.id}-${staff.role}-${index}`}>
                           <span>{staff.person.name}</span>
+                          {staff.role && <span className="text-xs text-text-muted">({translateTerm(staff.role)})</span>}
                         </div>
                       ))}
                     </td>

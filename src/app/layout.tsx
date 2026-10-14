@@ -4,6 +4,7 @@ import BottomNav from './components/layout/BottomNav'
 import './globals.css'
 import { AuthProvider } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
+import { TranslationProvider } from './context/TranslationContext'
 import QueryProvider from './providers/QueryProvider'
 import { Metadata } from 'next'
 import { Montserrat } from 'next/font/google'
@@ -58,10 +59,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <QueryProvider>
           <AuthProvider>
             <ToastProvider>
-              <Navbar />
-              <main className="md:flex-1">{children}</main>
-              <Footer />
-              <BottomNav />
+              <TranslationProvider>
+                <Navbar />
+                <main className="md:flex-1">{children}</main>
+                <Footer />
+                <BottomNav />
+              </TranslationProvider>
             </ToastProvider>
           </AuthProvider>
         </QueryProvider>

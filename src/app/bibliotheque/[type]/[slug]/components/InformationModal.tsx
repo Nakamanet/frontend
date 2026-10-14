@@ -3,6 +3,7 @@
 import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import { Anime, Manga, Genre, Category, Production, AnimeStaff, MangaStaff } from '@/app/types/catalog'
+import { useTranslation } from '@/app/context/TranslationContext'
 
 type InformationModalProps = {
   isOpen: boolean
@@ -25,6 +26,8 @@ export default function InformationModal({
   item,
   type,
 }: InformationModalProps) {
+  const { translateTerm } = useTranslation()
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
@@ -63,23 +66,11 @@ export default function InformationModal({
             <tbody>
               <tr>
                 <td className="text-base-content/60 w-1/2">Type</td>
-                <td className="capitalize">{'subtype' in item ? item.subtype : item.type}</td>
+                <td className="capitalize">{translateTerm('subtype' in item ? item.subtype : item.type)}</td>
               </tr>
               <tr>
                 <td className="text-base-content/60">Status</td>
-                <td>
-                  {item.status === 'finish'
-                    ? 'Terminé'
-                    : item.status === 'ongoing'
-                      ? 'En cours'
-                      : item.status === 'tba'
-                        ? 'Date à venir'
-                        : item.status === 'upcoming'
-                          ? 'À venir'
-                          : item.status === 'unreleased'
-                            ? 'Non sorti'
-                            : 'N/A'}
-                </td>
+                <td>{translateTerm(item.status)}</td>
               </tr>
               <tr>
                 <td className="text-base-content/60">Date de début</td>
@@ -133,7 +124,7 @@ export default function InformationModal({
               <div className="flex flex-wrap gap-2">
                 {genres.map((genre) => (
                   <span key={genre.id} className="badge badge-outline">
-                    {genre.name}
+                    {translateTerm(genre.name)}
                   </span>
                 ))}
               </div>
@@ -147,7 +138,7 @@ export default function InformationModal({
               <div className="flex flex-wrap gap-2">
                 {categories.map((category) => (
                   <span key={category.id} className="badge badge-outline">
-                    {category.name}
+                    {translateTerm(category.name)}
                   </span>
                 ))}
               </div>
@@ -163,7 +154,7 @@ export default function InformationModal({
                   {productions.map((prod, index) => (
                     <tr key={`${prod.company.id}-${prod.role}-${index}`}>
                       <td className="text-base-content/60 w-1/2">{prod.company.name}</td>
-                      <td>{prod.role}</td>
+                      <td>{translateTerm(prod.role)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -180,7 +171,7 @@ export default function InformationModal({
                   {staffs.map((staff, index) => (
                     <tr key={`${staff.person.id}-${staff.role}-${index}`}>
                       <td className="text-base-content/60 w-1/2">{staff.person.name}</td>
-                      <td>{staff.role}</td>
+                      <td>{translateTerm(staff.role)}</td>
                     </tr>
                   ))}
                 </tbody>
