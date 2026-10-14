@@ -1,16 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Shield, Ban, CheckCircle2, XCircle, MoreVertical } from 'lucide-react'
+import { Search, Shield, Ban, CheckCircle2, XCircle, MoreVertical, Trash2, Bot } from 'lucide-react'
 import api from '@/app/lib/axios'
+import { forceDeleteAdminUser, cleanupBots } from '@/app/lib/admin'
+import { useToast } from '@/app/context/ToastContext'
 
 export default function AdminUsersPage() {
-  const [users, setUsers] = useState([])
+  const [users, setUsers] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [search, setSearch] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
+  const [cleaningBots, setCleaningBots] = useState(false)
+  const [deletingUserId, setDeletingUserId] = useState<number | null>(null)
+
+  const { showToast } = useToast()
 
   useEffect(() => {
     fetchUsers(search, currentPage)
@@ -40,32 +46,89 @@ export default function AdminUsersPage() {
   const toggleBan = async (user: any) => {
     try {
       if (user.is_deleted) {
-        await api.post(`/admin/users/${user.id}/restore`)
+        await api.patch(`/admin/users/${user.id}/restore`)
+        showToast(`Utilisateur @${user.username} débanni`, 'success')
       } else {
         await api.delete(`/admin/users/${user.id}`)
+        showToast(`Utilisateur @${user.username} banni`, 'info')
       }
       fetchUsers(search, currentPage)
     } catch (err) {
-      alert("Erreur lors de la modification du statut")
+      showToast("Erreur lors de la modification du statut", "error")
     }
   }
 
   const changeRole = async (userId: number, role: string) => {
     try {
       await api.patch(`/admin/users/${userId}`, { role })
+      showToast("Rôle mis à jour avec succès", "success")
       fetchUsers(search, currentPage)
     } catch (err) {
-      alert("Erreur lors de la modification du rôle")
+      showToast("Erreur lors de la modification du rôle", "error")
+    }
+  }
+
+  const handlePermanentlyDelete = async (user: any) => {
+    const confirmed = window.confirm(
+      `Êtes-vous absolument sûr de vouloir supprimer définitivement l'utilisateur @${user.username} (${user.email}) ainsi que TOUS ses posts, commentaires et sujets de forum ?\n\nCette action est irréversible.`
+    )
+    if (!confirmed) return
+
+    setDeletingUserId(user.id)
+    try {
+      await forceDeleteAdminUser(user.id)
+      showToast(`Utilisateur @${user.username} et ses contenus supprimés définitivement`, 'success')
+      fetchUsers(search, currentPage)
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Erreur lors de la suppression'
+      showToast(msg, 'error')
+    } finally {
+      setDeletingUserId(null)
+    }
+  }
+
+  const handleCleanupBots = async () => {
+    const confirmed = window.confirm(
+      "Voulez-vous rechercher et supprimer automatiquement tous les comptes bots (@example.org / @example.net) et tout leur contenu (posts, forums, etc.) ?"
+    )
+    if (!confirmed) return
+
+    setCleaningBots(true)
+    try {
+      const res = await cleanupBots('%@example.%')
+      const count = res?.stats?.users ?? 0
+      showToast(
+        count > 0 
+          ? `${count} comptes bots et leurs contenus ont été supprimés avec succès !`
+          : "Aucun compte bot trouvé.",
+        'success'
+      )
+      fetchUsers(search, 1)
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Erreur lors du nettoyage des bots'
+      showToast(msg, 'error')
+    } finally {
+      setCleaningBots(false)
     }
   }
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">Gestion des Utilisateurs</h1>
-          <p className="text-text/60 mt-1">Gérez les accès, les rôles et les sanctions des membres.</p>
+          <p className="text-text/60 mt-1">Gérez les accès, les rôles, les sanctions et le nettoyage des membres.</p>
         </div>
+
+        <button
+          onClick={handleCleanupBots}
+          disabled={cleaningBots}
+          className="self-start sm:self-auto flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-full border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all cursor-pointer disabled:opacity-50 shadow-sm"
+          title="Supprimer tous les comptes bots (@example) et leurs messages"
+        >
+          <Bot size={15} />
+          {cleaningBots ? 'Nettoyage en cours...' : 'Purger les bots (@example)'}
+        </button>
       </div>
 
       <div className="bg-accent/30 border border-border/50 rounded-2xl overflow-hidden shadow-sm pb-4">
@@ -136,7 +199,7 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-sm">{user.email}</td>
+                    <td className="px-6 py-4 text-sm font-mono text-text/80">{user.email}</td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         user.is_admin 
@@ -164,15 +227,25 @@ export default function AdminUsersPage() {
                         <div tabIndex={0} role="button" className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text cursor-pointer">
                           <MoreVertical size={18} />
                         </div>
-                        <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow bg-accent border border-border/50 rounded-box w-48 text-left mt-1">
+                        <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow-xl bg-accent border border-border/50 rounded-box w-52 text-left mt-1">
                           <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Changer rôle</li>
                           <li><button onClick={() => changeRole(user.id, 'user')} className="text-sm">Utilisateur</button></li>
                           <li><button onClick={() => changeRole(user.id, 'moderator')} className="text-sm">Modérateur</button></li>
                           <li><button onClick={() => changeRole(user.id, 'admin')} className="text-sm">Admin</button></li>
                           <div className="divider my-1 opacity-50"></div>
                           <li>
-                            <button onClick={() => toggleBan(user)} className={`text-sm ${user.is_deleted ? 'text-green-500' : 'text-red-500'}`}>
+                            <button onClick={() => toggleBan(user)} className={`text-sm ${user.is_deleted ? 'text-green-500' : 'text-amber-400'}`}>
                               {user.is_deleted ? 'Débannir' : 'Bannir'}
+                            </button>
+                          </li>
+                          <li>
+                            <button 
+                              onClick={() => handlePermanentlyDelete(user)} 
+                              disabled={deletingUserId === user.id}
+                              className="text-sm text-red-500 hover:bg-red-500/10 flex items-center gap-1.5"
+                            >
+                              <Trash2 size={13} />
+                              Supprimer définitivement
                             </button>
                           </li>
                         </ul>
