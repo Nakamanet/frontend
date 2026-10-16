@@ -7,7 +7,7 @@ import Image from 'next/image'
 import EpisodeModal from './EpisodeModal'
 import Pagination from '../../components/Pagination'
 import { useQuery } from '@tanstack/react-query'
-import Loader from '@/app/components/Loader'
+import { CardGridSkeleton } from './Skeletons'
 
 type EpisodeProps = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
@@ -39,7 +39,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
   return (
     <div className="border border-border bg-accent rounded-card p-5 ">
       {/* Content */}
-      {isLoading && <Loader variant="plain" className="my-[90px]" />}
+      {isLoading && <CardGridSkeleton count={6} aspect="video" className="grid grid-cols-3 gap-2" />}
       {!isLoading && type === 'anime' && (
         <ul className="grid grid-cols-3 gap-2">
           {episodes.map((e) => (

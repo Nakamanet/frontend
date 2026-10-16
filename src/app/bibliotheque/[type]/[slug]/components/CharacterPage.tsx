@@ -4,9 +4,11 @@ import { getAnimeCharacters, getMangaCharacters } from '@/app/lib/catalogue'
 import { Anime, AnimeCharacter, Manga, MangaCharacter, Person } from '@/app/types/catalog'
 import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
+import { Eye } from 'lucide-react'
 import CharacterModal from './CharacterModal'
 import { useQuery } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
+import { CardGridSkeleton } from './Skeletons'
 
 import { useTranslation } from '@/app/context/TranslationContext'
 
@@ -17,6 +19,8 @@ export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> 
 }
 
 const PAGE_SIZE = 15
+
+const REVEAL = 'opacity-100 [@media(hover:hover)]:opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100'
 
 export default function CharacterPage({ type, item }: Character) {
   const { translateTerm } = useTranslation()
@@ -103,33 +107,41 @@ export default function CharacterPage({ type, item }: Character) {
   ) => (
     <button
       key={id}
+      type="button"
       onClick={onClick}
-      className={`${index < visibleCount ? 'flex animate-fade-in' : 'hidden'} flex-col items-center gap-2 border border-border rounded-card bg-muted hover:bg-accent p-2 relative group text-left cursor-pointer transition-all hover:scale-[1.02]`}
+      aria-label={name}
+      className={`${index < visibleCount ? 'block animate-fade-in' : 'hidden'} group relative w-full aspect-2/3 rounded-card overflow-hidden border border-transparent bg-primary bg-clip-padding hover:border-primary focus-visible:border-primary outline-none cursor-pointer transition-colors`}
     >
-      <div className="relative w-full aspect-2/3 rounded-card overflow-hidden shrink-0">
-        <Image
-          src={imageUrl || '/logo.png'}
-          alt={name}
-          fill
-          sizes="(min-width: 1024px) 15vw, (min-width: 640px) 25vw, 33vw"
-          loading="eager"
-          onLoad={() => markLoaded(id)}
-          onError={() => markLoaded(id)}
-          className="object-cover"
-        />
-        {role && (
-          <span className="absolute bottom-1 right-1 text-[10px] px-1.5 py-0.5 rounded bg-black/75 backdrop-blur-xs text-white font-medium">
-            {translateTerm(role)}
-          </span>
-        )}
-      </div>
-      <p className="text-sm text-center line-clamp-2">{name}</p>
+      <Image
+        src={imageUrl || '/logo.png'}
+        alt={name}
+        fill
+        sizes="(min-width: 1024px) 15vw, (min-width: 640px) 25vw, 33vw"
+        loading="eager"
+        onLoad={() => markLoaded(id)}
+        onError={() => markLoaded(id)}
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+      <span
+        className={`pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/35 to-black/10 transition-opacity duration-300 ${REVEAL}`}
+      />
+      <span className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-opacity duration-300 ${REVEAL}`}>
+        <span className="flex items-center justify-center w-9 h-9 rounded-full bg-black/55 backdrop-blur-sm text-white group-hover:bg-primary transition-colors">
+          <Eye size={17} />
+        </span>
+      </span>
+      <span className={`pointer-events-none absolute inset-x-0 bottom-0 p-2.5 flex flex-col gap-0.5 text-left transition-opacity duration-300 ${REVEAL}`}>
+        <span className="text-sm font-bold text-white leading-tight line-clamp-2">{name}</span>
+        {role && <span className="text-xs text-white/75">{translateTerm(role)}</span>}
+      </span>
     </button>
   )
 
   return (
     <div className="border border-border bg-accent rounded-card p-5">
-      {(isLoading || (visibleCount === 0 && renderedCount > 0)) && <Loader variant="plain" className="my-[90px]" />}
+      {(isLoading || (visibleCount === 0 && renderedCount > 0)) && (
+        <CardGridSkeleton count={10} aspect="portrait" className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3" />
+      )}
       {!isLoading && (
         <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3">
           {type === 'anime' &&

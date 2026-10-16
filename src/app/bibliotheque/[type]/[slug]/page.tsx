@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/app/context/AuthContext'
-import { useParams } from 'next/navigation'
+import { notFound, useParams } from 'next/navigation'
 import { useState } from 'react'
 import { getAnimeById, getMangaById, getAnimeCharacters, getMangaCharacters, getEpisodes, getChapters } from '@/app/lib/catalogue'
 import { Anime, AnimeCharacter, Manga, MangaCharacter } from '@/app/types/catalog'
@@ -13,6 +13,7 @@ import EpisodePage from './components/EpisodePage'
 import Thread from './components/Thread'
 import Information from './components/Information'
 import CharacterPage from './components/CharacterPage'
+import DetailSkeleton from './components/Skeletons'
 import { addMyAnime, addMyManga, deleteMyAnime, deleteMyManga, getMyAnime, getMyManga } from '@/app/lib/library'
 import { useToast } from '@/app/context/ToastContext'
 import { useTranslation } from '@/app/context/TranslationContext'
@@ -31,10 +32,12 @@ export default function DetailPage() {
   const [userFilter, setUserFilter] = useState<string | null>(null)
   const [translatedSynopsis, setTranslatedSynopsis] = useState<string | null>(null)
   const [loadingSynopsis, setLoadingSynopsis] = useState(false)
+  const [brokenImages, setBrokenImages] = useState<string[]>([])
+  const markBroken = (url: string) => setBrokenImages((urls) => (urls.includes(url) ? urls : [...urls, url]))
 
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
-  const { data: item } = useQuery<Anime | Manga>({
+  const { data: item, isError } = useQuery<Anime | Manga>({
     queryKey: [type, slug],
     queryFn: () => type === 'anime' ? getAnimeById(slug as string) : getMangaById(slug as string),
     enabled: !!type && !!slug,
@@ -148,7 +151,8 @@ export default function DetailPage() {
 
   const isMutating = isStatusPending || isRemovePending
 
-  if (!item) return null
+  if (isError) notFound()
+  if (!item) return <DetailSkeleton />
 
   return (
     <main className="lg:grid lg:grid-cols-5 max-w-[1500px] mx-auto px-4 md:px-8 lg:px-15 py-5 md:py-10 pb-20 md:pb-10">
@@ -175,7 +179,7 @@ export default function DetailPage() {
           </div>
           {/* Fond */}
           <div className="relative w-full h-64 shrink-0 rounded-card overflow-hidden bg-primary z-0">
-            {item?.coverImage ? (
+            {item?.coverImage && !brokenImages.includes(item.coverImage) ? (
               <Image
                 src={item.coverImage}
                 alt="Bannière"
@@ -183,6 +187,7 @@ export default function DetailPage() {
                 sizes="(max-width: 768px) 100vw, 80vw"
                 className="object-cover"
                 priority
+                onError={() => markBroken(item.coverImage!)}
               />
             ) : (
               <Image src="/bg.png" alt="Bannière" fill sizes="(max-width: 768px) 100vw, 80vw" className="object-cover" priority />
@@ -193,13 +198,14 @@ export default function DetailPage() {
         {/* Section Content */}
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-4 w-full px-0 md:px-5 gap-5 mb-6" style={{ marginTop: '-80px' }}>
           <div className="w-32 md:w-auto md:col-span-1 shrink-0 gap-4 flex flex-col items-center">
-            {item?.posterImage ? (
+            {item?.posterImage && !brokenImages.includes(item.posterImage) ? (
               <Image
                 src={item.posterImage}
                 alt="Avatar"
                 width={250}
                 height={390}
                 className="w-full object-cover rounded-card"
+                onError={() => markBroken(item.posterImage!)}
               />
             ) : (
               <Image
