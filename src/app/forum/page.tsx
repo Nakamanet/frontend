@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getForums, getUserPins } from '@/app/lib/forum'
+import { FORUM_CATEGORIES, getForums, getUserPins } from '@/app/lib/forum'
 import type { Forum } from '@/app/types/forum'
 import { Paperclip } from 'lucide-react'
 import CreateForum from './components/CreateForum'
@@ -13,14 +13,7 @@ import { useAuth } from '../context/AuthContext'
 import SectionSwitcher from '../components/ui/SectionSwitcher'
 import Link from 'next/link'
 
-const CATEGORIES = [
-  { id: '', label: 'Récents' },
-  { id: 'general', label: 'Général' },
-  { id: 'anime', label: 'Anime' },
-  { id: 'manga', label: 'Manga' },
-  { id: 'recommendations', label: 'Recommandations' },
-  { id: 'spoilers', label: 'Spoilers' },
-]
+const CATEGORIES = [{ id: '', label: 'Récents' }, ...FORUM_CATEGORIES]
 
 const PIN_TITLE_MAX = 30
 

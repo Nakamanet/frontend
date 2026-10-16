@@ -1,6 +1,14 @@
 import api from './axios'
 import type { Forum, ForumReply, PaginatedForums } from '../types/forum'
 
+export const FORUM_CATEGORIES: { id: Forum['category']; label: string }[] = [
+  { id: 'general', label: 'Général' },
+  { id: 'anime', label: 'Anime' },
+  { id: 'manga', label: 'Manga' },
+  { id: 'recommendations', label: 'Recommandations' },
+  { id: 'spoilers', label: 'Spoilers' },
+]
+
 export async function getForums(
   page = 1,
   category?: Forum['category'],
