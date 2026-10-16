@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Smile, SendHorizonal, CircleUser } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { User } from '../../types/auth'
@@ -9,7 +10,9 @@ import { useChat } from '@/app/hooks/useChat'
 import Button from '@/app/components/ui/Button'
 
 export default function Chat({ user }: { user: User | null }) {
-  const { messages, connected, sendMessage } = useChat('general')
+  const { messages, connected, sendMessage } = useChat('general', { allowGuest: true })
+  const router = useRouter()
+  const goToLogin = () => router.push('/login')
   const [input, setInput] = useState('')
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
@@ -19,6 +22,7 @@ export default function Chat({ user }: { user: User | null }) {
   }, [messages])
 
   const handleSend = () => {
+    if (!user) return goToLogin()
     if (!input.trim()) return
     sendMessage(input)
     setInput('')
@@ -72,8 +76,10 @@ export default function Chat({ user }: { user: User | null }) {
             <Smile size={20} className="text-text/50 shrink-0 hover:text-primary transition-colors cursor-pointer" />
             <input
               type="text"
-              placeholder="Envoyer un message"
+              placeholder={user ? 'Envoyer un message' : 'Connectez-vous pour écrire'}
               value={input}
+              readOnly={!user}
+              onFocus={() => !user && goToLogin()}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"

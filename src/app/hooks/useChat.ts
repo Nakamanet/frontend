@@ -13,7 +13,7 @@ interface Message {
   created_at: string
 }
 
-export function useChat(room: string) {
+export function useChat(room: string, { allowGuest = false }: { allowGuest?: boolean } = {}) {
   const { isLoggedIn, user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [connected, setConnected] = useState(false)
@@ -27,17 +27,17 @@ export function useChat(room: string) {
 
   // connect once
   useEffect(() => {
-    if (!isLoggedIn) return
-
-    const token = localStorage.getItem('token')
-    if (!token) return
+    const token = isLoggedIn ? localStorage.getItem('token') : null
+    if (!token && !allowGuest) return
 
     const socket = io(process.env.NEXT_PUBLIC_CHAT_URL!, {
-      auth: {
-        token,
-        username: user?.username,
-        avatar_url: user?.avatar_url ?? null,
-      },
+      auth: token
+        ? {
+            token,
+            username: user?.username,
+            avatar_url: user?.avatar_url ?? null,
+          }
+        : {},
       forceNew: true,
     })
 
@@ -66,7 +66,7 @@ export function useChat(room: string) {
       socket.disconnect()
       socketRef.current = null
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn, allowGuest])
 
   // join / switch room whenever room changes (or once connected)
   useEffect(() => {
