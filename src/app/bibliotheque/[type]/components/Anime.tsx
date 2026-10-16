@@ -4,14 +4,14 @@ import { useState } from 'react'
 import { getAnimes } from '@/app/lib/catalogue'
 import { ChevronRight, SlidersHorizontal } from 'lucide-react'
 import Pagination from './Pagination'
-import Image from 'next/image'
+import CatalogGrid from './CatalogGrid'
 import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
 import AppLayout from '@/app/components/layout/AppLayout'
 
 export default function AnimePage() {
-  const [limit] = useState(20)
+  const [limit] = useState(24)
   const [genre] = useState<string | undefined>(undefined)
   const [openModal, setOpenModal] = useState(false)
   const [page, setPage] = useState(1)
@@ -26,7 +26,7 @@ export default function AnimePage() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col gap-4 justify-between">
+      <div className="flex items-center justify-between gap-4">
         <p className="flex gap-1 text-sm items-center">
           <Link href="/bibliotheque/" className="flex gap-1 text-sm items-center">
             Bibliothèque
@@ -34,46 +34,15 @@ export default function AnimePage() {
           <ChevronRight size={16} />
           Anime
         </p>
-        <div className="flex justify-end w-full h-full">
-          <button onClick={() => setOpenModal(true)} className="btn btn-ghost bg-accent rounded-card">
-            <SlidersHorizontal />
-            <p>Filtres</p>
-          </button>
-        </div>
+        <button onClick={() => setOpenModal(true)} className="btn btn-ghost bg-accent rounded-card shrink-0">
+          <SlidersHorizontal />
+          <p>Filtres</p>
+        </button>
       </div>
       {isLoading ? (
         <Loader variant="plain" className="h-full my-[90px]" />
       ) : (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        {anime.map((item) => (
-          <div
-            key={item.id}
-            className="card bg-accent border border-border rounded-card h-[450px] flex flex-col overflow-hidden"
-          >
-            <Link href={`/bibliotheque/anime/${item.slug}`} className="flex flex-col h-full min-h-0">
-              <figure className="h-[350px] w-full shrink-0 overflow-hidden rounded-t-[15px]">
-                {item.posterImage || item.coverImage ? (
-                  <Image
-                    src={(item.posterImage || item.coverImage)!}
-                    alt={item.titleEn || item.titleJp || ''}
-                    width={250}
-                    height={350}
-                    className="h-full w-full object-cover"
-                    priority
-                  />
-                ) : (
-                  <div className="h-full w-full bg-base-200 flex items-center justify-center">
-                    <span className="text-base-content/30 text-sm">Pas d&apos;image</span>
-                  </div>
-                )}
-              </figure>
-              <div className="card-body flex-1 min-h-[100px] flex flex-col items-center justify-center py-3">
-                <h2 className="card-title text-center line-clamp-2">{item.titleEn || item.titleJp}</h2>
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
+      <CatalogGrid type="anime" items={anime} />
       )}
       <Pagination page={page} lastPage={maxPage} onPageChange={setPage} />
     </AppLayout>
