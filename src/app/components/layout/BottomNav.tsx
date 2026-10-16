@@ -2,14 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, BookOpen, MessageSquare, MessageCircle, Mail } from 'lucide-react'
+import { Home, BookOpen, MessageSquare, MessageCircle } from 'lucide-react'
 
 const ITEMS = [
   { href: '/', label: 'Accueil', icon: Home },
   { href: '/bibliotheque', label: 'Bibliothèque', icon: BookOpen },
   { href: '/forum', label: 'Forum', icon: MessageSquare },
   { href: '/chat', label: 'Chat', icon: MessageCircle },
-  { href: '/messages', label: 'Messages', icon: Mail },
 ]
 
 export default function BottomNav() {

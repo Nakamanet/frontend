@@ -14,6 +14,7 @@
   --warning: #f59e0b;
   --manga: #ff0071;
   --anime: #1198ab;
+  --yellow: #f5cc1c;
 
   /* Rétrocompatibilité / alias */
   --background: var(--bg);
@@ -34,6 +35,7 @@
   --color-warning: var(--warning);
   --color-manga: var(--manga);
   --color-anime: var(--anime);
+  --color-yellow: var(--yellow);
   --radius-card: 15px;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -69,4 +71,56 @@ body {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes tbc-slide {
+  from {
+    transform: translateX(70vw);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .tbc-enter {
+    animation: tbc-slide 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) 0.4s both;
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes petal-sway {
+  from {
+    transform: rotate(calc(var(--sway-angle, 14deg) * -1));
+  }
+  to {
+    transform: rotate(var(--sway-angle, 14deg));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .petal-sway {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: petal-sway var(--sway-duration, 1.6s) ease-in-out infinite alternate;
+  }
+
+  .reveal-load {
+    animation: reveal-up 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  }
+
+  .reveal-pending {
+    opacity: 0;
+    transform: translateY(40px);
+  }
 }

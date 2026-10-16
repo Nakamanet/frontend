@@ -13,11 +13,12 @@ type CatalogCardProps = {
   followed: boolean
   pending: boolean
   onToggle: () => void
+  badge?: string
 }
 
 const REVEAL = 'opacity-100 [@media(hover:hover)]:opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
 
-export default function CatalogCard({ type, item, followed, pending, onToggle }: CatalogCardProps) {
+export default function CatalogCard({ type, item, followed, pending, onToggle, badge }: CatalogCardProps) {
   const { translateTerm } = useTranslation()
   const title = item.titleEn || item.titleJp || ''
   const href = `/bibliotheque/${type}/${item.slug}`
@@ -42,6 +43,12 @@ export default function CatalogCard({ type, item, followed, pending, onToggle }:
       )}
 
       <Link href={href} aria-label={title} className="absolute inset-0 z-0" />
+
+      {badge && (
+        <span className="pointer-events-none absolute top-2 right-2 z-10 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
+          {badge}
+        </span>
+      )}
 
       <div
         className={`pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/35 to-black/10 transition-opacity duration-300 ${REVEAL}`}

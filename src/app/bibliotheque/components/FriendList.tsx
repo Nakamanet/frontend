@@ -4,11 +4,9 @@ import { useQuery, useQueries } from '@tanstack/react-query'
 import { getFriendsExplore } from '@/app/lib/library'
 import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
 import { Anime, Manga } from '@/app/types/catalog'
-import { Plus } from 'lucide-react'
-import Image from 'next/image'
-import Link from 'next/link'
 import Loader from '@/app/components/Loader'
 import ScrollableRow from './ScrollableRow'
+import CardRow from './CardRow'
 import { useAuth } from '../../context/AuthContext'
 
 export default function FriendList() {
@@ -68,32 +66,11 @@ export default function FriendList() {
           <p className="text-primary">Une erreur est survenue</p>
         </div>
       ) : list.length > 0 ? (
-        <div className="flex gap-4">
-          <div className="flex gap-4">
-            {list.map((item) => (
-              <div key={`${item.type}-${item.anime_id ?? item.manga_id}`}>
-                {item.detail.posterImage ? (
-                  <Link href={`/bibliotheque/${item.type}/${item.detail.slug}`}>
-                    <Image
-                      src={item.detail.posterImage}
-                      alt={item.detail.titleEn}
-                      width={145}
-                      height={100}
-                      className="object-cover rounded-card min-w-[145px] min-h-[100px]"
-                      priority
-                    />
-                  </Link>
-                ) : null}
-              </div>
-            ))}
-          </div>
-          <Link href="/profil#amis">
-            <div className="flex flex-col border border-border gap-2 rounded-card items-center justify-center w-[145px] h-full">
-              <Plus size={35} />
-              <p>Tous les amis</p>
-            </div>
-          </Link>
-        </div>
+        <CardRow
+          items={list.map((entry) => ({ type: entry.type as 'anime' | 'manga', item: entry.detail }))}
+          moreHref="/profil#amis"
+          moreLabel="Tous les amis"
+        />
       ) : (
         <p>Vos amis n&apos;ont pas encore de titre dans leur bibliothèque</p>
       )}

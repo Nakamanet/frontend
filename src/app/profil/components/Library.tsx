@@ -6,8 +6,8 @@ import { Book, TvMinimalPlay } from 'lucide-react'
 import { MyAnime, MyManga } from '@/app/types/library'
 import { Anime, Manga } from '@/app/types/catalog'
 import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
-import Image from 'next/image'
-import Link from 'next/link'
+import CatalogCard from '@/app/bibliotheque/[type]/components/CatalogCard'
+import { useLibraryFollow } from '@/app/hooks/useLibraryFollow'
 import FilterTab from '../../components/FilterTab'
 import { useQuery, useQueries } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
@@ -30,6 +30,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 export default function Library({ user }: { user?: User }) {
   const [filter, setFilter] = useState('manga')
+  const { isFollowed, isPending, toggle } = useLibraryFollow()
 
   const { data: myAnimes = [], isLoading: loadingAnime, isError: errorAnime } = useQuery<MyAnime[]>({
     queryKey: user ? ['user', user.id, 'library', 'anime'] : ['library', 'anime'],
@@ -75,31 +76,17 @@ export default function Library({ user }: { user?: User }) {
       ) : filter === "manga" ? (
         <div>
           {mangas && mangas.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-              {mangas.map((manga) => (
-                <div
-                  key={manga.manga_id}
-                  className='card bg-accent border border-border rounded-card flex flex-col overflow-hidden'
-                >
-                  <Link href={`/bibliotheque/manga/${manga.detail.slug}`} className="flex flex-col h-full min-h-0">
-                    <figure className="relative aspect-2/3 w-full shrink-0 overflow-hidden rounded-t-card">
-                      <Image
-                        src={manga.detail.posterImage || './bg.png'}
-                        alt={manga.detail.titleEn}
-                        fill
-                        className="object-cover"
-                      />
-                      {manga.status && (
-                        <span className="absolute top-2 right-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
-                          {STATUS_LABELS[manga.status] ?? manga.status}
-                        </span>
-                      )}
-                    </figure>
-                    <div className="card-body flex-1 min-h-[100px] flex flex-col items-center justify-center py-3">
-                      <h2 className="card-title text-center line-clamp-2">{manga.detail.titleEn}</h2>
-                    </div>
-                  </Link>
-                </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+              {mangas.map((entry) => (
+                <CatalogCard
+                  key={entry.manga_id}
+                  type="manga"
+                  item={entry.detail}
+                  badge={entry.status ? STATUS_LABELS[entry.status] ?? entry.status : undefined}
+                  followed={isFollowed('manga', entry.manga_id)}
+                  pending={isPending('manga', entry.manga_id)}
+                  onToggle={() => toggle('manga', entry.manga_id)}
+                />
               ))}
             </div>
           ) : (
@@ -113,31 +100,17 @@ export default function Library({ user }: { user?: User }) {
       ) : (
         <div>
           {animes && animes.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-              {animes.map((anime) => (
-                <div
-                  key={anime.anime_id}
-                  className='card bg-accent border border-border rounded-card flex flex-col overflow-hidden'
-                >
-                  <Link href={`/bibliotheque/anime/${anime.detail.slug}`} className="flex flex-col h-full min-h-0">
-                    <figure className="relative aspect-2/3 w-full shrink-0 overflow-hidden rounded-t-card">
-                      <Image
-                        src={anime.detail.posterImage || './bg.png'}
-                        alt={anime.detail.titleEn}
-                        fill
-                        className="object-cover"
-                      />
-                      {anime.status && (
-                        <span className="absolute top-2 right-2 bg-primary text-white text-xs font-semibold px-2 py-0.5 rounded-full shadow">
-                          {STATUS_LABELS[anime.status] ?? anime.status}
-                        </span>
-                      )}
-                    </figure>
-                    <div className="card-body flex-1 min-h-[100px] flex flex-col items-center justify-center py-3">
-                      <h2 className="card-title text-center line-clamp-2">{anime.detail.titleEn}</h2>
-                    </div>
-                  </Link>
-                </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-4">
+              {animes.map((entry) => (
+                <CatalogCard
+                  key={entry.anime_id}
+                  type="anime"
+                  item={entry.detail}
+                  badge={entry.status ? STATUS_LABELS[entry.status] ?? entry.status : undefined}
+                  followed={isFollowed('anime', entry.anime_id)}
+                  pending={isPending('anime', entry.anime_id)}
+                  onToggle={() => toggle('anime', entry.anime_id)}
+                />
               ))}
             </div>
           ) : (

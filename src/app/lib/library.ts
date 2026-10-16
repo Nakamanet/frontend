@@ -73,6 +73,16 @@ export interface TopEntry {
   count: number
 }
 
+export interface PopularityEntry {
+  id: number
+  count: number
+}
+
+export async function getPopularity(type: 'anime' | 'manga'): Promise<PopularityEntry[]> {
+  const { data } = await api.get(`/library/popularity/${type}`)
+  return data
+}
+
 export async function getTopAnime(): Promise<TopEntry[]> {
   const { data } = await api.get('/library/top/anime')
   return data

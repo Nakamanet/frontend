@@ -15,7 +15,6 @@ import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
 import SectionSwitcher from '@/app/components/ui/SectionSwitcher'
 
-import Link from 'next/link'
 
 function ProfilAccessNotice({ status }: { status: User['friendship_status'] | undefined}) {
   switch (status) {
@@ -151,15 +150,6 @@ export default function ProfilPage() {
                   <p><Users size={15} /> Amis</p>
                 </div>
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content w-auto rounded-box z-1 mt-3 p-2 bg-accent border border-border shadow">
-                  <li>
-                    <Link
-                      href={`/messages/${profileUser.id}`}
-                      className="btn btn-ghost border-none rounded-full flex items-center gap-1"
-                    >
-                      <MessageSquare size={16} />
-                      Message
-                    </Link>
-                  </li>
                   <li>
                     <button className="btn btn-ghost text-sm border-none rounded-full text-primary" onClick={handleRemove}>
                       Supprimer l&apos;ami

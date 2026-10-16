@@ -9,6 +9,8 @@ import { useGeolocation } from '../../hooks/useGeolocalisation'
 import Link from 'next/link'
 import { useToast } from '@/app/context/ToastContext'
 import Loader from '@/app/components/Loader'
+import HaloBackdrop from '@/app/components/ui/HaloBackdrop'
+import { PeekingBlossoms } from '@/app/components/ui/Blossom'
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!
 
@@ -119,96 +121,88 @@ export default function RegisterPage() {
         onLoad={renderTurnstile}
       />
       {/* Background effect */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(225,16,72,0.28) 0%, rgba(225,16,72,0.08) 45%, transparent 70%), #0e1520',
-        }}
-      />
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage: 'repeating-conic-gradient(from 0deg at 50% 50%, rgba(225,16,72,0.12) 0deg, transparent 1.5deg, transparent 9deg)',
-        }}
-      />
+      <HaloBackdrop />
 
       {/* Form */}
       <div className="relative z-10 w-full max-w-md mx-4 flex flex-col gap-4">
-        <div className="bg-accent/80 backdrop-blur-sm border border-border rounded-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Créer un compte</h2>
+        <div className="relative">
+          <PeekingBlossoms />
+          <div className="relative z-10 bg-accent/80 backdrop-blur-sm border border-border rounded-2xl p-8">
+            <h2 className="text-2xl font-bold text-white mb-6">Créer un compte</h2>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Nom d&apos;utilisateur</label>
-              <input
-                type="text"
-                placeholder="Pseudo"
-                className={inputClass}
-                required
-                onChange={(e) => setUsername(e.target.value)}
-                maxLength={50}
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-white/70">Nom d&apos;utilisateur</label>
+                <input
+                  type="text"
+                  placeholder="Pseudo"
+                  className={inputClass}
+                  required
+                  onChange={(e) => setUsername(e.target.value)}
+                  maxLength={50}
+                />
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Email</label>
-              <input
-                type="email"
-                placeholder="email@exemple.com"
-                className={inputClass}
-                required
-                onChange={(e) => setEmail(e.target.value)}
-                maxLength={100}
-              />
-            </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-white/70">Email</label>
+                <input
+                  type="email"
+                  placeholder="email@exemple.com"
+                  className={inputClass}
+                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                  maxLength={100}
+                />
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Date de naissance</label>
-              <input
-                type="date"
-                className={inputClass}
-                required
-                min={minBirthdate}
-                max={maxBirthdate}
-                onChange={(e) => setBirthdate(e.target.value)}
-              />
-            </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-white/70">Date de naissance</label>
+                <input
+                  type="date"
+                  className={inputClass}
+                  required
+                  min={minBirthdate}
+                  max={maxBirthdate}
+                  onChange={(e) => setBirthdate(e.target.value)}
+                />
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Mot de passe</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className={inputClass}
-                required
-                onChange={(e) => setPassword(e.target.value)}
-                minLength={8}
-              />
-            </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-white/70">Mot de passe</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className={inputClass}
+                  required
+                  onChange={(e) => setPassword(e.target.value)}
+                  minLength={8}
+                />
+              </div>
 
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-white/70">Confirmation du mot de passe</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className={inputClass}
-                required
-                onChange={(e) => setPasswordConfirmation(e.target.value)}
-                minLength={8}
-              />
-            </div>
+              <div className="flex flex-col gap-1.5">
+                <label className="text-sm font-medium text-white/70">Confirmation du mot de passe</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  className={inputClass}
+                  required
+                  onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  minLength={8}
+                />
+              </div>
 
-            <div ref={turnstileContainerRef} className="flex justify-center" />
+              <div ref={turnstileContainerRef} className="flex justify-center" />
 
-            {error && <p className="text-red-400 text-sm">{error}</p>}
+              {error && <p className="text-red-400 text-sm">{error}</p>}
 
-            <button
-              type="submit"
-              className="w-full py-3 rounded-xl bg-primary hover:bg-primary/85 text-white font-bold text-base transition-colors mt-2 cursor-pointer"
-            >
-              S&apos;inscrire
-            </button>
-          </form>
+              <button
+                type="submit"
+                className="w-full py-3 rounded-xl bg-primary hover:bg-primary/85 text-white font-bold text-base transition-colors mt-2 cursor-pointer"
+              >
+                S&apos;inscrire
+              </button>
+            </form>
+          </div>
         </div>
 
         <p className="text-center text-white/50 text-sm">

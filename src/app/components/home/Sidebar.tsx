@@ -11,7 +11,15 @@ import { getAnimeById, getMangaById } from '@/app/lib/catalogue'
 import { Anime, Manga } from '@/app/types/catalog'
 import { useQueries, useQuery } from '@tanstack/react-query'
 
-export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { isLoggedIn: boolean; isAuthLoading?: boolean; user: User | null }) {
+export default function SideBar({
+  isLoggedIn,
+  isAuthLoading = false,
+  user,
+}: {
+  isLoggedIn: boolean
+  isAuthLoading?: boolean
+  user: User | null
+}) {
   const results = useQueries({
     queries: [
       { queryKey: ['user', user?.id, 'posts'], queryFn: () => getUserPosts(user!.id), enabled: !!user },
@@ -81,7 +89,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
             {/* Avatar (chevauche la bannière) + pseudo + handle */}
             <div className="flex items-end gap-3 -mt-6">
               <div className="w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden z-10 text-base-content/70">
-              <Link href={`/profil/${user.id}`}>
+                <Link href={`/profil`}>
                   {user.avatar_url ? (
                     <Image
                       src={user.avatar_url}
@@ -93,7 +101,7 @@ export default function SideBar({ isLoggedIn, isAuthLoading = false, user }: { i
                   ) : (
                     <CircleUser size={50} strokeWidth={1.5} />
                   )}
-              </Link>
+                </Link>
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-bold text-base text-white truncate">{user.username}</p>
