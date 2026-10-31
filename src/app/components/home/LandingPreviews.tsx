@@ -2,10 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { CircleUser, Hash, Heart, MessageCircle } from 'lucide-react'
+import { ChevronLeft, ChevronRight, CircleUser, Hash, Heart, MessageCircle } from 'lucide-react'
 import { getPosts } from '@/app/lib/post'
 import { getForums } from '@/app/lib/forum'
 import { getChannels } from '@/app/lib/channels'
@@ -112,22 +113,95 @@ export function ChannelsPreview() {
   )
 }
 
+const FORUM_AUTOPLAY = 5000
+
+// Position des cartes derrière la carte active : décalage vers le bas, réduction, transparence
+const STACK_STYLES = [
+  'translate-y-0 scale-100 opacity-100 z-30',
+  'translate-y-4 scale-[0.95] opacity-60 z-20',
+  'translate-y-8 scale-[0.90] opacity-30 z-10',
+]
+
 export function ForumPreview() {
   const { data, isLoading } = useQuery({
     queryKey: ['landing', 'forums'],
     queryFn: () => getForums(1),
     staleTime: STALE,
   })
-  const topics = (data?.data ?? []).slice(0, 3)
+  const topics = (data?.data ?? []).slice(0, 6)
+  const [active, setActive] = useState(0)
+  const [paused, setPaused] = useState(false)
+
+  useEffect(() => {
+    if (paused || topics.length < 2) return
+    const timer = setInterval(() => setActive((i) => (i + 1) % topics.length), FORUM_AUTOPLAY)
+    return () => clearInterval(timer)
+  }, [paused, topics.length])
 
   if (isLoading) return <PreviewLoader />
   if (topics.length === 0) return null
 
+  const go = (step: number) => setActive((i) => (i + step + topics.length) % topics.length)
+
   return (
-    <div className="flex flex-col gap-3">
-      {topics.map((topic) => (
-        <ForumCards key={topic.id} topic={topic} />
-      ))}
+    <div
+      className="flex flex-col gap-5"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onFocus={() => setPaused(true)}
+      onBlur={() => setPaused(false)}
+    >
+      <div className="grid pb-8" aria-roledescription="carrousel" aria-label="Sujets du forum">
+        {topics.map((topic, i) => {
+          const offset = (i - active + topics.length) % topics.length
+          const isActive = offset === 0
+          return (
+            <div
+              key={topic.id}
+              inert={!isActive}
+              aria-hidden={!isActive}
+              className={`col-start-1 row-start-1 origin-bottom transition-[translate,scale,opacity] duration-500 ease-out motion-reduce:transition-none [&>a]:block [&>a]:h-full [&>a>div]:h-full [&>a>div:hover]:bg-accent ${
+                STACK_STYLES[offset] ?? 'translate-y-8 scale-[0.90] opacity-0 z-0'
+              }`}
+            >
+              <ForumCards topic={topic} />
+            </div>
+          )
+        })}
+      </div>
+
+      {topics.length > 1 && (
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            aria-label="Sujet précédent"
+            className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text/70 hover:border-primary hover:text-primary transition-colors"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <div className="flex items-center gap-2">
+            {topics.map((topic, i) => (
+              <button
+                key={topic.id}
+                type="button"
+                onClick={() => setActive(i)}
+                aria-label={`Afficher le sujet ${i + 1}`}
+                aria-current={i === active}
+                className={`h-2 rounded-full transition-all ${i === active ? 'w-6 bg-primary' : 'w-2 bg-text/20 hover:bg-text/40'}`}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => go(1)}
+            aria-label="Sujet suivant"
+            className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text/70 hover:border-primary hover:text-primary transition-colors"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
     </div>
   )
 }
