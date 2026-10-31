@@ -54,10 +54,29 @@ const PETALS = [
   { x: 22, y: 30, rotate: 15 },
 ]
 
-function Blossoms() {
+// Disposition alternative, pour éviter un effet miroir quand deux bouquets se font face
+const BLOSSOMS_ALT = [
+  { x: 55, y: 315, size: 1.25, rotate: -15 },
+  { x: 100, y: 232, size: 0.6, rotate: 40 },
+  { x: 32, y: 145, size: 0.8, rotate: 5 },
+  { x: 88, y: 58, size: 0.45, rotate: -25 },
+  { x: 165, y: 335, size: 0.85, rotate: 22 },
+  { x: 258, y: 348, size: 0.6, rotate: -12 },
+]
+
+const PETALS_ALT = [
+  { x: 125, y: 165, rotate: -30 },
+  { x: 215, y: 300, rotate: 55 },
+  { x: 335, y: 342, rotate: -60 },
+  { x: 40, y: 232, rotate: 80 },
+]
+
+function Blossoms({ alt }: { alt?: boolean }) {
+  const blossoms = alt ? BLOSSOMS_ALT : BLOSSOMS
+  const petals = alt ? PETALS_ALT : PETALS
   return (
     <svg viewBox="0 0 560 360" className="w-full h-full" fill="none">
-      {BLOSSOMS.map((blossom, i) => (
+      {blossoms.map((blossom, i) => (
         <g key={i} transform={`translate(${blossom.x} ${blossom.y}) rotate(${blossom.rotate}) scale(${blossom.size})`}>
           <path
             d={FLOWER_PATH}
@@ -69,7 +88,7 @@ function Blossoms() {
           <circle r="5" stroke="var(--primary)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
         </g>
       ))}
-      {PETALS.map((petal, i) => (
+      {petals.map((petal, i) => (
         <path
           key={i}
           d={PETAL_PATH}
@@ -81,6 +100,27 @@ function Blossoms() {
         />
       ))}
     </svg>
+  )
+}
+
+type Corner = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+
+// Le bouquet est dessiné pour le coin bas gauche, les autres coins l'obtiennent en miroir
+const CORNER_CLASSES: Record<Corner, string> = {
+  'bottom-left': '-bottom-6 -left-6',
+  'bottom-right': '-bottom-6 -right-6 -scale-x-100',
+  'top-left': '-top-6 -left-6 -scale-y-100',
+  'top-right': '-top-6 -right-6 -scale-100',
+}
+
+function CornerBlossoms({ corner }: { corner: Corner }) {
+  return (
+    <div
+      aria-hidden
+      className={`hidden min-[1440px]:block pointer-events-none absolute w-[35rem] h-[22.5rem] ${CORNER_CLASSES[corner]}`}
+    >
+      <Blossoms alt={corner.startsWith('top')} />
+    </div>
   )
 }
 
@@ -127,6 +167,7 @@ function FeatureRow({
   description,
   bullets,
   tinted,
+  blossoms,
   visual,
 }: {
   id: string
@@ -135,13 +176,15 @@ function FeatureRow({
   description: string
   bullets: string[]
   tinted?: boolean
+  blossoms?: Corner[]
   visual: React.ReactNode
 }) {
   return (
-    <section id={id} className={tinted ? 'bg-accent' : 'bg-bg'}>
-      <Reveal className="max-w-6xl mx-auto px-6 md:px-12 py-20 md:py-28 grid md:grid-cols-5 gap-14 md:gap-16 items-center">
+    <section id={id} className={`relative overflow-hidden ${tinted ? 'bg-accent' : 'bg-bg'}`}>
+      {blossoms?.map((corner) => <CornerBlossoms key={corner} corner={corner} />)}
+      <Reveal className="relative max-w-6xl mx-auto px-6 md:px-12 py-20 md:py-28 grid md:grid-cols-5 gap-14 md:gap-16 items-center">
         <div className={`md:col-span-3 ${reverse ? 'md:order-2' : ''}`}>
-          <h2 className="text-3xl md:text-[44px] font-extrabold leading-[1.1] mb-5">{title}</h2>
+          <h2 className="text-3xl md:text-[44px] font-extrabold leading-[1.1] text-balance mb-5">{title}</h2>
           <p className="text-text/55 leading-relaxed mb-9 max-w-lg">{description}</p>
           <div className="flex flex-col gap-3">
             {bullets.map((b) => (
@@ -179,12 +222,7 @@ export default function LandingPage() {
               'radial-gradient(ellipse 45% 60% at 0% 100%, color-mix(in srgb, var(--yellow) 26%, transparent) 0%, color-mix(in srgb, var(--yellow) 8%, transparent) 45%, transparent 75%)',
           }}
         />
-        <div
-          aria-hidden
-          className="hidden min-[1440px]:block pointer-events-none absolute -bottom-6 -left-6 w-[35rem] h-[22.5rem]"
-        >
-          <Blossoms />
-        </div>
+        <CornerBlossoms corner="bottom-left" />
         <div className="reveal-load max-w-6xl mx-auto px-6 md:px-12 py-20 md:py-28 grid md:grid-cols-5 gap-14 items-center">
           <div className="md:col-span-3">
             <h1 className="text-4xl md:text-6xl font-extrabold leading-[1.05] mb-6">
@@ -234,9 +272,7 @@ export default function LandingPage() {
         tinted
         title={
           <>
-            Partagez ce que vous lisez
-            <br />
-            <span className="text-text/30">et ce que vous regardez</span>
+            Le fil <span className="text-manga">manga</span> &amp; <span className="text-anime">anime</span>
           </>
         }
         description="Publiez vos réactions sur un chapitre ou un épisode, mentionnez vos amis et répondez aux posts des autres membres."
@@ -251,11 +287,10 @@ export default function LandingPage() {
         id="feat-chat"
         visual={<ChannelsPreview />}
         reverse
+        blossoms={['top-right', 'bottom-right']}
         title={
           <>
-            Discutez en direct,
-            <br />
-            <span className="text-text/30">en salon ou en privé</span>
+            Chat en <span className="text-primary">direct</span>
           </>
         }
         description="Rejoignez les salons pour échanger en temps réel avec la communauté, ou écrivez directement à vos amis."
@@ -272,9 +307,7 @@ export default function LandingPage() {
         tinted
         title={
           <>
-            Des discussions qui durent,
-            <br />
-            <span className="text-text/30">sujet par sujet</span>
+            Forum <span className="text-manga">manga</span> &amp; <span className="text-anime">anime</span>
           </>
         }
         description="Ouvrez un sujet, répondez aux autres membres et votez pour les messages qui font avancer la discussion."
@@ -289,11 +322,10 @@ export default function LandingPage() {
         id="feat-library"
         visual={<LibraryPreview />}
         reverse
+        blossoms={['bottom-left']}
         title={
           <>
-            Plus de 80 000 mangas et animes
-            <br />
-            <span className="text-text/30">à explorer</span>
+            Bibliothèque <span className="text-manga">manga</span> &amp; <span className="text-anime">anime</span>
           </>
         }
         description="Parcourez le catalogue par genre et ouvrez la fiche de chaque œuvre : synopsis, personnages, doubleurs, épisodes et chapitres."
@@ -310,9 +342,7 @@ export default function LandingPage() {
         tinted
         title={
           <>
-            Gardez le fil
-            <br />
-            <span className="text-text/30">de tout ce que vous suivez</span>
+            Votre liste de <span className="text-primary">suivi</span>
           </>
         }
         description="Ajoutez une œuvre à votre liste en un clic, indiquez où vous en êtes et retrouvez votre bibliothèque sur votre profil."
@@ -323,8 +353,15 @@ export default function LandingPage() {
         ]}
       />
 
-      <section>
-        <Reveal className="max-w-2xl mx-auto px-6 py-24 md:py-32 text-center">
+      <section className="relative overflow-hidden">
+        <CornerBlossoms corner="bottom-right" />
+        <Reveal className="relative max-w-4xl mx-auto px-6 md:px-12 py-24 md:py-32 text-center">
+          <h2 className="text-3xl md:text-[44px] font-extrabold leading-[1.1] text-balance mb-5">
+            Suivez <span className="text-primary">NakamaNet</span>
+          </h2>
+          <p className="text-text/55 leading-relaxed max-w-lg mx-auto mb-14">
+            Rejoignez la communauté sur Discord, suivez le développement du site sur GitHub ou soutenez le projet.
+          </p>
           <SocialGrid />
         </Reveal>
       </section>

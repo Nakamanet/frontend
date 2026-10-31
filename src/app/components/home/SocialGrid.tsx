@@ -50,11 +50,12 @@ function piecesFor(label: string, index: number): Piece[] {
     const fromRotate = angleDeg + 90 + between(-20, 20)
     return {
       kind,
-      left: 50 + cos * 40,
-      top: 50 + sin * 40,
-      size: kind === 'petal' ? between(12, 20) : between(26, 32),
-      dx: cos * distance,
-      dy: sin * distance,
+      // Départ caché sous la tuile, arrivée au-delà de ses bords
+      left: 50 + cos * 30,
+      top: 50 + sin * 30,
+      size: kind === 'petal' ? between(14, 22) : between(30, 36),
+      dx: cos * (40 + distance * 1.4),
+      dy: sin * (40 + distance * 1.4),
       fromRotate,
       toRotate: fromRotate + turn,
       duration: between(650, 900),
@@ -99,7 +100,7 @@ function pieceStyle(piece: Piece): CSSProperties {
 }
 
 const DRIFT_CLASSES =
-  'pointer-events-none absolute opacity-0 scale-50 [rotate:var(--from)] transition-all ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:[translate:var(--dx)_var(--dy)] group-hover:[rotate:var(--to)] group-focus-visible:opacity-100 group-focus-visible:scale-100 group-focus-visible:[translate:var(--dx)_var(--dy)] group-focus-visible:[rotate:var(--to)]'
+  'pointer-events-none absolute opacity-0 scale-50 [rotate:var(--from)] transition-all ease-out group-hover:opacity-100 group-hover:scale-100 group-hover:[translate:var(--dx)_var(--dy)] group-hover:[rotate:var(--to)] group-has-focus-visible:opacity-100 group-has-focus-visible:scale-100 group-has-focus-visible:[translate:var(--dx)_var(--dy)] group-has-focus-visible:[rotate:var(--to)]'
 
 function PieceSvg({ piece }: { piece: Piece }) {
   const isFlower = piece.kind === 'flower'
@@ -130,30 +131,39 @@ function PieceSvg({ piece }: { piece: Piece }) {
   )
 }
 
+const CAPTIONS: Record<string, string> = {
+  Discord: 'Discutez avec la communauté',
+  GitHub: 'Suivez le code du projet',
+  'Ko-fi': 'Soutenez le projet',
+  Email: 'Écrivez-nous',
+}
+
 export default function SocialGrid({ className = '' }: { className?: string }) {
   return (
-    <div className={`grid grid-cols-2 md:grid-cols-4 gap-8 ${className}`}>
+    <div className={`grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 ${className}`}>
       {SOCIAL_LINKS.map((link, index) => (
-        <a
-          key={link.label}
-          href={link.href}
-          {...(link.href.startsWith('http') && { target: '_blank', rel: 'noopener noreferrer' })}
-          className="group relative block h-full outline-none"
-        >
-          <div className="h-full flex flex-col items-center text-center gap-3 py-4">
-            <span className="relative text-primary">
-              {piecesFor(link.label, index).map((piece, i) => (
-                <PieceSvg key={i} piece={piece} />
-              ))}
-              <span className="relative z-10 block transition-transform duration-300 group-hover:scale-110 group-focus-visible:scale-110">
+        <div key={link.label} className="group relative h-full">
+          {piecesFor(link.label, index).map((piece, i) => (
+            <PieceSvg key={i} piece={piece} />
+          ))}
+          <a
+            href={link.href}
+            {...(link.href.startsWith('http') && { target: '_blank', rel: 'noopener noreferrer' })}
+            className="relative z-10 h-full flex flex-col items-center text-center gap-3 px-4 pt-8 pb-6 outline-none rounded-card border border-border bg-accent transition-[translate,border-color] duration-300 group-hover:-translate-y-1 group-hover:border-primary group-has-focus-visible:-translate-y-1 group-has-focus-visible:border-primary motion-reduce:transition-none"
+          >
+            <span className="text-primary">
+              <span className="flex items-center justify-center w-11 h-11 transition-transform duration-300 group-hover:scale-110 group-has-focus-visible:scale-110">
                 {link.icon(44)}
               </span>
             </span>
-            <span className="relative z-10 font-bold text-lg transition-colors group-hover:text-primary group-focus-visible:text-primary">
+            <span className="mt-2 font-bold text-lg transition-colors group-hover:text-primary group-has-focus-visible:text-primary">
               {link.label}
             </span>
-          </div>
-        </a>
+            {CAPTIONS[link.label] && (
+              <span className="text-sm text-text/50 leading-snug text-balance">{CAPTIONS[link.label]}</span>
+            )}
+          </a>
+        </div>
       ))}
     </div>
   )

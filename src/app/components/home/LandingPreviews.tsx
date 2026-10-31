@@ -113,7 +113,7 @@ export function ChannelsPreview() {
   )
 }
 
-const FORUM_AUTOPLAY = 5000
+const STACK_AUTOPLAY = 5000
 
 // Position des cartes derrière la carte active : décalage vers le bas, réduction, transparence
 const STACK_STYLES = [
@@ -122,26 +122,27 @@ const STACK_STYLES = [
   'translate-y-8 scale-[0.90] opacity-30 z-10',
 ]
 
-export function ForumPreview() {
-  const { data, isLoading } = useQuery({
-    queryKey: ['landing', 'forums'],
-    queryFn: () => getForums(1),
-    staleTime: STALE,
-  })
-  const topics = (data?.data ?? []).slice(0, 6)
+function StackCarousel({
+  items,
+  label,
+  cardClassName,
+}: {
+  items: { key: string | number; node: React.ReactNode }[]
+  label: string
+  /** Fond et bordure des cartes, réutilisés pour masquer le contenu des cartes empilées derrière */
+  cardClassName: string
+}) {
   const [active, setActive] = useState(0)
   const [paused, setPaused] = useState(false)
+  const count = items.length
 
   useEffect(() => {
-    if (paused || topics.length < 2) return
-    const timer = setInterval(() => setActive((i) => (i + 1) % topics.length), FORUM_AUTOPLAY)
+    if (paused || count < 2) return
+    const timer = setInterval(() => setActive((i) => (i + 1) % count), STACK_AUTOPLAY)
     return () => clearInterval(timer)
-  }, [paused, topics.length])
+  }, [paused, count])
 
-  if (isLoading) return <PreviewLoader />
-  if (topics.length === 0) return null
-
-  const go = (step: number) => setActive((i) => (i + step + topics.length) % topics.length)
+  const go = (step: number) => setActive((i) => (i + step + count) % count)
 
   return (
     <div
@@ -151,42 +152,48 @@ export function ForumPreview() {
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      <div className="grid pb-8" aria-roledescription="carrousel" aria-label="Sujets du forum">
-        {topics.map((topic, i) => {
-          const offset = (i - active + topics.length) % topics.length
+      <div className="grid pb-8" aria-roledescription="carrousel" aria-label={label}>
+        {items.map((item, i) => {
+          const offset = (i - active + count) % count
           const isActive = offset === 0
           return (
             <div
-              key={topic.id}
+              key={item.key}
               inert={!isActive}
               aria-hidden={!isActive}
-              className={`col-start-1 row-start-1 origin-bottom transition-[translate,scale,opacity] duration-500 ease-out motion-reduce:transition-none [&>a]:block [&>a]:h-full [&>a>div]:h-full [&>a>div:hover]:bg-accent ${
+              className={`relative col-start-1 row-start-1 origin-bottom transition-[translate,scale,opacity] duration-500 ease-out motion-reduce:transition-none [&>*]:h-full ${
                 STACK_STYLES[offset] ?? 'translate-y-8 scale-[0.90] opacity-0 z-0'
               }`}
             >
-              <ForumCards topic={topic} />
+              {item.node}
+              <div
+                aria-hidden
+                className={`absolute inset-0 rounded-card border border-border ${cardClassName} transition-opacity duration-500 motion-reduce:transition-none ${
+                  isActive ? 'opacity-0' : 'opacity-100'
+                }`}
+              />
             </div>
           )
         })}
       </div>
 
-      {topics.length > 1 && (
+      {count > 1 && (
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={() => go(-1)}
-            aria-label="Sujet précédent"
+            aria-label="Précédent"
             className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text/70 hover:border-primary hover:text-primary transition-colors"
           >
             <ChevronLeft size={18} />
           </button>
           <div className="flex items-center gap-2">
-            {topics.map((topic, i) => (
+            {items.map((item, i) => (
               <button
-                key={topic.id}
+                key={item.key}
                 type="button"
                 onClick={() => setActive(i)}
-                aria-label={`Afficher le sujet ${i + 1}`}
+                aria-label={`Afficher l’élément ${i + 1} sur ${count}`}
                 aria-current={i === active}
                 className={`h-2 rounded-full transition-all ${i === active ? 'w-6 bg-primary' : 'w-2 bg-text/20 hover:bg-text/40'}`}
               />
@@ -195,7 +202,7 @@ export function ForumPreview() {
           <button
             type="button"
             onClick={() => go(1)}
-            aria-label="Sujet suivant"
+            aria-label="Suivant"
             className="w-9 h-9 rounded-full border border-border flex items-center justify-center text-text/70 hover:border-primary hover:text-primary transition-colors"
           >
             <ChevronRight size={18} />
@@ -203,6 +210,33 @@ export function ForumPreview() {
         </div>
       )}
     </div>
+  )
+}
+
+export function ForumPreview() {
+  const { data, isLoading } = useQuery({
+    queryKey: ['landing', 'forums'],
+    queryFn: () => getForums(1),
+    staleTime: STALE,
+  })
+  const topics = (data?.data ?? []).slice(0, 6)
+
+  if (isLoading) return <PreviewLoader />
+  if (topics.length === 0) return null
+
+  return (
+    <StackCarousel
+      label="Sujets du forum"
+      cardClassName="bg-accent"
+      items={topics.map((topic) => ({
+        key: topic.id,
+        node: (
+          <div className="[&>a]:block [&>a]:h-full [&>a>div]:h-full [&>a>div:hover]:bg-accent">
+            <ForumCards topic={topic} />
+          </div>
+        ),
+      }))}
+    />
   )
 }
 
@@ -246,40 +280,75 @@ export function LibraryPreview() {
   )
 }
 
-export function MyListPreview() {
-  const { data, isLoading } = usePopular('manga', 1)
-  const work = data?.[0]
+const ANIME_STATUSES = ['À regarder', 'En cours', 'Terminé', 'En pause', 'Abandonné']
 
-  if (isLoading) return <PreviewLoader />
-  if (!work) return null
+// Statut mis en avant sur chaque carte, pour montrer les différents états de suivi
+const SHOWCASE_STATUSES = ['En cours', 'Terminé', 'À lire', 'En pause', 'En cours', 'Terminé']
+
+// Équivalent opaque de bg-bg/60 sur le fond de la section, pour que les cartes empilées ne se voient pas au travers
+const MY_LIST_CARD_BG = 'bg-[color-mix(in_srgb,var(--bg)_60%,var(--accent))]'
+
+export function MyListPreview() {
+  // Les 3 premières œuvres sont déjà affichées dans l'aperçu de la bibliothèque
+  const mangas = usePopular('manga', 6)
+  const animes = usePopular('anime', 6)
+
+  if (mangas.isLoading || animes.isLoading) return <PreviewLoader />
+
+  const mangaWorks = (mangas.data ?? []).slice(3).map((work) => ({ ...work, type: 'manga' as const }))
+  const animeWorks = (animes.data ?? []).slice(3).map((work) => ({ ...work, type: 'anime' as const }))
+  const works = mangaWorks.flatMap((work, i) => [work, animeWorks[i]]).filter((work) => work !== undefined)
+  if (works.length === 0) return null
 
   return (
-    <div className="flex gap-5 rounded-card border border-border bg-bg/60 p-5">
-      <Link href={`/bibliotheque/manga/${work.slug}`} className="relative w-28 shrink-0 aspect-2/3 rounded-card overflow-hidden bg-primary">
-        <Image src={work.posterImage || work.coverImage || '/bg.png'} alt={work.titleEn || work.titleJp || ''} fill sizes="112px" className="object-cover" />
-      </Link>
-      <div className="flex flex-col gap-3 min-w-0">
-        <p className="font-bold truncate">{work.titleEn || work.titleJp}</p>
-        <div className="flex flex-wrap gap-2">
-          {MANGA_STATUSES.map((status) => (
-            <Link
-              key={status}
-              href="/login"
-              className={`rounded-full px-3 py-1 text-xs transition-colors ${
-                status === 'En cours' ? 'bg-primary text-white' : 'bg-muted text-text/70 hover:bg-primary/20 hover:text-text'
-              }`}
-            >
-              {status}
-            </Link>
-          ))}
-        </div>
-        <Link
-          href="/login"
-          className="self-start mt-1 rounded-full px-4 py-2 text-sm font-bold bg-primary hover:bg-primary/85 text-white transition-colors"
-        >
-          Ajouter à ma liste
-        </Link>
-      </div>
-    </div>
+    <StackCarousel
+      label="Exemples d’œuvres à suivre"
+      cardClassName={MY_LIST_CARD_BG}
+      items={works.map((work, i) => {
+        const statuses = work.type === 'manga' ? MANGA_STATUSES : ANIME_STATUSES
+        const current = SHOWCASE_STATUSES[i % SHOWCASE_STATUSES.length].replace('À lire', statuses[0])
+        return {
+          key: `${work.type}-${work.id}`,
+          node: (
+            <div className={`flex gap-5 rounded-card border border-border ${MY_LIST_CARD_BG} p-5`}>
+              <Link
+                href={`/bibliotheque/${work.type}/${work.slug}`}
+                className="relative w-28 shrink-0 aspect-2/3 rounded-card overflow-hidden bg-primary"
+              >
+                <Image
+                  src={work.posterImage || work.coverImage || '/bg.png'}
+                  alt={work.titleEn || work.titleJp || ''}
+                  fill
+                  sizes="112px"
+                  className="object-cover"
+                />
+              </Link>
+              <div className="flex flex-col gap-3 min-w-0">
+                <p className="font-bold truncate">{work.titleEn || work.titleJp}</p>
+                <div className="flex flex-wrap gap-2">
+                  {statuses.map((status) => (
+                    <Link
+                      key={status}
+                      href="/login"
+                      className={`rounded-full px-3 py-1 text-xs transition-colors ${
+                        status === current ? 'bg-primary text-white' : 'bg-muted text-text/70 hover:bg-primary/20 hover:text-text'
+                      }`}
+                    >
+                      {status}
+                    </Link>
+                  ))}
+                </div>
+                <Link
+                  href="/login"
+                  className="self-start mt-1 rounded-full px-4 py-2 text-sm font-bold bg-primary hover:bg-primary/85 text-white transition-colors"
+                >
+                  Ajouter à ma liste
+                </Link>
+              </div>
+            </div>
+          ),
+        }
+      })}
+    />
   )
 }
