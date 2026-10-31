@@ -28,7 +28,7 @@ const COLUMNS = [
 
 const LEGAL = [
   { href: '/mentions-legales', label: 'Mentions légales' },
-  { href: '/donnees-personnelles', label: 'Données personnelles', prefetch: false },
+  { href: '/donnees-personnelles', label: 'Données personnelles' },
 ]
 
 function MostFollowed({ type, title }: { type: 'anime' | 'manga'; title: string }) {
@@ -138,7 +138,6 @@ export default function Footer() {
               <Link
                 key={link.href}
                 href={link.href}
-                prefetch={link.prefetch}
                 className="w-fit bg-bg px-2 -mx-2 rounded text-white/50 hover:text-primary transition-colors"
               >
                 {link.label}
