@@ -71,12 +71,12 @@ export default function AnimeEmojiPicker({
     >
       {/* Header & Tabs */}
       <div className="p-2 border-b border-border/50 bg-accent/90 flex flex-col gap-1.5">
-        <div className="flex items-center justify-between gap-1">
-          <div className="flex items-center gap-1 bg-background/60 p-0.5 rounded-xl w-full">
+        <div className="flex items-center gap-1.5 min-w-0">
+          <div className="flex items-center gap-1 bg-background/60 p-1 rounded-xl w-full min-w-0 overflow-x-auto scrollbar-hide touch-pan-x">
             <button
               type="button"
               onClick={() => setActiveTab('anime')}
-              className={`flex-1 py-1 px-1.5 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
+              className={`shrink-0 whitespace-nowrap py-1 px-2.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'anime'
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/60 hover:text-text hover:bg-white/5'
@@ -84,13 +84,13 @@ export default function AnimeEmojiPicker({
               title="Anime Stickers & Chibi"
             >
               <span>🌸</span>
-              <span className="hidden xs:inline sm:inline">Chibi</span>
+              <span>Chibi</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('kaomoji')}
-              className={`flex-1 py-1 px-1.5 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
+              className={`shrink-0 whitespace-nowrap py-1 px-2.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'kaomoji'
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/60 hover:text-text hover:bg-white/5'
@@ -98,13 +98,13 @@ export default function AnimeEmojiPicker({
               title="Kaomoji Japoneze"
             >
               <span>ʕ•ᴥ•ʔ</span>
-              <span className="hidden xs:inline sm:inline">Kaomoji</span>
+              <span>Kaomoji</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('otaku')}
-              className={`flex-1 py-1 px-1.5 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
+              className={`shrink-0 whitespace-nowrap py-1 px-2.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'otaku'
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/60 hover:text-text hover:bg-white/5'
@@ -112,13 +112,13 @@ export default function AnimeEmojiPicker({
               title="Manga & Otaku Emojis"
             >
               <span>🍙</span>
-              <span className="hidden xs:inline sm:inline">Otaku</span>
+              <span>Otaku</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('classic')}
-              className={`flex-1 py-1 px-1.5 rounded-lg text-[11px] font-medium transition-all flex items-center justify-center gap-1 ${
+              className={`shrink-0 whitespace-nowrap py-1 px-2.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 ${
                 activeTab === 'classic'
                   ? 'bg-primary text-white shadow-sm'
                   : 'text-text/60 hover:text-text hover:bg-white/5'
@@ -126,7 +126,7 @@ export default function AnimeEmojiPicker({
               title="Emoji-uri Chat"
             >
               <span>😀</span>
-              <span className="hidden xs:inline sm:inline">Chat</span>
+              <span>Chat</span>
             </button>
           </div>
 
@@ -134,7 +134,7 @@ export default function AnimeEmojiPicker({
             <button
               type="button"
               onClick={onClose}
-              className="p-1 hover:bg-white/10 rounded-lg text-text/50 hover:text-text transition-colors shrink-0"
+              className="p-1.5 hover:bg-white/10 rounded-lg text-text/50 hover:text-text transition-colors shrink-0"
               aria-label="Fermer"
             >
               <X size={14} />
@@ -182,8 +182,8 @@ export default function AnimeEmojiPicker({
                       alt={emote.name}
                       className="w-8 h-8 object-contain drop-shadow-sm group-hover:drop-shadow-md transition-transform"
                     />
-                    <span className="text-[9px] text-text/70 mt-0.5 truncate max-w-full font-medium">
-                      {emote.character.split(' ')[0]}
+                    <span className="text-[10px] text-text/80 mt-0.5 truncate max-w-full font-medium">
+                      {emote.shortName || emote.name}
                     </span>
                   </button>
                 ))}

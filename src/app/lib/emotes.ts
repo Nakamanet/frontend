@@ -1,24 +1,25 @@
 export interface AnimeEmote {
   code: string
   name: string
+  shortName: string
   src: string
   character: string
   anime: string
 }
 
 export const ANIME_EMOTES: AnimeEmote[] = [
-  { code: ':anya_heh:', name: 'Anya Heh', src: '/emotes/anya_heh.svg', character: 'Anya Forger', anime: 'Spy x Family' },
-  { code: ':anya_shock:', name: 'Anya Shock', src: '/emotes/anya_shock.svg', character: 'Anya Forger', anime: 'Spy x Family' },
-  { code: ':luffy_laugh:', name: 'Luffy Laugh', src: '/emotes/luffy_laugh.svg', character: 'Luffy', anime: 'One Piece' },
-  { code: ':luffy_meat:', name: 'Luffy Meat', src: '/emotes/luffy_meat.svg', character: 'Luffy', anime: 'One Piece' },
-  { code: ':nezuko_peek:', name: 'Nezuko Peek', src: '/emotes/nezuko_peek.svg', character: 'Nezuko Kamado', anime: 'Demon Slayer' },
-  { code: ':gojo_wink:', name: 'Gojo Wink', src: '/emotes/gojo_wink.svg', character: 'Satoru Gojo', anime: 'Jujutsu Kaisen' },
-  { code: ':sukuna_grin:', name: 'Sukuna Grin', src: '/emotes/sukuna_grin.svg', character: 'Ryomen Sukuna', anime: 'Jujutsu Kaisen' },
-  { code: ':chopper_cry:', name: 'Chopper Cry', src: '/emotes/chopper_cry.svg', character: 'Tony Tony Chopper', anime: 'One Piece' },
-  { code: ':naruto_ramen:', name: 'Naruto Ramen', src: '/emotes/naruto_ramen.svg', character: 'Naruto Uzumaki', anime: 'Naruto' },
-  { code: ':kakashi_read:', name: 'Kakashi Read', src: '/emotes/kakashi_read.svg', character: 'Kakashi Hatake', anime: 'Naruto' },
-  { code: ':zoro_lost:', name: 'Zoro Lost', src: '/emotes/zoro_lost.svg', character: 'Roronoa Zoro', anime: 'One Piece' },
-  { code: ':rem_smile:', name: 'Rem Smile', src: '/emotes/rem_smile.svg', character: 'Rem', anime: 'Re:Zero' },
+  { code: ':anya_heh:', name: 'Anya Heh', shortName: 'Anya', src: '/emotes/anya_heh.svg', character: 'Anya Forger', anime: 'Spy x Family' },
+  { code: ':anya_shock:', name: 'Anya Shock', shortName: 'Shock', src: '/emotes/anya_shock.svg', character: 'Anya Forger', anime: 'Spy x Family' },
+  { code: ':luffy_laugh:', name: 'Luffy Laugh', shortName: 'Luffy', src: '/emotes/luffy_laugh.svg', character: 'Luffy', anime: 'One Piece' },
+  { code: ':luffy_meat:', name: 'Luffy Meat', shortName: 'Meat', src: '/emotes/luffy_meat.svg', character: 'Luffy', anime: 'One Piece' },
+  { code: ':nezuko_peek:', name: 'Nezuko Peek', shortName: 'Nezuko', src: '/emotes/nezuko_peek.svg', character: 'Nezuko Kamado', anime: 'Demon Slayer' },
+  { code: ':gojo_wink:', name: 'Gojo Wink', shortName: 'Gojo', src: '/emotes/gojo_wink.svg', character: 'Satoru Gojo', anime: 'Jujutsu Kaisen' },
+  { code: ':sukuna_grin:', name: 'Sukuna Grin', shortName: 'Sukuna', src: '/emotes/sukuna_grin.svg', character: 'Ryomen Sukuna', anime: 'Jujutsu Kaisen' },
+  { code: ':chopper_cry:', name: 'Chopper Cry', shortName: 'Chopper', src: '/emotes/chopper_cry.svg', character: 'Tony Tony Chopper', anime: 'One Piece' },
+  { code: ':naruto_ramen:', name: 'Naruto Ramen', shortName: 'Naruto', src: '/emotes/naruto_ramen.svg', character: 'Naruto Uzumaki', anime: 'Naruto' },
+  { code: ':kakashi_read:', name: 'Kakashi Read', shortName: 'Kakashi', src: '/emotes/kakashi_read.svg', character: 'Kakashi Hatake', anime: 'Naruto' },
+  { code: ':zoro_lost:', name: 'Zoro Lost', shortName: 'Zoro', src: '/emotes/zoro_lost.svg', character: 'Roronoa Zoro', anime: 'One Piece' },
+  { code: ':rem_smile:', name: 'Rem Smile', shortName: 'Rem', src: '/emotes/rem_smile.svg', character: 'Rem', anime: 'Re:Zero' },
 ]
 
 export const ANIME_EMOTE_MAP: Record<string, AnimeEmote> = ANIME_EMOTES.reduce((acc, emote) => {
