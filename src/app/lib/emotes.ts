@@ -152,3 +152,4 @@ export const EMOJI_GROUPS: EmojiGroup[] = [
     ],
   },
 ]
+

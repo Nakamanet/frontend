@@ -135,7 +135,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                         }}
                         onClose={() => setShowEmojiPicker(false)}
                         align="left"
-                        placement="top"
+                        placement="bottom"
                       />
                     )}
                   </div>

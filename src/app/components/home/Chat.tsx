@@ -65,7 +65,7 @@ export default function Chat({ user }: { user: User | null }) {
                   <div className={`flex flex-col gap-0.5 max-w-[85%] ${isMe ? 'items-end' : 'items-start'}`}>
                     <div className={`px-3 py-2 rounded-2xl ${isMe ? 'bg-primary rounded-tr-md' : 'bg-muted rounded-tl-md'}`}>
                       <p className="text-xs font-medium opacity-90">{isMe ? 'Moi' : message.username}</p>
-                      <p className="text-sm">
+                      <p className="text-sm break-words">
                         <EmoteText text={message.content} />
                       </p>
                     </div>
@@ -77,8 +77,19 @@ export default function Chat({ user }: { user: User | null }) {
               )
             })}
           </div>
-          <div className="relative flex items-center gap-2 mx-2 mt-2 p-2 bg-muted rounded-full border border-border">
-            <div className="relative flex items-center">
+          <div className="relative mx-2 mt-2">
+            {showEmojiPicker && (
+              <AnimeEmojiPicker
+                onSelect={(emoji) => {
+                  setInput((prev) => (prev ? `${prev} ${emoji} ` : `${emoji} `))
+                }}
+                onClose={() => setShowEmojiPicker(false)}
+                placement="top"
+                align="left"
+                className="w-full sm:w-72 max-w-full left-0 right-0 sm:right-auto"
+              />
+            )}
+            <div className="flex items-center gap-2 p-2 bg-muted rounded-full border border-border">
               <button
                 type="button"
                 onClick={() => setShowEmojiPicker((prev) => !prev)}
@@ -89,30 +100,20 @@ export default function Chat({ user }: { user: User | null }) {
               >
                 <Smile size={20} />
               </button>
-              {showEmojiPicker && (
-                <AnimeEmojiPicker
-                  onSelect={(emoji) => {
-                    setInput((prev) => (prev ? `${prev} ${emoji} ` : `${emoji} `))
-                  }}
-                  onClose={() => setShowEmojiPicker(false)}
-                  align="left"
-                  placement="top"
-                />
-              )}
+              <input
+                type="text"
+                placeholder={user ? 'Envoyer un message' : 'Connectez-vous pour écrire'}
+                value={input}
+                readOnly={!user}
+                onFocus={() => !user && goToLogin()}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"
+              />
+              <Button type="button" variant="icon" onClick={handleSend} aria-label="Envoyer">
+                <SendHorizonal size={18} />
+              </Button>
             </div>
-            <input
-              type="text"
-              placeholder={user ? 'Envoyer un message' : 'Connectez-vous pour écrire'}
-              value={input}
-              readOnly={!user}
-              onFocus={() => !user && goToLogin()}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"
-            />
-            <Button type="button" variant="icon" onClick={handleSend} aria-label="Envoyer">
-              <SendHorizonal size={18} />
-            </Button>
           </div>
         </div>
       </div>

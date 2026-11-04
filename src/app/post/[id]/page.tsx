@@ -176,7 +176,7 @@ export default function PostPage() {
                         </button>
                       )}
                     </div>
-                    <p className="text-sm">
+                    <p className="text-sm break-words">
                       <EmoteText text={comment.content} />
                     </p>
                   </div>

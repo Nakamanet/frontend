@@ -35,3 +35,4 @@ export default function EmoteText({ text, className = '' }: EmoteTextProps) {
     </span>
   )
 }
+

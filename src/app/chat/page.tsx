@@ -141,7 +141,7 @@ export default function ChatPage() {
                     </div>
                   </div>
                   <div className="chat-header text-xs opacity-60 mb-0.5">{m.username}</div>
-                  <div className={`chat-bubble ${isMine ? 'chat-bubble-primary' : ''}`}>
+                  <div className={`chat-bubble break-words ${isMine ? 'chat-bubble-primary' : ''}`}>
                     <EmoteText text={m.content} />
                   </div>
                 </div>

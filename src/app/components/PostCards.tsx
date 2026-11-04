@@ -149,7 +149,7 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
               <p className="text-sm text-text/60">@{post.user.handle}</p>
               <p className="text-sm text-text/60">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
             </div>
-            <div className="text-text whitespace-pre-wrap">
+            <div className="text-text whitespace-pre-wrap break-words overflow-hidden">
               <EmoteText text={post.content} />
             </div>
             <div className="flex">
