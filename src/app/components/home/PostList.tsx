@@ -20,6 +20,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import Loader from '@/app/components/Loader'
 import Button from '@/app/components/ui/Button'
 import MentionInput from '../MentionInput'
+import AnimeEmojiPicker from '../AnimeEmojiPicker'
 
 // Le back pagine par 20 : on affiche par blocs de 10 côté front
 const POSTS_PER_BLOCK = 10
@@ -28,6 +29,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
   const [filter, setFilter] = useState('all')
   const [visibleCount, setVisibleCount] = useState(POSTS_PER_BLOCK)
   const [content, setContent] = useState('')
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const { showToast } = useToast()
   const queryClient = useQueryClient()
 
@@ -113,9 +115,30 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
                 />
               </div>
               <div className="flex justify-between gap-2">
-                <div className="flex gap-2 pt-2">
+                <div className="flex gap-2 pt-2 items-center relative">
                   <ImageIcon size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
-                  <Smile size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
+                  <div className="relative flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => setShowEmojiPicker((prev) => !prev)}
+                      className={`transition-colors cursor-pointer flex items-center justify-center p-0.5 rounded-full ${
+                        showEmojiPicker ? 'text-primary' : 'text-text/50 hover:text-primary'
+                      }`}
+                      title="Ajouter un emoji ou emote anime"
+                    >
+                      <Smile size={20} />
+                    </button>
+                    {showEmojiPicker && (
+                      <AnimeEmojiPicker
+                        onSelect={(emoji) => {
+                          setContent((prev) => (prev ? `${prev} ${emoji} ` : `${emoji} `))
+                        }}
+                        onClose={() => setShowEmojiPicker(false)}
+                        align="left"
+                        placement="top"
+                      />
+                    )}
+                  </div>
                 </div>
                 <Button onClick={() => postPosts()} disabled={!content.trim()} size="sm">
                   <SendHorizonal size={16} />

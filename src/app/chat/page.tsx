@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { LogIn, Hash, Tag, BookOpen, Users, Menu, X } from 'lucide-react'
+import { LogIn, Hash, Tag, BookOpen, Users, Menu, X, Smile } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
 import { getChannels, type Channel } from '../lib/channels'
@@ -9,6 +9,8 @@ import { useQuery } from '@tanstack/react-query'
 import Button from '../components/ui/Button'
 import Loader from '../components/Loader'
 import SectionSwitcher from '../components/ui/SectionSwitcher'
+import AnimeEmojiPicker from '../components/AnimeEmojiPicker'
+import EmoteText from '../components/EmoteText'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   hash: <Hash size={16} />,
@@ -21,6 +23,7 @@ export default function ChatPage() {
   const [activeRoom, setActiveRoom] = useState('general')
   const { messages, connected, sendMessage } = useChat(activeRoom)
   const [input, setInput] = useState('')
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   const { data: channels = [], isLoading: loadingChannels } = useQuery<Channel[]>({
@@ -138,7 +141,9 @@ export default function ChatPage() {
                     </div>
                   </div>
                   <div className="chat-header text-xs opacity-60 mb-0.5">{m.username}</div>
-                  <div className={`chat-bubble ${isMine ? 'chat-bubble-primary' : ''}`}>{m.content}</div>
+                  <div className={`chat-bubble ${isMine ? 'chat-bubble-primary' : ''}`}>
+                    <EmoteText text={m.content} />
+                  </div>
                 </div>
               )
             })
@@ -153,7 +158,29 @@ export default function ChatPage() {
             </div>
           </div>
         ) : (
-          <form onSubmit={handleSend} className="p-4 border-t border-base-300 flex gap-2">
+          <form onSubmit={handleSend} className="p-4 border-t border-base-300 flex items-center gap-2 relative">
+            <div className="relative flex items-center">
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+                className={`p-2 rounded-full transition-colors cursor-pointer ${
+                  showEmojiPicker ? 'text-primary bg-primary/10' : 'text-base-content/60 hover:text-primary'
+                }`}
+                title="Ajouter un emoji ou emote anime"
+              >
+                <Smile size={20} />
+              </button>
+              {showEmojiPicker && (
+                <AnimeEmojiPicker
+                  onSelect={(emoji) => {
+                    setInput((prev) => (prev ? `${prev} ${emoji} ` : `${emoji} `))
+                  }}
+                  onClose={() => setShowEmojiPicker(false)}
+                  align="left"
+                  placement="top"
+                />
+              )}
+            </div>
             <input
               className="input input-bordered flex-1"
               value={input}

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Naruto Ramen -->
+  <!-- Yellow Spiky Hair -->
+  <polygon points="12,20 16,6 24,14 32,4 40,14 48,6 52,20" fill="#F4D03F" stroke="#D4AC0D" stroke-width="1.5"/>
+  <!-- Forehead Protector -->
+  <rect x="18" y="16" width="28" height="9" rx="2" fill="#2C3E50"/>
+  <rect x="24" y="18" width="16" height="5" rx="1" fill="#BDC3C7"/>
+  <path d="M30 20 Q32 19 33 21" stroke="#2C3E50" stroke-width="1" fill="none"/>
+  <!-- Face -->
+  <path d="M20 24 C18 42, 22 52, 32 52 C42 52, 46 42, 44 24 Z" fill="#FAD7A0"/>
+  <!-- Whisker Marks -->
+  <line x1="21" y1="36" x2="25" y2="35" stroke="#7E5109" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="20" y1="38" x2="25" y2="38" stroke="#7E5109" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="21" y1="40" x2="25" y2="41" stroke="#7E5109" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="43" y1="36" x2="39" y2="35" stroke="#7E5109" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="44" y1="38" x2="39" y2="38" stroke="#7E5109" stroke-width="1.5" stroke-linecap="round"/>
+  <line x1="43" y1="40" x2="39" y2="41" stroke="#7E5109" stroke-width="1.5" stroke-linecap="round"/>
+  <!-- Happy Eyes (^^) -->
+  <path d="M22 30 Q25 26 28 30" stroke="#17202A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <path d="M36 30 Q39 26 42 30" stroke="#17202A" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <!-- Ramen Bowl in Front -->
+  <path d="M24 46 C24 56, 40 56, 40 46 Z" fill="#E74C3C" stroke="#C0392B" stroke-width="1.5"/>
+  <ellipse cx="32" cy="46" rx="8" ry="2.5" fill="#F9E79F"/>
+  <!-- Chopsticks -->
+  <line x1="26" y1="40" x2="38" y2="45" stroke="#BA4A00" stroke-width="1.5" stroke-linecap="round"/>
+</svg>

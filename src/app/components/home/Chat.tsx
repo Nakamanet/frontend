@@ -8,12 +8,15 @@ import { fr } from 'date-fns/locale'
 import { User } from '../../types/auth'
 import { useChat } from '@/app/hooks/useChat'
 import Button from '@/app/components/ui/Button'
+import AnimeEmojiPicker from '../AnimeEmojiPicker'
+import EmoteText from '../EmoteText'
 
 export default function Chat({ user }: { user: User | null }) {
   const { messages, connected, sendMessage } = useChat('general', { allowGuest: true })
   const router = useRouter()
   const goToLogin = () => router.push('/login')
   const [input, setInput] = useState('')
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -62,7 +65,9 @@ export default function Chat({ user }: { user: User | null }) {
                   <div className={`flex flex-col gap-0.5 max-w-[85%] ${isMe ? 'items-end' : 'items-start'}`}>
                     <div className={`px-3 py-2 rounded-2xl ${isMe ? 'bg-primary rounded-tr-md' : 'bg-muted rounded-tl-md'}`}>
                       <p className="text-xs font-medium opacity-90">{isMe ? 'Moi' : message.username}</p>
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm">
+                        <EmoteText text={message.content} />
+                      </p>
                     </div>
                     <p className="text-xs text-base-content/60 px-1">
                       {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: fr })}
@@ -72,8 +77,29 @@ export default function Chat({ user }: { user: User | null }) {
               )
             })}
           </div>
-          <div className="flex items-center gap-2 mx-2 mt-2 p-2 bg-muted rounded-full border border-border">
-            <Smile size={20} className="text-text/50 shrink-0 hover:text-primary transition-colors cursor-pointer" />
+          <div className="relative flex items-center gap-2 mx-2 mt-2 p-2 bg-muted rounded-full border border-border">
+            <div className="relative flex items-center">
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+                className={`transition-colors cursor-pointer shrink-0 p-0.5 rounded-full ${
+                  showEmojiPicker ? 'text-primary' : 'text-text/50 hover:text-primary'
+                }`}
+                title="Ajouter un emoji ou emote anime"
+              >
+                <Smile size={20} />
+              </button>
+              {showEmojiPicker && (
+                <AnimeEmojiPicker
+                  onSelect={(emoji) => {
+                    setInput((prev) => (prev ? `${prev} ${emoji} ` : `${emoji} `))
+                  }}
+                  onClose={() => setShowEmojiPicker(false)}
+                  align="left"
+                  placement="top"
+                />
+              )}
+            </div>
             <input
               type="text"
               placeholder={user ? 'Envoyer un message' : 'Connectez-vous pour écrire'}

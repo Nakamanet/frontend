@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CircleUser, SendHorizonal, Trash2 } from 'lucide-react'
+import { CircleUser, SendHorizonal, Trash2, Smile } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { getPostById, getComments, createComment, deleteComment } from '../../lib/post'
@@ -15,6 +15,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
 import { useAuth } from '@/app/context/AuthContext'
 import { useToast } from '@/app/context/ToastContext'
+import AnimeEmojiPicker from '@/app/components/AnimeEmojiPicker'
+import EmoteText from '@/app/components/EmoteText'
 
 export default function PostPage() {
   const { id } = useParams()
@@ -23,6 +25,7 @@ export default function PostPage() {
   const { showToast } = useToast()
   const queryClient = useQueryClient()
   const [content, setContent] = useState('')
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
 
   const { data: post, isLoading } = useQuery<Post>({
     queryKey: ['posts', postId],
@@ -98,7 +101,7 @@ export default function PostPage() {
                   <CircleUser size={24} strokeWidth={1.5} />
                 )}
               </div>
-              <div className="flex-1 flex gap-2">
+              <div className="flex-1 flex gap-2 items-center relative">
                 <input
                   type="text"
                   value={content}
@@ -107,6 +110,28 @@ export default function PostPage() {
                   maxLength={1000}
                   className="input input-bordered flex-1"
                 />
+                <div className="relative flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowEmojiPicker((prev) => !prev)}
+                    className={`p-2 rounded-full transition-colors cursor-pointer ${
+                      showEmojiPicker ? 'text-primary bg-primary/10' : 'text-base-content/60 hover:text-primary'
+                    }`}
+                    title="Ajouter un emoji ou emote anime"
+                  >
+                    <Smile size={20} />
+                  </button>
+                  {showEmojiPicker && (
+                    <AnimeEmojiPicker
+                      onSelect={(emoji) => {
+                        setContent((prev) => (prev ? `${prev} ${emoji} ` : `${emoji} `))
+                      }}
+                      onClose={() => setShowEmojiPicker(false)}
+                      align="right"
+                      placement="top"
+                    />
+                  )}
+                </div>
                 <button
                   type="submit"
                   disabled={!content.trim() || isSubmitting}
@@ -151,7 +176,9 @@ export default function PostPage() {
                         </button>
                       )}
                     </div>
-                    <p className="text-sm">{comment.content}</p>
+                    <p className="text-sm">
+                      <EmoteText text={comment.content} />
+                    </p>
                   </div>
                 </div>
               ))

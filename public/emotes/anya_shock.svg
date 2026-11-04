@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Anya Shocked -->
+  <circle cx="32" cy="32" r="30" fill="#FFDFBA"/>
+  <!-- Hair -->
+  <path d="M12 28 C10 12, 22 4, 32 4 C44 4, 54 12, 52 28 C50 18, 45 10, 32 10 C19 10, 14 18, 12 28 Z" fill="#FFAAA6"/>
+  <path d="M8 30 C6 44, 14 54, 14 54 C12 44, 10 36, 12 26 Z" fill="#FFAAA6"/>
+  <path d="M56 30 C58 44, 50 54, 50 54 C52 44, 54 36, 52 26 Z" fill="#FFAAA6"/>
+  <polygon points="12,18 18,12 16,22" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <polygon points="52,18 46,12 48,22" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <!-- Shocked Huge Eyes -->
+  <circle cx="23" cy="30" r="7" fill="#FFFFFF" stroke="#2D132C" stroke-width="2"/>
+  <circle cx="23" cy="30" r="3" fill="#3D84A8"/>
+  <circle cx="24" cy="29" r="1" fill="#FFFFFF"/>
+  <circle cx="41" cy="30" r="7" fill="#FFFFFF" stroke="#2D132C" stroke-width="2"/>
+  <circle cx="41" cy="30" r="3" fill="#3D84A8"/>
+  <circle cx="42" cy="29" r="1" fill="#FFFFFF"/>
+  <!-- Dropped Open Mouth -->
+  <ellipse cx="32" cy="46" rx="6" ry="8" fill="#E84A5F" stroke="#2D132C" stroke-width="2"/>
+  <path d="M29 42 Q32 44 35 42" stroke="#FFFFFF" stroke-width="1.5" fill="none"/>
+  <!-- Sweat drop -->
+  <path d="M48 20 C48 18, 52 14, 52 14 C52 14, 56 18, 56 20 A4 4 0 0 1 48 20 Z" fill="#46CDCF"/>
+</svg>

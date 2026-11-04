@@ -17,6 +17,7 @@ import { blockFriend } from '../lib/friends'
 import { reportContent } from '../lib/reports'
 import EditPostModal from './EditPostModal'
 import Card from './ui/Card'
+import EmoteText from './EmoteText'
 
 export default function PostCards({ post, detailView = false }: { post: Post, detailView?: boolean }) {
   const { user } = useAuth()
@@ -148,7 +149,9 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
               <p className="text-sm text-text/60">@{post.user.handle}</p>
               <p className="text-sm text-text/60">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>
             </div>
-            <p>{post.content}</p>
+            <div className="text-text whitespace-pre-wrap">
+              <EmoteText text={post.content} />
+            </div>
             <div className="flex">
               <button
                 className='btn btn-ghost flex gap-2 p-2 hover:text-primary transition-colors'

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Chopper Cry -->
+  <!-- Big Pink Hat -->
+  <path d="M14 26 C14 8, 50 8, 50 26 Z" fill="#FF85A2"/>
+  <ellipse cx="32" cy="26" rx="24" ry="5" fill="#E05275"/>
+  <!-- White X on Hat -->
+  <path d="M28 14 L36 22 M36 14 L28 22" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+  <!-- Reindeer Antlers -->
+  <path d="M12 18 L6 12 M8 14 L6 18" stroke="#8D6E63" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M52 18 L58 12 M56 14 L58 18" stroke="#8D6E63" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Fur Face -->
+  <circle cx="32" cy="38" r="16" fill="#D7CCC8"/>
+  <!-- Blue Nose -->
+  <ellipse cx="32" cy="38" rx="4" ry="3" fill="#42A5F5"/>
+  <!-- Big Crying Eyes with Cascading Tears -->
+  <ellipse cx="23" cy="34" rx="4" ry="5" fill="#2C3E50"/>
+  <circle cx="23" cy="32" r="1.5" fill="#FFFFFF"/>
+  <ellipse cx="41" cy="34" rx="4" ry="5" fill="#2C3E50"/>
+  <circle cx="41" cy="32" r="1.5" fill="#FFFFFF"/>
+  <!-- Waterfall Tears -->
+  <path d="M21 38 C17 48, 17 56, 19 60" stroke="#4FC3F7" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <path d="M43 38 C47 48, 47 56, 45 60" stroke="#4FC3F7" stroke-width="4" stroke-linecap="round" fill="none"/>
+  <!-- Wobbly Happy Mouth -->
+  <path d="M27 46 Q32 50 37 46" stroke="#2C3E50" stroke-width="2" stroke-linecap="round" fill="none"/>
+</svg>
