@@ -6,7 +6,6 @@ import {
   Clock,
   Users,
   CircleUser,
-  Image as ImageIcon,
   SendHorizonal,
   Smile,
 } from 'lucide-react'
@@ -115,7 +114,6 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
               </div>
               <div className="flex justify-between gap-2">
                 <div className="flex gap-2 pt-2 items-center relative">
-                  <ImageIcon size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
                   <div className="relative flex items-center">
                     <button
                       type="button"
