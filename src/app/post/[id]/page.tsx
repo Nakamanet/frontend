@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
-import { CircleUser, SendHorizonal, Trash2, Smile } from 'lucide-react'
+import { CircleUser, SendHorizonal, Trash2, Smile, Crown } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { getPostById, getComments, createComment, deleteComment } from '../../lib/post'
@@ -151,37 +151,54 @@ export default function PostPage() {
             ) : comments.length === 0 ? (
               <p className="text-sm text-text/60 text-center py-4">Aucun commentaire pour l&apos;instant.</p>
             ) : (
-              comments.map((comment) => (
-                <div key={comment.id} className="flex gap-3">
-                  <Link href={`/profil/${comment.user.id}`} className="shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-muted border-2 border-border flex items-center justify-center overflow-hidden text-base-content/70 hover:opacity-80 transition-opacity">
-                      {comment.user.avatar_url ? (
-                        <Image src={comment.user.avatar_url} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
-                      ) : (
-                        <CircleUser size={24} strokeWidth={1.5} />
-                      )}
+              comments.map((comment) => {
+                const isCommentAuthorAdmin = Boolean(comment.user?.is_admin || comment.user?.role === 'admin')
+                return (
+                  <div key={comment.id} className="flex gap-3">
+                    <Link href={`/profil/${comment.user.id}`} className="shrink-0">
+                      <div className={`w-10 h-10 rounded-full bg-muted border-2 flex items-center justify-center overflow-hidden text-base-content/70 hover:opacity-80 transition-all ${
+                        isCommentAuthorAdmin ? 'border-red-500 ring-2 ring-red-500/60 ring-offset-1 ring-offset-[#111827]' : 'border-border'
+                      }`}>
+                        {comment.user.avatar_url ? (
+                          <Image src={comment.user.avatar_url} alt="Avatar" width={40} height={40} className="w-full h-full object-cover" />
+                        ) : (
+                          <CircleUser size={24} strokeWidth={1.5} />
+                        )}
+                      </div>
+                    </Link>
+                    <div className={`flex-1 rounded-card px-4 py-2 ${
+                      isCommentAuthorAdmin
+                        ? 'bg-gradient-to-r from-red-500/10 via-base-200/50 to-purple-500/10 border border-red-500/30'
+                        : 'bg-base-200/40'
+                    }`}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <Link href={`/profil/${comment.user.id}`} className="font-semibold text-sm hover:underline">
+                            {comment.user.username}
+                          </Link>
+                          {isCommentAuthorAdmin && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40 shadow-xs">
+                              <Crown size={10} className="text-amber-400 fill-amber-400" />
+                              Staff
+                            </span>
+                          )}
+                        </div>
+                        {user?.id === comment.user_id && (
+                          <button
+                            onClick={() => handleDelete(comment.id)}
+                            className="text-text/40 hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                      <p className="text-sm break-words mt-0.5">
+                        <EmoteText text={comment.content} />
+                      </p>
                     </div>
-                  </Link>
-                  <div className="flex-1 bg-base-200/40 rounded-card px-4 py-2">
-                    <div className="flex items-center justify-between">
-                      <Link href={`/profil/${comment.user.id}`} className="font-semibold text-sm hover:underline">
-                        {comment.user.username}
-                      </Link>
-                      {user?.id === comment.user_id && (
-                        <button
-                          onClick={() => handleDelete(comment.id)}
-                          className="text-text/40 hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
-                    <p className="text-sm break-words">
-                      <EmoteText text={comment.content} />
-                    </p>
                   </div>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
         </div>
