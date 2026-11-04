@@ -5,7 +5,6 @@ import {
   Flame,
   Clock,
   Users,
-  SlidersHorizontal,
   CircleUser,
   Image as ImageIcon,
   SendHorizonal,
@@ -192,10 +191,6 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
             <span className="hidden md:inline">Amis</span>
           </button>
         </div>
-        <button className="flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal text-text-muted hover:text-text transition-colors rounded-full">
-          <SlidersHorizontal size={20} />
-          <p className="hidden md:inline">Filtres</p>
-        </button>
       </div>
       {/* Zone des posts */}
       {isLoading ? (
