@@ -45,7 +45,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
           {episodes.map((e) => (
             <button
               key={e.id}
-              className="border border-border p-2 rounded-card bg-muted hover:bg-accent text-left"
+              className="group border border-border p-2 rounded-card bg-muted text-left cursor-pointer outline-none hover:border-primary focus-visible:border-primary transition-colors"
               onClick={() => {
                 setEpisodeModal(true)
                 setDetail({ type: 'anime', item: e })
@@ -58,7 +58,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
                     alt={e.title}
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
-                    className="object-cover"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <p className="truncate text-sm px-1">
@@ -74,7 +74,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
           {chapters.map((e) => (
             <button
               key={e.id}
-              className="border border-border p-2 rounded-card bg-muted hover:bg-accent text-left"
+              className="group border border-border p-2 rounded-card bg-muted text-left cursor-pointer outline-none hover:border-primary focus-visible:border-primary transition-colors"
               onClick={() => {
                 setEpisodeModal(true)
                 setDetail({ type: 'manga', item: e })
@@ -87,7 +87,7 @@ export default function EpisodePage({ type, item }: EpisodeProps) {
                     alt={e.title ?? `Chapitre ${e.number}`}
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
-                    className="object-cover"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                 </div>
                 <p className="truncate text-sm px-1">
