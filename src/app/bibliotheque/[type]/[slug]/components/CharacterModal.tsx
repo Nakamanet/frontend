@@ -42,14 +42,16 @@ export default function CharacterModal({ isOpen, onClose, type, item }: Characte
         </button>
 
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-4 p-5">
-          <div className="sm:col-span-2 flex justify-center shrink-0">
+          <div className="sm:col-span-2 flex justify-center items-start shrink-0">
             <div className="relative w-40 sm:w-full aspect-2/3 rounded-card overflow-hidden shrink-0 shadow-md">
-              <Image
-                src={item.character.imageUrl || '/logo.png'}
-                alt={item.character.name}
-                fill
-                className="object-cover"
-              />
+              <div className="absolute inset-y-0 -inset-x-[2%]">
+                <Image
+                  src={item.character.imageUrl || '/logo.png'}
+                  alt={item.character.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
             </div>
           </div>
           <div className="sm:col-span-4 flex flex-col gap-3 min-w-0">
