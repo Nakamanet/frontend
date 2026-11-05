@@ -81,6 +81,7 @@ export interface AnimeStaff {
   characterId: number | null
   personId: number
   role: string
+  language?: string | null
   person: Person
 }
 
