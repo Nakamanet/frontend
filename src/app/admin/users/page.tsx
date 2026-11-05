@@ -44,8 +44,11 @@ export default function AdminUsersPage() {
   }
 
   const toggleBan = async (user: any) => {
+    const isBanned = Boolean(
+      user.is_deleted || (user.banned_until && new Date(user.banned_until) > new Date())
+    )
     try {
-      if (user.is_deleted) {
+      if (isBanned) {
         await api.patch(`/admin/users/${user.id}/restore`)
         showToast(`Utilisateur @${user.username} débanni`, 'success')
       } else {
@@ -182,62 +185,66 @@ export default function AdminUsersPage() {
                   </td>
                 </tr>
               ) : (
-                users.map((user: any) => (
-                  <tr key={user.id} className="hover:bg-accent/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary overflow-hidden shrink-0">
-                          {user.avatar_url ? (
-                            <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
-                          ) : (
-                            user.username.charAt(0).toUpperCase()
-                          )}
+                users.map((user: any) => {
+                  const isBanned = Boolean(
+                    user.is_deleted || (user.banned_until && new Date(user.banned_until) > new Date())
+                  )
+                  return (
+                    <tr key={user.id} className="hover:bg-accent/20 transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-primary overflow-hidden shrink-0">
+                            {user.avatar_url ? (
+                              <img src={user.avatar_url} alt={user.username} className="w-full h-full object-cover" />
+                            ) : (
+                              user.username.charAt(0).toUpperCase()
+                            )}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-semibold">{user.username}</span>
+                            <span className="text-xs text-text/50">@{user.handle || user.username}</span>
+                          </div>
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-semibold">{user.username}</span>
-                          <span className="text-xs text-text/50">@{user.handle || user.username}</span>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-mono text-text/80">{user.email}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        user.is_admin 
-                          ? 'bg-red-500/10 text-red-500 border border-red-500/20' 
-                          : user.is_moderator 
-                          ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
-                          : 'bg-accent text-text/70 border border-border/50'
-                      }`}>
-                        {user.is_admin ? 'Admin' : user.is_moderator ? 'Modérateur' : 'Utilisateur'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {user.is_deleted ? (
-                        <span className="inline-flex items-center gap-1 text-red-400 text-sm">
-                          <Ban size={14} /> Banni
+                      </td>
+                      <td className="px-6 py-4 text-sm font-mono text-text/80">{user.email}</td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          user.is_admin 
+                            ? 'bg-red-500/10 text-red-500 border border-red-500/20' 
+                            : user.is_moderator 
+                            ? 'bg-blue-500/10 text-blue-500 border border-blue-500/20'
+                            : 'bg-accent text-text/70 border border-border/50'
+                        }`}>
+                          {user.is_admin ? 'Admin' : user.is_moderator ? 'Modérateur' : 'Utilisateur'}
                         </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-green-500 text-sm">
-                          <CheckCircle2 size={14} /> Actif
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="dropdown dropdown-end">
-                        <div tabIndex={0} role="button" className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text cursor-pointer">
-                          <MoreVertical size={18} />
-                        </div>
-                        <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow-xl bg-accent border border-border/50 rounded-box w-52 text-left mt-1">
-                          <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Changer rôle</li>
-                          <li><button onClick={() => changeRole(user.id, 'user')} className="text-sm">Utilisateur</button></li>
-                          <li><button onClick={() => changeRole(user.id, 'moderator')} className="text-sm">Modérateur</button></li>
-                          <li><button onClick={() => changeRole(user.id, 'admin')} className="text-sm">Admin</button></li>
-                          <div className="divider my-1 opacity-50"></div>
-                          <li>
-                            <button onClick={() => toggleBan(user)} className={`text-sm ${user.is_deleted ? 'text-green-500' : 'text-amber-400'}`}>
-                              {user.is_deleted ? 'Débannir' : 'Bannir'}
-                            </button>
-                          </li>
+                      </td>
+                      <td className="px-6 py-4">
+                        {isBanned ? (
+                          <span className="inline-flex items-center gap-1 text-red-400 text-sm">
+                            <Ban size={14} /> Banni
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-green-500 text-sm">
+                            <CheckCircle2 size={14} /> Actif
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="dropdown dropdown-end">
+                          <div tabIndex={0} role="button" className="p-2 hover:bg-accent rounded-full transition-colors text-text/60 hover:text-text cursor-pointer">
+                            <MoreVertical size={18} />
+                          </div>
+                          <ul tabIndex={0} className="dropdown-content z-10 menu p-2 shadow-xl bg-accent border border-border/50 rounded-box w-52 text-left mt-1">
+                            <li className="menu-title px-4 py-1 text-xs text-text/50 font-semibold uppercase tracking-wider">Changer rôle</li>
+                            <li><button onClick={() => changeRole(user.id, 'user')} className="text-sm">Utilisateur</button></li>
+                            <li><button onClick={() => changeRole(user.id, 'moderator')} className="text-sm">Modérateur</button></li>
+                            <li><button onClick={() => changeRole(user.id, 'admin')} className="text-sm">Admin</button></li>
+                            <div className="divider my-1 opacity-50"></div>
+                            <li>
+                              <button onClick={() => toggleBan(user)} className={`text-sm ${isBanned ? 'text-green-500' : 'text-amber-400'}`}>
+                                {isBanned ? 'Débannir' : 'Bannir'}
+                              </button>
+                            </li>
                           <li>
                             <button 
                               onClick={() => handlePermanentlyDelete(user)} 
@@ -252,7 +259,8 @@ export default function AdminUsersPage() {
                       </div>
                     </td>
                   </tr>
-                ))
+                )
+              })
               )}
             </tbody>
           </table>

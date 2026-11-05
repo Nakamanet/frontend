@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { LogIn, Hash, Tag, BookOpen, Users, Menu, X, Smile } from 'lucide-react'
+import { LogIn, Hash, Tag, BookOpen, Users, Menu, X, Smile, Ban } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useChat } from '../hooks/useChat'
 import { getChannels, type Channel } from '../lib/channels'
@@ -20,6 +20,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 export default function ChatPage() {
   const { user, isLoggedIn } = useAuth()
+  const isSelfBanned = Boolean(user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date()))
   const [activeRoom, setActiveRoom] = useState('general')
   const { messages, connected, sendMessage } = useChat(activeRoom)
   const [input, setInput] = useState('')
@@ -133,15 +134,35 @@ export default function ChatPage() {
           ) : (
             messages.map((m) => {
               const isMine = m.username === user?.username
+              const isBanned = Boolean(m.is_banned || (isMine && isSelfBanned))
+              const isAdmin = Boolean(m.is_admin || (isMine && (user?.is_admin || user?.role === 'admin')))
               return (
-                <div key={m._id} className={`chat ${isMine ? 'chat-end' : 'chat-start'}`}>
+                <div key={m._id} className={`chat ${isMine ? 'chat-end' : 'chat-start'} ${isBanned ? 'opacity-75' : ''}`}>
                   <div className="chat-image avatar">
-                    <div className="w-8 rounded-full">
+                    <div className={`w-8 rounded-full ${
+                      isAdmin ? 'ring-2 ring-red-500/80 shadow-[0_0_8px_rgba(225,16,72,0.4)]' : isBanned ? 'grayscale border border-red-500/70' : ''
+                    }`}>
                       <img src={m.avatar_url ?? '/default-avatar.png'} alt={m.username} />
                     </div>
                   </div>
-                  <div className="chat-header text-xs opacity-60 mb-0.5">{m.username}</div>
-                  <div className={`chat-bubble break-words ${isMine ? 'chat-bubble-primary' : ''}`}>
+                  <div className="chat-header text-xs opacity-80 mb-0.5 flex items-center gap-1.5 flex-wrap">
+                    <span className={isBanned ? 'text-red-400 line-through decoration-red-500/50' : ''}>
+                      {m.username}
+                    </span>
+                    {isAdmin && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-red-500/20 text-amber-300 border border-red-500/30">
+                        Staff
+                      </span>
+                    )}
+                    {isBanned && !isAdmin && (
+                      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[9px] font-bold uppercase tracking-wider bg-red-950/80 text-red-400 border border-red-500/40">
+                        <Ban size={8} /> Banni
+                      </span>
+                    )}
+                  </div>
+                  <div className={`chat-bubble break-words ${
+                    isMine ? 'chat-bubble-primary' : isBanned ? 'border border-red-950/70 bg-red-950/30 text-red-200' : ''
+                  }`}>
                     <EmoteText text={m.content} />
                   </div>
                 </div>
@@ -150,7 +171,14 @@ export default function ChatPage() {
           )}
         </div>
 
-        {!isLoggedIn ? (
+        {isSelfBanned ? (
+          <div className="p-4 border-t border-base-300">
+            <div className="alert border-red-500/50 bg-red-950/40 text-red-300 text-sm flex items-center gap-2">
+              <Ban size={18} className="text-red-400 shrink-0" />
+              <span>Votre compte est actuellement suspendu. Vous ne pouvez pas envoyer de messages.</span>
+            </div>
+          </div>
+        ) : !isLoggedIn ? (
           <div className="p-4 border-t border-base-300">
             <div className="alert alert-warning text-sm">
               <LogIn size={18} />

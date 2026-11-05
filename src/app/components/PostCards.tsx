@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CircleUser, Heart, MessageCircle, Bookmark, EllipsisVertical } from 'lucide-react'
+import { CircleUser, Heart, MessageCircle, Bookmark, EllipsisVertical, Crown, ShieldCheck, Ban } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useAuth } from "../context/AuthContext"
 import { fr } from 'date-fns/locale'
@@ -30,6 +30,11 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
   const liked = likedOverride ?? (post.user_has_liked ?? false)
   const [saved, setSaved] = useState(post.user_has_saved ?? false)
   const isOwner = post.user.id === user?.id 
+  const isAuthorAdmin = Boolean(post.user?.is_admin || post.user?.role === 'admin')
+  const isAuthorBanned = Boolean(
+    post.user?.is_deleted ||
+    (post.user?.banned_until && new Date(post.user.banned_until) > new Date())
+  ) 
 
   const { mutate: like } = useMutation({
     mutationFn: () => toggleLikePost(post.id),
@@ -114,37 +119,94 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
     <Card
       key={post.id}
       onClick={() => router.push(`/post/${post.id}`)}
-      className="shadow-sm w-full hover:border-primary/50 transition-colors cursor-pointer"
+      className={`shadow-sm w-full hover:border-primary/50 transition-all cursor-pointer ${
+        isAuthorAdmin ? 'admin-post-card' : isAuthorBanned ? 'border-red-950/70 bg-red-950/10' : ''
+      }`}
     >
       <div className="flex gap-3 justify-between">
         <div className='flex gap-3 flex-1 min-w-0'>
-          <Link
-            href={`/profil/${post.user.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="shrink-0"
-          >
-            {post.user.avatar_url ? (
-              <Image
-                src={post.user.avatar_url}
-                alt="Avatar"
-                width={100}
-                height={100}
-                className="w-12 h-12 rounded-full hover:opacity-80 transition-opacity"
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70 hover:opacity-80 transition-opacity">
-                <CircleUser size={35} strokeWidth={1.5} />
+          <div className="relative w-12 h-12 shrink-0 self-start">
+            <Link
+              href={`/profil/${post.user.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="block w-12 h-12"
+            >
+              {post.user.avatar_url ? (
+                <Image
+                  src={post.user.avatar_url}
+                  alt="Avatar"
+                  width={100}
+                  height={100}
+                  className={`w-12 h-12 rounded-full object-cover hover:opacity-80 transition-all ${
+                    isAuthorAdmin
+                      ? 'ring-2 ring-red-500/80 ring-offset-2 ring-offset-[#111827] shadow-[0_0_10px_rgba(225,16,72,0.45)]'
+                      : isAuthorBanned
+                      ? 'grayscale opacity-60 border-2 border-red-500/70'
+                      : ''
+                  }`}
+                />
+              ) : (
+                <div className={`w-12 h-12 rounded-[10px] bg-muted border-2 flex items-center justify-center shrink-0 overflow-hidden text-base-content/70 hover:opacity-80 transition-all ${
+                  isAuthorAdmin
+                    ? 'border-red-500/80 ring-2 ring-red-500/50 ring-offset-2 ring-offset-[#111827] shadow-[0_0_10px_rgba(225,16,72,0.45)]'
+                    : isAuthorBanned
+                    ? 'grayscale opacity-60 border-red-500/70 text-red-400/70'
+                    : 'border-border'
+                }`}>
+                  <CircleUser size={35} strokeWidth={1.5} />
+                </div>
+              )}
+            </Link>
+            {isAuthorBanned && !isAuthorAdmin && (
+              <div
+                title="Compte banni"
+                className="absolute -bottom-1 -right-1 bg-red-600 text-white rounded-full p-0.5 border border-[#111827] shadow-sm pointer-events-none z-10"
+              >
+                <Ban size={10} strokeWidth={2.5} />
               </div>
             )}
-          </Link>
-          <div className="flex flex-col gap-3 min-w-0">
+          </div>
+          <div className="flex flex-col gap-2 min-w-0 flex-1">
+            {isAuthorAdmin && (
+              <div className="flex items-center gap-1.5 -mb-0.5">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-red-500/20 via-pink-500/15 to-purple-500/20 border border-red-500/40 text-red-300 shadow-sm backdrop-blur-xs select-none">
+                  <Crown size={11} className="text-amber-400 fill-amber-400 animate-pulse shrink-0" />
+                  <span className="bg-gradient-to-r from-amber-300 via-rose-300 to-pink-300 bg-clip-text text-transparent font-extrabold tracking-wider">
+                    Créateur • Staff
+                  </span>
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981] ml-0.5 shrink-0" />
+                </span>
+              </div>
+            )}
+            {isAuthorBanned && !isAuthorAdmin && (
+              <div className="flex items-center gap-1.5 -mb-0.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-950/70 border border-red-500/40 text-red-400 shadow-sm select-none">
+                  <Ban size={11} className="text-red-400 shrink-0" />
+                  <span>Compte Banni</span>
+                </span>
+              </div>
+            )}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 min-w-0">
               <Link
                 href={`/profil/${post.user.id}`}
                 onClick={(e) => e.stopPropagation()}
-                className="font-bold hover:underline"
+                className={`font-bold hover:underline inline-flex items-center gap-1 ${
+                  isAuthorBanned && !isAuthorAdmin ? 'text-red-400/90' : ''
+                }`}
               >
-                {post.user.username}
+                <span className={isAuthorAdmin ? 'text-white drop-shadow-[0_0_8px_rgba(225,16,72,0.4)]' : ''}>
+                  {post.user.username}
+                </span>
+                {isAuthorAdmin && (
+                  <span title="Compte officiel vérifié" className="inline-flex items-center">
+                    <ShieldCheck size={14} className="text-amber-400 fill-amber-400/20 shrink-0" />
+                  </span>
+                )}
+                {isAuthorBanned && !isAuthorAdmin && (
+                  <span title="Cet utilisateur est actuellement banni de la plateforme" className="inline-flex items-center">
+                    <Ban size={13} className="text-red-400 shrink-0" />
+                  </span>
+                )}
               </Link>
               <p className="text-sm text-text/60">@{post.user.handle}</p>
               <p className="text-sm text-text/60">{formatDistanceToNow(new Date(post.updated_at), { locale: fr })}</p>

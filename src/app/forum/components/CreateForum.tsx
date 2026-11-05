@@ -12,7 +12,8 @@ import Button from '@/app/components/ui/Button'
 
 export default function CreateForum({ onCreated }: { onCreated: () => void }) {
   const { showToast } = useToast()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, user } = useAuth()
+  const isBanned = Boolean(user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date()))
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -57,8 +58,15 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
   return (
     <div className="w-full">
       {/* BOUTON PRINCIPAL */}
-      <Button onClick={() => isLoggedIn ? setIsOpen(true) : router.push('/login')} className="w-full">
-        Créer un sujet
+      <Button
+        onClick={() => {
+          if (!isLoggedIn) router.push('/login')
+          else if (isBanned) showToast('Votre compte est suspendu. Création de sujet impossible.', 'error')
+          else setIsOpen(true)
+        }}
+        className={`w-full ${isBanned ? 'opacity-60 cursor-not-allowed' : ''}`}
+      >
+        {isBanned ? 'Compte suspendu' : 'Créer un sujet'}
       </Button>
 
       {/* MODALE (POPUP) */}

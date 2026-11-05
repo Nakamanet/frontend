@@ -91,7 +91,7 @@ export interface Comment {
   parent_id: number | null
   content: string
   is_spoiler: boolean
-  user: { id: number; username: string; avatar_url: string | null }
+  user: { id: number; username: string; avatar_url: string | null; is_admin?: boolean; role?: string; is_deleted?: boolean; banned_until?: string | null }
 }
 
 export async function getComments(postId: number): Promise<{ data: Comment[] }> {

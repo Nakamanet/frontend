@@ -3,7 +3,7 @@
 import { useAuth } from '../context/AuthContext'
 import { redirect } from 'next/navigation'
 import Image from 'next/image'
-import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare, Spool } from 'lucide-react'
+import { CircleUser, MapPin, Calendar, BookOpen, Users, MessageSquare, Spool, Crown, ShieldCheck, Ban, ShieldAlert } from 'lucide-react'
 import Profile from './components/Profile'
 import Activity from './components/Activity'
 import MyTopics from './components/MyTopics'
@@ -83,8 +83,35 @@ export default function ProfilPage() {
   )
   if (!user) redirect('/login')
 
+  const isSelfAdmin = Boolean(user.is_admin || user.role === 'admin')
+  const isSelfBanned = Boolean(
+    user.is_deleted ||
+    (user.banned_until && new Date(user.banned_until) > new Date())
+  )
+
   return (
     <main className="max-w-[1500px] mx-auto min-h-[80vh] h-full p-4 md:p-8 lg:p-13 pb-20 md:pb-13">
+      {isSelfBanned && (
+        <div className="mb-6 p-4 md:p-5 rounded-card bg-gradient-to-r from-red-950/80 via-red-900/40 to-accent border-2 border-red-500/60 flex items-start sm:items-center gap-4 shadow-xl">
+          <div className="w-11 h-11 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center shrink-0 text-red-400 shadow-inner">
+            <ShieldAlert size={24} />
+          </div>
+          <div className="flex flex-col flex-1">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-extrabold text-red-400 text-sm md:text-base tracking-wide uppercase">
+                Compte désactivé / banni
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/25 text-red-300 border border-red-500/40">
+                <Ban size={10} /> Sanction
+              </span>
+            </div>
+            <p className="text-xs md:text-sm text-red-200/90 mt-1 leading-relaxed">
+              Votre compte a été désactivé / banni par un modérateur ou administrateur suite à un comportement non conforme aux règles et à la charte de notre plateforme NakamaNet.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Bannière : même principe que Sidebar */}
       <section className="relative w-full h-40 md:h-[20vh] rounded-card mb-8 overflow-visible">
         <div className="absolute inset-0 bg-primary overflow-hidden rounded-card">
@@ -100,15 +127,45 @@ export default function ProfilPage() {
           <div className="absolute inset-0 bg-linear-to-b from-transparent via-transparent to-black/60" />
         </div>
         <div className="relative z-10 flex items-end p-5 h-full gap-4">
-          <div className="absolute -bottom-6 left-4 md:left-10 w-18 h-18 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center overflow-hidden z-10 text-base-content/70">
+          <div className={`absolute -bottom-6 left-4 md:left-10 w-18 h-18 rounded-[10px] bg-muted border-2 flex items-center justify-center overflow-hidden z-10 text-base-content/70 ${
+            isSelfAdmin
+              ? 'border-red-500 ring-2 ring-red-500/80 shadow-[0_0_12px_rgba(225,16,72,0.5)]'
+              : isSelfBanned
+              ? 'border-red-600 ring-2 ring-red-600/50 grayscale'
+              : 'border-border'
+          }`}>
             {user.avatar_url ? (
-              <Image src={user.avatar_url} alt="Avatar" width={65} height={65} className="w-full h-full object-cover" />
+              <Image src={user.avatar_url} alt="Avatar" width={65} height={65} className={`w-full h-full object-cover ${isSelfBanned ? 'opacity-60' : ''}`} />
             ) : (
-              <CircleUser size={50} strokeWidth={1.5} />
+              <CircleUser size={50} strokeWidth={1.5} className={isSelfBanned ? 'opacity-60 text-red-400' : ''} />
+            )}
+            {isSelfBanned && !isSelfAdmin && (
+              <div className="absolute inset-0 bg-red-950/40 flex items-center justify-center pointer-events-none">
+                <Ban size={28} className="text-red-500 drop-shadow" />
+              </div>
             )}
           </div>
           <div className="flex flex-col absolute bottom-1 left-24 md:left-30">
-            <p className="text-lg text-white font-bold">{user.username}</p>
+            {isSelfAdmin && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-gradient-to-r from-red-500/30 via-pink-500/25 to-purple-500/30 border border-red-500/50 text-amber-300 shadow-sm backdrop-blur-md mb-1 w-fit select-none">
+                <Crown size={11} className="text-amber-400 fill-amber-400" />
+                <span>Créateur • Staff</span>
+              </span>
+            )}
+            {isSelfBanned && !isSelfAdmin && (
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-950/80 border border-red-500/60 text-red-400 shadow-sm backdrop-blur-md mb-1 w-fit select-none">
+                <Ban size={11} className="text-red-400" />
+                <span>Compte Banni</span>
+              </span>
+            )}
+            <div className="flex items-center gap-1.5">
+              <p className={`text-lg font-bold truncate ${isSelfBanned && !isSelfAdmin ? 'text-red-400 line-through decoration-red-500/50' : 'text-white'}`}>
+                {user.username}
+              </p>
+              {isSelfAdmin && (
+                <ShieldCheck size={16} className="text-amber-400 fill-amber-400/20 shrink-0" />
+              )}
+            </div>
             <p className="text-white/70">@{user.handle}</p>
           </div>
         </div>

@@ -6,6 +6,7 @@ import { replyToForum } from '@/app/lib/forum'
 import { useToast } from '@/app/context/ToastContext'
 import { useAuth } from '@/app/context/AuthContext'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Ban } from 'lucide-react'
 import Loader from '@/app/components/Loader'
 import Button from '@/app/components/ui/Button'
 
@@ -17,7 +18,8 @@ interface ReplyForumProps {
 
 export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumProps) {
   const { showToast } = useToast()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, user } = useAuth()
+  const isBanned = Boolean(user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date()))
   const router = useRouter()
   const queryClient = useQueryClient()
   const [content, setContent] = useState('')
@@ -54,6 +56,15 @@ export default function ReplyForum({ topicId, parentId, onCancel }: ReplyForumPr
       <div className="flex flex-col items-center justify-center gap-3 border border-border bg-accent rounded-card p-6 text-center">
         <p className="text-[15px] text-text-muted">Vous devez être connecté pour participer à la discussion.</p>
         <Button onClick={() => router.push('/login')}>Se connecter</Button>
+      </div>
+    )
+  }
+
+  if (isBanned) {
+    return (
+      <div className="flex items-center gap-3 border border-red-500/40 bg-red-950/40 rounded-card p-4 text-red-300 text-sm">
+        <Ban size={18} className="text-red-400 shrink-0" />
+        <span>Votre compte est actuellement suspendu. Vous ne pouvez pas publier de réponses.</span>
       </div>
     )
   }

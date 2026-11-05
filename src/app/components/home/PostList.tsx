@@ -6,9 +6,9 @@ import {
   Clock,
   Users,
   CircleUser,
-  Image as ImageIcon,
   SendHorizonal,
   Smile,
+  Ban,
 } from 'lucide-react'
 import Image from 'next/image'
 import { User } from '../../types/auth'
@@ -66,14 +66,21 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
     return () => observer.disconnect()
   }, [hasHiddenPosts, hasNextPage, isFetchingNextPage, fetchNextPage])
 
+  const isSelfBanned = Boolean(
+    user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date())
+  )
+
   const { mutate: postPosts } = useMutation({
-    mutationFn: () => createPost({
-      content,
-      related_anime_id: null,
-      related_manga_id: null,
-      image_urls: null,
-      is_spoiler: false,
-    }),
+    mutationFn: () => {
+      if (isSelfBanned) throw new Error('Compte suspendu')
+      return createPost({
+        content,
+        related_anime_id: null,
+        related_manga_id: null,
+        image_urls: null,
+        is_spoiler: false,
+      })
+    },
     onSuccess: () => {
       setContent('')
       showToast('Post publié avec succès', 'success')
@@ -89,6 +96,12 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
     <div className="flex flex-col w-full max-w-[1500px] mx-auto h-full gap-5">
       {/* Ajouter un post */}
       {isLoggedIn && user ? (
+        isSelfBanned ? (
+          <div className="flex items-center gap-3 border border-red-500/40 bg-red-950/40 rounded-card p-4 text-red-300 text-sm">
+            <Ban size={18} className="text-red-400 shrink-0" />
+            <span>Votre compte est actuellement suspendu. Vous ne pouvez pas publier de post.</span>
+          </div>
+        ) : (
         <div className="flex flex-col bg-accent border border-border rounded-card gap-2 px-6 py-4">
           <div className="flex gap-2">
             <div className="w-12 h-12 rounded-[10px] bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
@@ -115,7 +128,6 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
               </div>
               <div className="flex justify-between gap-2">
                 <div className="flex gap-2 pt-2 items-center relative">
-                  <ImageIcon size={20} className="text-text/50 hover:text-primary transition-colors cursor-pointer" />
                   <div className="relative flex items-center">
                     <button
                       type="button"
@@ -147,7 +159,7 @@ export default function PostList({ isLoggedIn, user }: { isLoggedIn: boolean; us
             </div>
           </div>
         </div>
-      ) : null}
+      )) : null}
       {/* Filtre/Tendances/... */}
       <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-6">
         <div className="flex gap-5">

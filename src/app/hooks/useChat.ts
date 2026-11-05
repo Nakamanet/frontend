@@ -1,9 +1,10 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useMemo } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useAuth } from '../context/AuthContext'
+import api from '../lib/axios'
 
-interface Message {
+export interface Message {
   _id: string
   room: string
   user_id: string
@@ -11,11 +12,22 @@ interface Message {
   avatar_url: string | null
   content: string
   created_at: string
+  is_banned?: boolean
+  is_admin?: boolean
+}
+
+interface UserStatus {
+  id: number
+  username: string
+  is_banned: boolean
+  is_admin: boolean
+  role?: string
 }
 
 export function useChat(room: string, { allowGuest = false }: { allowGuest?: boolean } = {}) {
   const { isLoggedIn, user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
+  const [userStatuses, setUserStatuses] = useState<Record<string, UserStatus>>({})
   const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const roomRef = useRef(room)
@@ -24,6 +36,43 @@ export function useChat(room: string, { allowGuest = false }: { allowGuest?: boo
   useEffect(() => {
     roomRef.current = room
   }, [room])
+
+  // Fetch banned / admin statuses for users in the chat
+  useEffect(() => {
+    const missingUsernames = Array.from(
+      new Set(
+        messages
+          .map((m) => m.username)
+          .filter((u) => u && typeof u === 'string' && u !== 'Anonymous' && !userStatuses[u])
+      )
+    )
+
+    if (missingUsernames.length === 0) return
+
+    api
+      .get<Record<string, UserStatus>>('/users/statuses', {
+        params: { usernames: missingUsernames.join(',') },
+      })
+      .then(({ data }) => {
+        if (data && typeof data === 'object') {
+          setUserStatuses((prev) => ({ ...prev, ...data }))
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load user statuses for chat:', err)
+      })
+  }, [messages, userStatuses])
+
+  const enrichedMessages = useMemo(() => {
+    return messages.map((m) => {
+      const status = userStatuses[m.username] || (m.user_id ? userStatuses[m.user_id] : null)
+      return {
+        ...m,
+        is_banned: status ? status.is_banned : m.is_banned,
+        is_admin: status ? status.is_admin : m.is_admin,
+      }
+    })
+  }, [messages, userStatuses])
 
   // connect once
   useEffect(() => {
@@ -76,14 +125,17 @@ export function useChat(room: string, { allowGuest = false }: { allowGuest?: boo
   }, [connected, room])
 
   const sendMessage = (content: string) => {
-    if (!content.trim() || !socketRef.current || !room) return
+    const isSelfBanned = Boolean(user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date()))
+    if (isSelfBanned || !content.trim() || !socketRef.current || !room) return
     socketRef.current.emit('chat:message', {
       room,
       content,
       username: user?.username ?? 'Anonymous',
       avatar_url: user?.avatar_url ?? null,
+      is_banned: isSelfBanned,
+      is_admin: Boolean(user?.is_admin || user?.role === 'admin'),
     })
   }
 
-  return { messages, connected, sendMessage }
+  return { messages: enrichedMessages, connected, sendMessage }
 }
