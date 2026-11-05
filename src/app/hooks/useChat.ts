@@ -24,6 +24,8 @@ interface UserStatus {
   role?: string
 }
 
+export const GUEST_MESSAGE_LIMIT = 20
+
 export function useChat(room: string, { allowGuest = false }: { allowGuest?: boolean } = {}) {
   const { isLoggedIn, user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
@@ -31,6 +33,11 @@ export function useChat(room: string, { allowGuest = false }: { allowGuest?: boo
   const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
   const roomRef = useRef(room)
+  const isGuestRef = useRef(!isLoggedIn)
+
+  useEffect(() => {
+    isGuestRef.current = !isLoggedIn
+  }, [isLoggedIn])
 
   // keep roomRef in sync with the latest room prop
   useEffect(() => {
@@ -96,14 +103,15 @@ export function useChat(room: string, { allowGuest = false }: { allowGuest?: boo
     socket.on('disconnect', () => setConnected(false))
 
     socket.on('history', (history: Message[]) => {
-      setMessages(history)
+      setMessages(isGuestRef.current ? history.slice(-GUEST_MESSAGE_LIMIT) : history)
     })
 
     socket.on('chat:message', (message: Message) => {
       setMessages((prev) => {
         // Only append if the message belongs to the room we're currently viewing
         if (message.room !== roomRef.current) return prev
-        return [...prev, message]
+        const next = [...prev, message]
+        return isGuestRef.current ? next.slice(-GUEST_MESSAGE_LIMIT) : next
       })
     })
 

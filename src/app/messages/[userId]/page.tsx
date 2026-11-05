@@ -1,7 +1,7 @@
 'use client'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CircleUser } from 'lucide-react'
 import { useAuth } from '@/app/context/AuthContext'
 import { useChat } from '@/app/hooks/useChat'
 import { getDmRoom } from '@/app/lib/dm'
@@ -53,8 +53,12 @@ export default function DmPage() {
             return (
               <div key={m._id} className={`chat ${isMine ? 'chat-end' : 'chat-start'}`}>
                 <div className="chat-image avatar">
-                  <div className="w-8 rounded-full">
-                    <img src={m.avatar_url ?? '/default-avatar.png'} alt={m.username} />
+                  <div className="w-8 h-8 rounded-full bg-muted border-2 border-border flex! items-center justify-center">
+                    {m.avatar_url ? (
+                      <img src={m.avatar_url} alt={m.username} />
+                    ) : (
+                      <CircleUser size={18} strokeWidth={1.5} className="text-base-content/70" />
+                    )}
                   </div>
                 </div>
                 <div className="chat-header text-xs opacity-60 mb-0.5">{m.username}</div>

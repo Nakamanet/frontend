@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { LogIn, Hash, Tag, BookOpen, Users, Menu, X, Smile, Ban } from 'lucide-react'
+import { LogIn, Hash, Tag, BookOpen, Users, Menu, X, Smile, Ban, CircleUser } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
-import { useChat } from '../hooks/useChat'
+import { useChat, GUEST_MESSAGE_LIMIT } from '../hooks/useChat'
 import { getChannels, type Channel } from '../lib/channels'
 import { useQuery } from '@tanstack/react-query'
 import Button from '../components/ui/Button'
@@ -22,15 +22,26 @@ export default function ChatPage() {
   const { user, isLoggedIn } = useAuth()
   const isSelfBanned = Boolean(user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date()))
   const [activeRoom, setActiveRoom] = useState('general')
-  const { messages, connected, sendMessage } = useChat(activeRoom)
+  const { messages, connected, sendMessage } = useChat(activeRoom, { allowGuest: true })
   const [input, setInput] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  const { data: channels = [], isLoading: loadingChannels } = useQuery<Channel[]>({
+  const { data: fetchedChannels = [], isLoading: loadingChannels } = useQuery<Channel[]>({
     queryKey: ['channels'],
     queryFn: getChannels,
   })
+
+  const generalChannel = fetchedChannels.find((c) => c.room === 'general') ?? {
+    _id: 'general',
+    room: 'general',
+    label: 'Général',
+    group: 'Général',
+    icon: 'hash',
+    created_by: '',
+    created_at: '',
+  }
+  const channels = [generalChannel, ...fetchedChannels.filter((c) => c.room !== 'general')]
 
   const groupedChannels = channels.reduce<Record<string, Channel[]>>((acc, ch) => {
     acc[ch.group] = acc[ch.group] ?? []
@@ -75,10 +86,6 @@ export default function ChatPage() {
             <div className="flex justify-center py-10">
               <Loader variant="inline" size="sm" />
             </div>
-          ) : channels.length === 0 ? (
-            <p className="text-center text-xs text-base-content/40 px-3 py-6">
-              Aucun channel disponible pour le moment.
-            </p>
           ) : (
             Object.entries(groupedChannels).map(([group, groupChannels]) => (
               <div key={group} className="mb-5">
@@ -124,6 +131,11 @@ export default function ChatPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
+          {!isLoggedIn && messages.length > 0 && (
+            <p className="text-center text-xs text-base-content/50 pb-2">
+              Seuls les {GUEST_MESSAGE_LIMIT} derniers messages sont visibles. Connectez-vous pour consulter tout l&apos;historique.
+            </p>
+          )}
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center gap-2">
               <Hash size={32} className="text-base-content/20" />
@@ -139,10 +151,14 @@ export default function ChatPage() {
               return (
                 <div key={m._id} className={`chat ${isMine ? 'chat-end' : 'chat-start'} ${isBanned ? 'opacity-75' : ''}`}>
                   <div className="chat-image avatar">
-                    <div className={`w-8 rounded-full ${
-                      isAdmin ? 'ring-2 ring-red-500/80 shadow-[0_0_8px_rgba(225,16,72,0.4)]' : isBanned ? 'grayscale border border-red-500/70' : ''
+                    <div className={`w-8 h-8 rounded-full bg-muted flex! items-center justify-center ${
+                      isAdmin ? 'ring-2 ring-red-500/80 shadow-[0_0_8px_rgba(225,16,72,0.4)]' : isBanned ? 'grayscale border border-red-500/70' : 'border-2 border-border'
                     }`}>
-                      <img src={m.avatar_url ?? '/default-avatar.png'} alt={m.username} />
+                      {m.avatar_url ? (
+                        <img src={m.avatar_url} alt={m.username} />
+                      ) : (
+                        <CircleUser size={18} strokeWidth={1.5} className={isBanned ? 'text-red-400' : 'text-base-content/70'} />
+                      )}
                     </div>
                   </div>
                   <div className="chat-header text-xs opacity-80 mb-0.5 flex items-center gap-1.5 flex-wrap">
