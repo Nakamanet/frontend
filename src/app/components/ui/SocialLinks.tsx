@@ -11,7 +11,7 @@ function BrandIcon({ path, size }: { path: string; size: number }) {
 export const SOCIAL_LINKS = [
   {
     label: 'Discord',
-    href: 'https://discord.com/invite/TjWBz6QzjE',
+    href: 'https://discord.com/invite/gqywz25jR',
     icon: (size: number) => (
       <BrandIcon
         size={size}
