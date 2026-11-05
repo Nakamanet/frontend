@@ -6,6 +6,19 @@ import CharacterDescription from './CharacterDescription'
 import { useTranslation } from '@/app/context/TranslationContext'
 import { X } from 'lucide-react'
 
+const DUB_FLAGS: Record<string, string> = {
+  Japanese: 'jp',
+  English: 'us',
+  French: 'fr',
+  German: 'de',
+  Italian: 'it',
+  Spanish: 'es',
+  Brazilian: 'br',
+  Korean: 'kr',
+  Hungarian: 'hu',
+  Hebrew: 'il',
+}
+
 type CharacterModalProps =
   | { isOpen: boolean; onClose: () => void; type: 'anime'; item: GroupedAnimeCharacter }
   | { isOpen: boolean; onClose: () => void; type: 'manga'; item: MangaCharacter }
@@ -73,19 +86,20 @@ export default function CharacterModal({ isOpen, onClose, type, item }: Characte
                 </p>
                 <div className="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1">
                   {item.persons.map((person) => (
-                    <div key={person.id} className="flex items-center gap-3 bg-accent/70 hover:bg-accent rounded-card overflow-hidden p-1.5 transition-colors">
-                      {person.imageUrl ? (
-                        <div className="relative w-9 h-12 rounded overflow-hidden bg-primary shrink-0">
+                    <div key={`${person.id}-${person.language}`} className="flex shrink-0 items-center gap-3 bg-accent/70 rounded-card overflow-hidden px-2 py-3">
+                      {person.language && DUB_FLAGS[person.language] ? (
+                        <span className="w-9 flex items-center justify-center shrink-0">
                           <Image
-                            src={person.imageUrl}
-                            alt={person.name}
-                            fill
-                            sizes="36px"
-                            className="object-cover"
+                            src={`/flags/${DUB_FLAGS[person.language]}.svg`}
+                            alt={person.language}
+                            title={person.language}
+                            width={28}
+                            height={21}
+                            className="rounded-[3px] shadow-sm"
                           />
-                        </div>
+                        </span>
                       ) : (
-                        <div className="w-9 h-12 rounded bg-primary/20 flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded bg-primary/20 flex items-center justify-center shrink-0">
                           <span className="text-xs font-bold text-primary">{person.name.charAt(0)}</span>
                         </div>
                       )}

@@ -14,8 +14,10 @@ import { useTranslation } from '@/app/context/TranslationContext'
 
 type Character = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
-export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> & {
-  persons: Person[]
+export type VoiceActor = Person & { language: string | null }
+
+export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId' | 'language'> & {
+  persons: VoiceActor[]
 }
 
 const PAGE_SIZE = 15
@@ -51,9 +53,9 @@ export default function CharacterPage({ type, item }: Character) {
     .reduce<GroupedAnimeCharacter[]>((acc, ac) => {
       const existing = acc.find(g => g.characterId === ac.characterId)
       if (existing) {
-        existing.persons.push(ac.person)
+        existing.persons.push({ ...ac.person, language: ac.language })
       } else {
-        acc.push({ animeId: ac.animeId, characterId: ac.characterId, role: ac.role, character: ac.character, persons: [ac.person] })
+        acc.push({ animeId: ac.animeId, characterId: ac.characterId, role: ac.role, character: ac.character, persons: [{ ...ac.person, language: ac.language }] })
       }
       return acc
     }, [])

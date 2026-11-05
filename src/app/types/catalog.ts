@@ -130,6 +130,7 @@ export interface AnimeCharacter {
   characterId: number
   personId: number
   role: string
+  language: string | null
   character: Character
   person: Person
 }
