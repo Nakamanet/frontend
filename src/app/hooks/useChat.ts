@@ -27,6 +27,42 @@ interface UserStatus {
 
 export const GUEST_MESSAGE_LIMIT = 20
 
+const TOXIC_PATTERNS = [
+  /suicide/i,
+  /\bkill\b/i,
+  /\btuer\b/i,
+  /\bcr[eèé]ve\b/i,
+  /\bmort\b/i,
+  /\bnique\b/i,
+  /\bbaise\b/i,
+  /\bpute\b/i,
+  /\bfdp\b/i,
+  /\bsalope\b/i,
+  /\bconnard\b/i,
+  /\bconnasse\b/i,
+  /\bb[aâ]tard\b/i,
+  /\bencul[eé]\b/i,
+  /\bchienne\b/i,
+  /\bcochon\b/i,
+  /\bmerde\b/i,
+  /\bfuck\b/i,
+  /\bbitch/i,
+  /\basshole\b/i,
+  /\bcunt\b/i,
+  /\bdick\b/i,
+  /\bpussy\b/i,
+  /\bwhore\b/i,
+  /\bslut\b/i,
+  /\bnigger\b/i,
+  /\bfaggot\b/i,
+]
+
+export function isToxicText(text?: string | null): boolean {
+  if (!text) return false
+  const lower = text.toLowerCase()
+  return TOXIC_PATTERNS.some((pattern) => pattern.test(lower))
+}
+
 export function useChat(room: string, { allowGuest = false }: { allowGuest?: boolean } = {}) {
   const { isLoggedIn, user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
@@ -76,6 +112,7 @@ export function useChat(room: string, { allowGuest = false }: { allowGuest?: boo
       const status = userStatuses[m.username] || (m.user_id ? userStatuses[m.user_id] : null)
       return {
         ...m,
+        is_hidden: Boolean(m.is_hidden || isToxicText(m.content)),
         is_banned: status ? status.is_banned : m.is_banned,
         is_admin: status ? status.is_admin : m.is_admin,
       }
@@ -104,14 +141,22 @@ export function useChat(room: string, { allowGuest = false }: { allowGuest?: boo
     socket.on('disconnect', () => setConnected(false))
 
     socket.on('history', (history: Message[]) => {
-      setMessages(isGuestRef.current ? history.slice(-GUEST_MESSAGE_LIMIT) : history)
+      const sanitized = history.map((msg) => ({
+        ...msg,
+        is_hidden: Boolean(msg.is_hidden || isToxicText(msg.content)),
+      }))
+      setMessages(isGuestRef.current ? sanitized.slice(-GUEST_MESSAGE_LIMIT) : sanitized)
     })
 
     socket.on('chat:message', (message: Message) => {
       setMessages((prev) => {
         // Only append if the message belongs to the room we're currently viewing
         if (message.room !== roomRef.current) return prev
-        const next = [...prev, message]
+        const enriched = {
+          ...message,
+          is_hidden: Boolean(message.is_hidden || isToxicText(message.content)),
+        }
+        const next = [...prev, enriched]
         return isGuestRef.current ? next.slice(-GUEST_MESSAGE_LIMIT) : next
       })
     })
