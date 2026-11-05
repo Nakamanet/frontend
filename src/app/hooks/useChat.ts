@@ -13,25 +13,32 @@ interface Message {
   created_at: string
 }
 
-export function useChat(room: string) {
+export function useChat(room: string, { allowGuest = false }: { allowGuest?: boolean } = {}) {
   const { isLoggedIn, user } = useAuth()
   const [messages, setMessages] = useState<Message[]>([])
   const [connected, setConnected] = useState(false)
   const socketRef = useRef<Socket | null>(null)
+  const roomRef = useRef(room)
+
+  // keep roomRef in sync with the latest room prop
+  useEffect(() => {
+    roomRef.current = room
+  }, [room])
 
   // connect once
   useEffect(() => {
-    if (!isLoggedIn) return
-
-    const token = localStorage.getItem('token')
-    if (!token) return
+    const token = isLoggedIn ? localStorage.getItem('token') : null
+    if (!token && !allowGuest) return
 
     const socket = io(process.env.NEXT_PUBLIC_CHAT_URL!, {
-      auth: {
-        token,
-        username: user?.username,
-        avatar_url: user?.avatar_url ?? null,
-      },
+      auth: token
+        ? {
+            token,
+            username: user?.username,
+            avatar_url: user?.avatar_url ?? null,
+          }
+        : {},
+      forceNew: true,
     })
 
     socketRef.current = socket
@@ -44,7 +51,11 @@ export function useChat(room: string) {
     })
 
     socket.on('chat:message', (message: Message) => {
-      setMessages((prev) => [...prev, message])
+      setMessages((prev) => {
+        // Only append if the message belongs to the room we're currently viewing
+        if (message.room !== roomRef.current) return prev
+        return [...prev, message]
+      })
     })
 
     socket.on('connect_error', (err) => {
@@ -55,7 +66,7 @@ export function useChat(room: string) {
       socket.disconnect()
       socketRef.current = null
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn, allowGuest])
 
   // join / switch room whenever room changes (or once connected)
   useEffect(() => {
@@ -65,7 +76,6 @@ export function useChat(room: string) {
   }, [connected, room])
 
   const sendMessage = (content: string) => {
-    console.log('[useChat] sending, room =', room)
     if (!content.trim() || !socketRef.current || !room) return
     socketRef.current.emit('chat:message', {
       room,

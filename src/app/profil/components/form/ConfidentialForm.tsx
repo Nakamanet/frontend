@@ -5,6 +5,7 @@ import { User } from '../../../types/auth'
 import { updateVisibility } from '@/app/lib/user'
 import { useToast } from '@/app/context/ToastContext'
 import { useAuth } from '@/app/context/AuthContext'
+import Button from '@/app/components/ui/Button'
 
 export default function ConfidentialForm({ user }: { user: User }) {
   const { showToast } = useToast()
@@ -30,13 +31,13 @@ export default function ConfidentialForm({ user }: { user: User }) {
     }
   }
   return (
-    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
+    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className='text-2xl font-bold'>Confidentialité</h3>
       <form onSubmit={handleSubmitConfidential} className='flex flex-col w-full gap-4' >
         <div className="flex justify-between items-center">
           <div className="flex flex-col">
             <p>Profil privé</p>
-            <p className="text-sm text-border">Seul vos amis peuvent voir votre profil</p>
+            <p className="text-sm text-text-muted">Seul vos amis peuvent voir votre profil</p>
           </div>
 
           <label>
@@ -48,13 +49,9 @@ export default function ConfidentialForm({ user }: { user: User }) {
           </label>
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-ghost border-none bg-primary text-primary-content"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-        </button>
+        </Button>
       </form>
     </div>
   )

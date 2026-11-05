@@ -1,7 +1,7 @@
 'use client'
 
 import { useAuth } from '@/app/context/AuthContext'
-import { useParams } from 'next/navigation'
+import { notFound, useParams } from 'next/navigation'
 import { useState } from 'react'
 import { getAnimeById, getMangaById, getAnimeCharacters, getMangaCharacters, getEpisodes, getChapters } from '@/app/lib/catalogue'
 import { Anime, AnimeCharacter, Manga, MangaCharacter } from '@/app/types/catalog'
@@ -9,32 +9,61 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { ChevronRight, ChevronDown, Check, Trash2 } from 'lucide-react'
 import Chat from '@/app/components/home/Chat'
-import Calendar from '@/app/components/home/Calendar'
 import EpisodePage from './components/EpisodePage'
 import Thread from './components/Thread'
 import Information from './components/Information'
 import CharacterPage from './components/CharacterPage'
+import DetailSkeleton from './components/Skeletons'
 import { addMyAnime, addMyManga, deleteMyAnime, deleteMyManga, getMyAnime, getMyManga } from '@/app/lib/library'
 import { useToast } from '@/app/context/ToastContext'
+import { useTranslation } from '@/app/context/TranslationContext'
+import LanguageToggle from '@/app/components/LanguageToggle'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import Loader from '@/app/components/Loader'
+import { useEffect } from 'react'
 
 export default function DetailPage() {
   const { type, slug } = useParams()
   const { user } = useAuth()
   const { showToast } = useToast()
+  const { lang, translateText } = useTranslation()
   const queryClient = useQueryClient()
   const [voirPlus, setVoirPlus] = useState(false)
   const [userFilter, setUserFilter] = useState<string | null>(null)
+  const [translatedSynopsis, setTranslatedSynopsis] = useState<string | null>(null)
+  const [loadingSynopsis, setLoadingSynopsis] = useState(false)
+  const [brokenImages, setBrokenImages] = useState<string[]>([])
+  const markBroken = (url: string) => setBrokenImages((urls) => (urls.includes(url) ? urls : [...urls, url]))
 
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
-  const { data: item } = useQuery<Anime | Manga>({
+  const { data: item, isError } = useQuery<Anime | Manga>({
     queryKey: [type, slug],
     queryFn: () => type === 'anime' ? getAnimeById(slug as string) : getMangaById(slug as string),
     enabled: !!type && !!slug,
     staleTime: 5 * 60 * 1000,
   })
+
+  // Automatically fetch translated synopsis when language is French
+  useEffect(() => {
+    let isCancelled = false
+    if (lang === 'fr' && item?.synopsis) {
+      setLoadingSynopsis(true)
+      translateText(item.synopsis)
+        .then((res) => {
+          if (!isCancelled) setTranslatedSynopsis(res)
+        })
+        .finally(() => {
+          if (!isCancelled) setLoadingSynopsis(false)
+        })
+    } else {
+      setTranslatedSynopsis(null)
+      setLoadingSynopsis(false)
+    }
+    return () => {
+      isCancelled = true
+    }
+  }, [lang, item?.synopsis, translateText])
 
   const { data: characters = [], isFetched: charactersFetched } = useQuery<AnimeCharacter[] | MangaCharacter[]>({
     queryKey: [type === 'anime' ? 'anime' : 'manga', item?.id, 'characters'],
@@ -58,6 +87,7 @@ export default function DetailPage() {
   })
 
   const hasCharacters = characters.length > 0
+  const showCharactersTab = !charactersFetched || hasCharacters
   const hasEpisodes = type === 'anime' ? (episodeData?.meta.total ?? 0) > 0 : (chapterData?.meta.total ?? 0) > 0
   const contentFetched = charactersFetched && (type === 'anime' ? episodesFetched : chaptersFetched)
   const defaultFilter = !contentFetched 
@@ -121,30 +151,35 @@ export default function DetailPage() {
 
   const isMutating = isStatusPending || isRemovePending
 
-  if (!item) return null
+  if (isError) notFound()
+  if (!item) return <DetailSkeleton />
 
   return (
-    <main className="md:grid md:grid-cols-5 max-w-[1500px] mx-auto py-10 px-15">
-      <section className="col-span-4 pr-6">
+    <main className="lg:grid lg:grid-cols-5 max-w-[1500px] mx-auto px-4 md:px-8 lg:px-15 py-5 md:py-10 pb-20 md:pb-10">
+      <section className="lg:col-span-4 lg:pr-6">
         {/* Section Header */}
         <div className="flex flex-col w-full h-auto gap-2">
-          {/* Breadcrumb */}
-          <div className="flex gap-1 text-sm items-center">
-            <Link href="/bibliotheque/" className="flex gap-1 text-sm items-center">
-              Bibliothèque
-            </Link>
-            <ChevronRight size={16} />
-            <Link href={`/bibliotheque/${type}`} className="flex gap-1 text-sm items-center">
-              {capitalize(type as string)}
-            </Link>
-            <ChevronRight size={16} />
-            <Link href={`/bibliotheque/${type}/${slug}`} className="flex gap-1 text-sm items-center">
-              {capitalize(slug as string)}
-            </Link>
+          {/* Breadcrumb & Language Switcher */}
+          <div className="flex flex-wrap items-center justify-between gap-3 w-full mb-1">
+            <div className="flex gap-1 text-sm items-center text-text/70">
+              <Link href="/bibliotheque/" className="hover:text-primary transition-colors">
+                Bibliothèque
+              </Link>
+              <ChevronRight size={16} />
+              <Link href={`/bibliotheque/${type}`} className="hover:text-primary transition-colors">
+                {capitalize(type as string)}
+              </Link>
+              <ChevronRight size={16} />
+              <Link href={`/bibliotheque/${type}/${slug}`} className="text-text font-medium">
+                {capitalize(slug as string)}
+              </Link>
+            </div>
+
+            <LanguageToggle />
           </div>
           {/* Fond */}
-          <div className="relative w-full h-64 shrink-0 rounded-[15px] overflow-hidden bg-primary z-0">
-            {item?.coverImage ? (
+          <div className="relative w-full h-64 shrink-0 rounded-card overflow-hidden bg-primary z-0">
+            {item?.coverImage && !brokenImages.includes(item.coverImage) ? (
               <Image
                 src={item.coverImage}
                 alt="Bannière"
@@ -152,6 +187,7 @@ export default function DetailPage() {
                 sizes="(max-width: 768px) 100vw, 80vw"
                 className="object-cover"
                 priority
+                onError={() => markBroken(item.coverImage!)}
               />
             ) : (
               <Image src="/bg.png" alt="Bannière" fill sizes="(max-width: 768px) 100vw, 80vw" className="object-cover" priority />
@@ -160,15 +196,16 @@ export default function DetailPage() {
           </div>
         </div>
         {/* Section Content */}
-        <div className="relative z-10 grid grid-cols-4 w-full px-5 gap-5" style={{ marginTop: '-80px', marginBottom: '30px' }}>
-          <div className="col-span-1 shrink-0 gap-4 flex flex-col items-center">
-            {item?.posterImage ? (
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-4 w-full px-0 md:px-5 gap-5 mb-6" style={{ marginTop: '-80px' }}>
+          <div className="w-32 md:w-auto md:col-span-1 shrink-0 gap-4 flex flex-col items-center">
+            {item?.posterImage && !brokenImages.includes(item.posterImage) ? (
               <Image
                 src={item.posterImage}
                 alt="Avatar"
                 width={250}
                 height={390}
-                className="w-full object-cover rounded-[15px]"
+                className="w-full object-cover rounded-card"
+                onError={() => markBroken(item.posterImage!)}
               />
             ) : (
               <Image
@@ -176,11 +213,11 @@ export default function DetailPage() {
                 alt="Bannière"
                 width={100}
                 height={100}
-                className="object-cover w-full h-full rounded-[15px]"
+                className="object-cover w-full h-full rounded-card"
               />
             )}
           </div>
-          <div className="col-span-3 min-w-0 flex flex-col gap-10 overflow-hidden">
+          <div className="md:col-span-3 min-w-0 flex flex-col gap-10 overflow-hidden">
             <div className="flex items-end justify-between gap-4 min-w-0">
               <div className="min-w-0">
                 <p className="text-3xl font-bold drop-shadow-md">{item?.titleEn || item?.titleJp}</p>
@@ -211,7 +248,7 @@ export default function DetailPage() {
                       <button
                         onClick={() => removeEntry()}
                         disabled={isMutating}
-                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-error hover:bg-accent disabled:opacity-50"
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm text-primary hover:bg-accent disabled:opacity-50"
                       >
                         <Trash2 size={14} />
                         Supprimer
@@ -229,52 +266,87 @@ export default function DetailPage() {
                 </button>
               ) : null}
             </div>
-            <div className="bg-accent rounded-[15px] p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
-              <p className="text-xl">Synopsis</p>
-              {item?.synopsis ? (
+            
+            {/* Synopsis Section */}
+            <div className="bg-accent rounded-card p-5 gap-4 flex flex-col min-w-0 overflow-hidden flex-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <p className="text-xl font-semibold">Synopsis</p>
+                  {lang === 'fr' && (
+                    <span className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 font-medium inline-flex items-center gap-1">
+                      🇫🇷 Traduit en français
+                    </span>
+                  )}
+                </div>
+                {loadingSynopsis && (
+                  <span className="text-xs text-text/50 animate-pulse flex items-center gap-1.5">
+                    <Loader variant="inline" size="xs" /> Traduction...
+                  </span>
+                )}
+              </div>
+
+              {((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis) ? (
                 <>
                   {voirPlus ? (
-                    <p className="min-w-0">{item?.synopsis}</p>
+                    <p className="min-w-0 leading-relaxed text-text/90 whitespace-pre-wrap">
+                      {(lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis}
+                    </p>
                   ) : (
-                    <p>{item?.synopsis.split(/\s+/).length > 50 ? item?.synopsis.split(/\s+/).slice(0, 50).join(' ') + '...' : item?.synopsis}</p>
+                    <p className="min-w-0 leading-relaxed text-text/90">
+                      {((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)!.split(/\s+/).length > 50
+                        ? ((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)!.split(/\s+/).slice(0, 50).join(' ') + '...'
+                        : ((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)}
+                    </p>
                   )}
-                  {item?.synopsis.split(/\s+/).length > 50 && (
+                  {((lang === 'fr' && translatedSynopsis) ? translatedSynopsis : item?.synopsis)!.split(/\s+/).length > 50 && (
                     <div className="flex justify-end">
-                      <button onClick={() => setVoirPlus(!voirPlus)}>{voirPlus ? 'Voir moins' : 'Voir plus'}</button>
+                      <button onClick={() => setVoirPlus(!voirPlus)} className="text-primary hover:underline text-sm font-medium">
+                        {voirPlus ? 'Voir moins' : 'Voir plus'}
+                      </button>
                     </div>
                   )}
                 </>
               ) : (
-                <p className="text-border italic">Pas de synopsis pour le moment.</p>
+                <p className="text-text-muted italic">Pas de synopsis pour le moment.</p>
               )}
             </div>
           </div>
         </div>
+        <div className="flex flex-col gap-6">
+        {/* Informations (mobile uniquement, en desktop ça reste dans la colonne latérale) */}
+        <div className="lg:hidden">
+          {item && type === 'anime' ? (
+            <Information type="anime" item={item as Anime} />
+          ) : item && type === 'manga' ? (
+            <Information type="manga" item={item as Manga} />
+          ) : null}
+        </div>
+
         {/* Episodes/Personnages/Thread */}
         <div className="flex flex-col gap-5">
-          <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-6">
-            <div className="flex gap-5 items-center justify-center w-full">
-              {hasCharacters && (
+          <div className="flex justify-between border border-border bg-accent rounded-full py-1 px-3">
+            <div className="flex gap-1 sm:gap-3 items-center justify-center w-full">
+              {showCharactersTab && (
                 <button
                   onClick={() => setUserFilter('characters')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'characters' ? 'bg-alerts text-white' : 'text-border'}`}
+                  className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'characters' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
-                  <span className="hidden md:inline">Personnages</span>
+                  <span>Personnages</span>
                 </button>
               )}
               {hasEpisodes && (
                 <button
-                  onClick={() => setUserFilter(filter === 'episode' ? (hasCharacters ? 'characters' : 'thread') : 'episode')}
-                  className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'episode' ? 'bg-alerts text-white' : 'text-border'}`}
+                  onClick={() => setUserFilter(filter === 'episode' ? (showCharactersTab ? 'characters' : 'thread') : 'episode')}
+                  className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'episode' ? 'bg-primary text-white' : 'text-text-muted'}`}
                 >
-                  <span className="hidden md:inline">{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
+                  <span>{type === 'anime' ? 'Episodes' : 'Chapitres'}</span>
                 </button>
               )}
               <button
-                onClick={() => setUserFilter(filter === 'thread' ? (hasCharacters ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
-                className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${filter === 'thread' ? 'bg-alerts text-white' : 'text-border'}`}
+                onClick={() => setUserFilter(filter === 'thread' ? (showCharactersTab ? 'characters' : hasEpisodes ? 'episode' : 'thread') : 'thread')}
+                className={`flex px-3 gap-1.5 btn btn-ghost border-none btn-xs text-sm py-2 font-normal hover:bg-primary rounded-full ${filter === 'thread' ? 'bg-primary text-white' : 'text-text-muted'}`}
               >
-                <span className="hidden md:inline">Fil de discussion</span>
+                <span>Forums</span>
               </button>
             </div>
           </div>
@@ -294,15 +366,19 @@ export default function DetailPage() {
             </div>
           ) : null}
         </div>
+        </div>
       </section>
       <section className="flex flex-col gap-5 py-6">
-        <Chat user={user} />
-        {item && type === 'anime' ? (
-          <Information type="anime" item={item as Anime} />
-        ) : item && type === 'manga' ? (
-          <Information type="manga" item={item as Manga} />
-        ) : null}
-        <Calendar user={user} />
+        <div className="hidden lg:block">
+          <Chat user={user} />
+        </div>
+        <div className="hidden lg:block">
+          {item && type === 'anime' ? (
+            <Information type="anime" item={item as Anime} />
+          ) : item && type === 'manga' ? (
+            <Information type="manga" item={item as Manga} />
+          ) : null}
+        </div>
       </section>
     </main>
   )

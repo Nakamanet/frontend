@@ -8,9 +8,9 @@ export interface Notification {
     id: number,
     recipient_id: number,
     sender_id: number,
-    type: 'friend_request' | 'new_chapter' | 'mention' | 'message' | 'comment'
+    type: 'friend_request' | 'new_chapter' | 'mention' | 'message' | 'comment' | 'system_warning'
     is_read: boolean,
-    payload: Record<string, unknown>
+    payload: Record<string, any>
     sender: NotificationSender,
     created_at: string,
     updated_at: string

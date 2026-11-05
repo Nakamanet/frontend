@@ -1,8 +1,8 @@
 import api from "./axios";
 import type { Friendship } from "../types/friends";
 
-export async function getFriends(): Promise<Friendship[]> {
-    const { data } = await api.get<Friendship[]>('/friends')
+export async function getFriends(id: number): Promise<Friendship[]> {
+    const { data } = await api.get<Friendship[]>(`/users/${id}/friends`)
     return data
 }
 

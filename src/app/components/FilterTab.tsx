@@ -3,7 +3,7 @@ import { ReactNode } from 'react'
 interface FilterOption {
   value: string
   label: string
-  icon: ReactNode
+  icon?: ReactNode
 }
 
 interface FilterTabProps {
@@ -20,8 +20,8 @@ export default function FilterTab({ value, onChange, options }: FilterTabProps) 
           <button
             key={option.value}
             onClick={() => onChange(option.value)}
-            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-alerts rounded-full ${
-              value === option.value ? 'bg-alerts text-white' : 'text-border'
+            className={`flex px-4 gap-2 btn btn-ghost border-none btn-xs text-[15px] py-2 font-normal hover:bg-primary rounded-full ${
+              value === option.value ? 'bg-primary text-white' : 'text-text-muted'
             }`}
           >
             {option.icon}

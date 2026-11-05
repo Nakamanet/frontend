@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Luffy Meat -->
+  <circle cx="32" cy="32" r="30" fill="#F8C471"/>
+  <!-- Hair & Straw Hat brim -->
+  <path d="M12 20 C18 10, 46 10, 52 20 Z" fill="#F4D03F"/>
+  <path d="M14 18 C22 14, 42 14, 50 18" stroke="#C0392B" stroke-width="3"/>
+  <path d="M12 22 L16 30 L22 22 L28 32 L34 22 L42 32 L48 22" fill="#17202A"/>
+  <!-- Star Eyes -->
+  <path d="M22 28 L24 33 L29 33 L25 36 L27 41 L22 38 L17 41 L19 36 L15 33 L20 33 Z" fill="#F1C40F"/>
+  <path d="M42 28 L44 33 L49 33 L45 36 L47 41 L42 38 L37 41 L39 36 L35 33 L40 33 Z" fill="#F1C40F"/>
+  <!-- Mouth Drooling -->
+  <path d="M26 44 Q32 52 38 44" stroke="#922B21" stroke-width="2" fill="#E74C3C"/>
+  <path d="M37 46 Q39 52 38 56" stroke="#5DADE2" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Anime Meat Bone in front -->
+  <rect x="22" y="48" width="20" height="12" rx="6" fill="#A04000"/>
+  <circle cx="18" cy="51" r="3" fill="#FBEEE6"/>
+  <circle cx="18" cy="57" r="3" fill="#FBEEE6"/>
+  <circle cx="46" cy="51" r="3" fill="#FBEEE6"/>
+  <circle cx="46" cy="57" r="3" fill="#FBEEE6"/>
+</svg>

@@ -64,7 +64,7 @@ export default function Pagination({ page, lastPage, onPageChange }: Props) {
                         min-w-[2rem] px-3 py-2 rounded transition-colors
                         ${
                           page === item
-                            ? 'bg-accent rounded-[15px] font-medium text-base-content'
+                            ? 'bg-accent rounded-card font-medium text-base-content'
                             : 'text-base-content hover:opacity-80'
                         }
                     `}

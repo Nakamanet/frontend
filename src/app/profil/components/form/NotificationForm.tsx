@@ -5,6 +5,7 @@ import { useAuth } from '../../../context/AuthContext'
 import { User } from '../../../types/auth'
 import { updateProfil } from '@/app/lib/user'
 import { useToast } from '@/app/context/ToastContext'
+import Button from '@/app/components/ui/Button'
 
 export default function NotificationForm({ user }: { user: User }) {
   const { showToast } = useToast()
@@ -46,14 +47,14 @@ export default function NotificationForm({ user }: { user: User }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
+    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
       <h3 className="text-2xl font-bold">Notifications</h3>
       <form className="flex flex-col gap-4" onSubmit={handleSubmitMedias}>
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
               <p>Commentaires</p>
-              <p className="text-xs text-border">Quelqu&apos;un commente un de tes posts</p>
+              <p className="text-xs text-text-muted">Quelqu&apos;un commente un de tes posts</p>
             </div>
 
             <label className={`toggle w-8 text-base-content rounded-full ${comment ? 'bg-primary' : 'bg-border'}`}>
@@ -78,14 +79,14 @@ export default function NotificationForm({ user }: { user: User }) {
               </svg>
             </label>
           </div>
-          {fieldErrors.comment && <p className="text-sm text-alerts">{fieldErrors.comment}</p>}
+          {fieldErrors.comment && <p className="text-sm text-primary">{fieldErrors.comment}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
               <p>Demande d&apos;ami</p>
-              <p className="text-xs text-border">Quelqu&apos;un vous envoie une demande d&apos;ami</p>
+              <p className="text-xs text-text-muted">Quelqu&apos;un vous envoie une demande d&apos;ami</p>
             </div>
 
             <label
@@ -112,14 +113,14 @@ export default function NotificationForm({ user }: { user: User }) {
               </svg>
             </label>
           </div>
-          {fieldErrors.friendsRequests && <p className="text-sm text-alerts">{fieldErrors.friendsRequests}</p>}
+          {fieldErrors.friendsRequests && <p className="text-sm text-primary">{fieldErrors.friendsRequests}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
               <p>Mentions</p>
-              <p className="text-xs text-border">Quand vous etes mentionné</p>
+              <p className="text-xs text-text-muted">Quand vous etes mentionné</p>
             </div>
 
             <label className={`toggle w-8 text-base-content rounded-full ${mentions ? 'bg-primary' : 'bg-border'}`}>
@@ -144,14 +145,14 @@ export default function NotificationForm({ user }: { user: User }) {
               </svg>
             </label>
           </div>
-          {fieldErrors.mentions && <p className="text-sm text-alerts">{fieldErrors.mentions}</p>}
+          {fieldErrors.mentions && <p className="text-sm text-primary">{fieldErrors.mentions}</p>}
         </div>
 
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-center">
             <div className="flex flex-col">
               <p>Nouvelles sorties</p>
-              <p className="text-xs text-border">Nouveau chapitre/tome de vos oeuvres suivies</p>
+              <p className="text-xs text-text-muted">Nouveau chapitre/tome de vos oeuvres suivies</p>
             </div>
 
             <label className={`toggle w-8 text-base-content rounded-full ${newSorties ? 'bg-primary' : 'bg-border'}`}>
@@ -176,16 +177,12 @@ export default function NotificationForm({ user }: { user: User }) {
               </svg>
             </label>
           </div>
-          {fieldErrors.newSorties && <p className="text-sm text-alerts">{fieldErrors.newSorties}</p>}
+          {fieldErrors.newSorties && <p className="text-sm text-primary">{fieldErrors.newSorties}</p>}
         </div>
 
-        <button
-          type="submit"
-          className="btn btn-ghost border-none bg-primary text-primary-content"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Mise à jour en cours...' : 'Mettre à jour'}
-        </button>
+        </Button>
       </form>
     </div>
   )

@@ -37,3 +37,8 @@ export async function updateVisibility(visibility: 'public' | 'friends_only' | '
     const { data } = await api.patch('/users/profile/visibility', { profile_visibility: visibility})
     return data
 }
+
+export async function getUserCount(): Promise<number> {
+    const { data } = await api.get<{ count: number }>('/users/count')
+    return data.count
+}

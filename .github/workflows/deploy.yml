@@ -12,7 +12,7 @@ jobs:
       packages: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Determine environment
         id: env
@@ -22,23 +22,25 @@ jobs:
             echo "api_url=https://api.nakamanet.fr/api" >> $GITHUB_OUTPUT
             echo "lib_api_url=https://adonis.nakamanet.fr" >> $GITHUB_OUTPUT
             echo "chat_url=https://adonis.nakamanet.fr" >> $GITHUB_OUTPUT
+            echo "ai_url=https://ai.nakamanet.fr" >> $GITHUB_OUTPUT
           else
             echo "target=preprod" >> $GITHUB_OUTPUT
             echo "api_url=https://dev-api.nakamanet.fr/api" >> $GITHUB_OUTPUT
             echo "lib_api_url=https://dev-adonis.nakamanet.fr" >> $GITHUB_OUTPUT
             echo "chat_url=https://dev-adonis.nakamanet.fr" >> $GITHUB_OUTPUT
+            echo "ai_url=https://dev-ai.nakamanet.fr" >> $GITHUB_OUTPUT
           fi
           echo "r2_url=https://pub-e672f7689c754d048f17f8bbad20297c.r2.dev" >> $GITHUB_OUTPUT
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5
         with:
           context: .
           push: true
@@ -48,9 +50,11 @@ jobs:
             NEXT_PUBLIC_LIB_API_URL=${{ steps.env.outputs.lib_api_url }}
             NEXT_PUBLIC_R2_PUBLIC_URL=${{ steps.env.outputs.r2_url }}
             NEXT_PUBLIC_CHAT_URL=${{ steps.env.outputs.chat_url }}
+            NEXT_PUBLIC_AI_URL=${{ steps.env.outputs.ai_url }}
+            NEXT_PUBLIC_TURNSTILE_SITE_KEY=${{ vars.TURNSTILE_SITE_KEY }}
 
       - name: Deploy on VPS
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@029f5b4aeeeb58fdfe1410a5d17f967dacf36262 # v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_DEPLOY_USER }}

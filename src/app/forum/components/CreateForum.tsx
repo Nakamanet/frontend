@@ -8,6 +8,7 @@ import { X } from 'lucide-react'
 import { useToast } from '@/app/context/ToastContext'
 import { useAuth } from '@/app/context/AuthContext'
 import Loader from '@/app/components/Loader'
+import Button from '@/app/components/ui/Button'
 
 export default function CreateForum({ onCreated }: { onCreated: () => void }) {
   const { showToast } = useToast()
@@ -25,7 +26,7 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
     setLoading(true)
 
     try {
-      await createForum({
+      const res = await createForum({
         title,
         content,
         category,
@@ -38,12 +39,16 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
       setCategory('general')
       setIsOpen(false)
 
-      showToast('Forum publié avec succès', 'success')
+      if ((res as any)?.message) {
+        showToast((res as any).message, 'info')
+      } else {
+        showToast('Forum publié avec succès', 'success')
+      }
 
       onCreated()
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (err) {
-      showToast('Erreur lors de la publication du forum', 'error')
+    } catch (err: any) {
+      const msg = err?.response?.data?.message || 'Erreur lors de la publication du forum'
+      showToast(msg, 'error')
     } finally {
       setLoading(false)
     }
@@ -52,12 +57,9 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
   return (
     <div className="w-full">
       {/* BOUTON PRINCIPAL */}
-      <button
-        onClick={() => isLoggedIn ? setIsOpen(true) : router.push('/login')}
-        className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-3 font-bold text-white border-none w-full"
-      >
+      <Button onClick={() => isLoggedIn ? setIsOpen(true) : router.push('/login')} className="w-full">
         Créer un sujet
-      </button>
+      </Button>
 
       {/* MODALE (POPUP) */}
       {isOpen && (
@@ -66,7 +68,7 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
             {/* Bouton fermer */}
             <button
               onClick={() => setIsOpen(false)}
-              className="absolute top-5 right-5 text-border hover:text-white transition-colors"
+              className="absolute top-5 right-5 text-text-muted hover:text-white transition-colors"
             >
               <X size={24} />
             </button>
@@ -75,7 +77,7 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-border">Titre</label>
+                <label className="text-sm font-bold text-text-muted">Titre</label>
                 <input
                   type="text"
                   placeholder="Titre de votre sujet..."
@@ -83,16 +85,16 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
                   onChange={(e) => setTitle(e.target.value)}
                   required
                   maxLength={255}
-                  className="p-3 rounded-xl text-white bg-background border border-border outline-none focus:ring-1 focus:ring-alerts"
+                  className="p-3 rounded-xl text-white bg-background border border-border outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-border">Catégorie</label>
+                <label className="text-sm font-bold text-text-muted">Catégorie</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as Forum['category'])}
-                  className="p-3 rounded-xl text-white bg-background border border-border outline-none focus:ring-1 focus:ring-alerts"
+                  className="p-3 rounded-xl text-white bg-background border border-border outline-none focus:ring-1 focus:ring-primary"
                 >
                   {/* Valeurs attendues par l'API */}
                   <option value="general">Général</option>
@@ -104,23 +106,19 @@ export default function CreateForum({ onCreated }: { onCreated: () => void }) {
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-bold text-border">Contenu</label>
+                <label className="text-sm font-bold text-text-muted">Contenu</label>
                 <textarea
                   placeholder="De quoi voulez-vous discuter ?"
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   required
-                  className="p-3 rounded-xl h-32 resize-y text-white bg-background border border-border outline-none focus:ring-1 focus:ring-alerts"
+                  className="p-3 rounded-xl h-32 resize-y text-white bg-background border border-border outline-none focus:ring-1 focus:ring-primary"
                 ></textarea>
               </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn bg-alerts hover:bg-alerts/90 rounded-full px-4 py-2 font-bold text-white border-none mt-2 w-full"
-              >
+              <Button type="submit" disabled={loading} className="mt-2 w-full">
                 {loading ? <Loader variant="inline" size="md" /> : 'Publier le sujet'}
-              </button>
+              </Button>
             </form>
           </div>
         </div>

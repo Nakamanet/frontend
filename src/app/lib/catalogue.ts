@@ -44,12 +44,28 @@ async function cachedGet<T>(url: string, params?: Record<string, unknown>): Prom
   return promise as Promise<T>
 }
 
-export async function getAnimes(page = 1, limit = 20, genre?: string): Promise<PaginatedResponse<Anime>> {
-  return cachedGet<PaginatedResponse<Anime>>('/anime', { page, limit, ...(genre && { genre }) })
+export type CatalogQueryFilters = {
+  search?: string
+  includeGenres?: string[]
+  excludeGenres?: string[]
 }
 
-export async function getMangas(page = 1, limit = 20, genre?: string): Promise<PaginatedResponse<Manga>> {
-  return cachedGet<PaginatedResponse<Manga>>('/manga', { page, limit, ...(genre && { genre }) })
+function catalogParams(page: number, limit: number, { search, includeGenres = [], excludeGenres = [] }: CatalogQueryFilters) {
+  return {
+    page,
+    limit,
+    ...(search && { search }),
+    ...(includeGenres.length > 0 && { genre: [...includeGenres].sort().join(',') }),
+    ...(excludeGenres.length > 0 && { excludeGenres: [...excludeGenres].sort().join(',') }),
+  }
+}
+
+export async function getAnimes(page = 1, limit = 20, filters: CatalogQueryFilters = {}): Promise<PaginatedResponse<Anime>> {
+  return cachedGet<PaginatedResponse<Anime>>('/anime', catalogParams(page, limit, filters))
+}
+
+export async function getMangas(page = 1, limit = 20, filters: CatalogQueryFilters = {}): Promise<PaginatedResponse<Manga>> {
+  return cachedGet<PaginatedResponse<Manga>>('/manga', catalogParams(page, limit, filters))
 }
 
 export async function getAnimeById(id: number | string): Promise<Anime> {

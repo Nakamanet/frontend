@@ -6,6 +6,7 @@ import { useToast } from '@/app/context/ToastContext'
 import { getCroppedImage, uploadAvatar, uploadBanner } from '@/app/lib/upload'
 import { X } from 'lucide-react'
 import Cropper from 'react-easy-crop'
+import Button from '@/app/components/ui/Button'
 
 export default function MediaForm() {
   const { showToast } = useToast()
@@ -75,13 +76,10 @@ export default function MediaForm() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-[15px]">
-      <button 
-        onClick={() => setIsOpen(true)} 
-        className='btn btn-ghost border-none bg-primary text-primary-content'
-      >
+    <div className="flex flex-col gap-4 p-5 bg-accent border border-border rounded-card">
+      <Button onClick={() => setIsOpen(true)}>
         Ajouter un média
-      </button>
+      </Button>
 
       {isOpen && (
       <dialog className="modal modal-open">
@@ -90,7 +88,7 @@ export default function MediaForm() {
             <div>
               <h3 className="font-bold text-lg">Choisir un média</h3>
               <input type="file" accept="image/*" onChange={handleFileChange} />
-              {preview && <img src={preview} alt="" className="rounded-[15px]" />}
+              {preview && <img src={preview} alt="" className="rounded-card" />}
               {file && (
                 <div className="modal-action">
                   <button 

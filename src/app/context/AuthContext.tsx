@@ -15,6 +15,18 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+function isAuthError(err: unknown): boolean {
+  // only treat genuine 401/403 responses as "token is invalid" —
+  // network errors, aborted requests, timeouts, etc. should NOT clear the session
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'response' in err &&
+    (err as any).response?.status !== undefined &&
+    [401, 403].includes((err as any).response.status)
+  )
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isAuthLoading, setIsAuthLoading] = useState(true)
@@ -26,10 +38,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const { data } = await api.get<User>('/auth/me')
       setUser(data)
       setIsLoggedIn(true)
-    } catch {
+    } catch (err) {
       setUser(null)
       setIsLoggedIn(false)
-      if (typeof window !== 'undefined') {
+
+      // only wipe the stored token if the server genuinely rejected it —
+      // don't clear it for network blips or requests aborted by rapid navigation
+      if (typeof window !== 'undefined' && isAuthError(err)) {
         localStorage.removeItem('token')
         localStorage.removeItem('expires_at')
       }
@@ -58,9 +73,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.setItem('expires_at', String(Date.now() + data.expires_in * 1000))
           fetchUser()
         })
-        .catch(() => {
-          localStorage.removeItem('token')
-          localStorage.removeItem('expires_at')
+        .catch((err) => {
+          // same principle: only clear on a genuine auth rejection
+          if (isAuthError(err)) {
+            localStorage.removeItem('token')
+            localStorage.removeItem('expires_at')
+          }
           setIsAuthLoading(false)
         })
     } else {

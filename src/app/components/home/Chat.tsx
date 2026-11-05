@@ -2,14 +2,21 @@
 import { useState, useEffect, useRef } from 'react'
 import { Smile, SendHorizonal, CircleUser } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { User } from '../../types/auth'
 import { useChat } from '@/app/hooks/useChat'
+import Button from '@/app/components/ui/Button'
+import AnimeEmojiPicker from '../AnimeEmojiPicker'
+import EmoteText from '../EmoteText'
 
 export default function Chat({ user }: { user: User | null }) {
-  const { messages, connected, sendMessage } = useChat('general')
+  const { messages, connected, sendMessage } = useChat('general', { allowGuest: true })
+  const router = useRouter()
+  const goToLogin = () => router.push('/login')
   const [input, setInput] = useState('')
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -18,13 +25,14 @@ export default function Chat({ user }: { user: User | null }) {
   }, [messages])
 
   const handleSend = () => {
+    if (!user) return goToLogin()
     if (!input.trim()) return
     sendMessage(input)
     setInput('')
   }
 
   return (
-    <div className="flex flex-col w-full bg-accent h-auto py-2 shadow-sm border border-border rounded-[15px]">
+    <div className="flex flex-col w-full bg-accent h-auto py-2 shadow-sm border border-border rounded-card">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between px-3 pr-5">
           <div className="flex">
@@ -57,7 +65,9 @@ export default function Chat({ user }: { user: User | null }) {
                   <div className={`flex flex-col gap-0.5 max-w-[85%] ${isMe ? 'items-end' : 'items-start'}`}>
                     <div className={`px-3 py-2 rounded-2xl ${isMe ? 'bg-primary rounded-tr-md' : 'bg-muted rounded-tl-md'}`}>
                       <p className="text-xs font-medium opacity-90">{isMe ? 'Moi' : message.username}</p>
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm break-words">
+                        <EmoteText text={message.content} />
+                      </p>
                     </div>
                     <p className="text-xs text-base-content/60 px-1">
                       {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: fr })}
@@ -67,23 +77,43 @@ export default function Chat({ user }: { user: User | null }) {
               )
             })}
           </div>
-          <div className="flex items-center gap-2 mx-2 mt-2 p-2 bg-muted rounded-full border border-border">
-            <Smile size={20} className="text-text/50 shrink-0 hover:text-primary transition-colors cursor-pointer" />
-            <input
-              type="text"
-              placeholder="Envoyer un message"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"
-            />
-            <button
-              type="button"
-              onClick={handleSend}
-              className="btn btn-circle btn-ghost btn-sm bg-primary hover:bg-primary/80 shrink-0 transition-colors"
-            >
-              <SendHorizonal size={18} className="text-white" />
-            </button>
+          <div className="relative mx-2 mt-2">
+            {showEmojiPicker && (
+              <AnimeEmojiPicker
+                onSelect={(emoji) => {
+                  setInput((prev) => (prev ? `${prev} ${emoji} ` : `${emoji} `))
+                }}
+                onClose={() => setShowEmojiPicker(false)}
+                placement="top"
+                align="left"
+                className="w-full sm:w-72 max-w-full left-0 right-0 sm:right-auto"
+              />
+            )}
+            <div className="flex items-center gap-2 p-2 bg-muted rounded-full border border-border">
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+                className={`transition-colors cursor-pointer shrink-0 p-0.5 rounded-full ${
+                  showEmojiPicker ? 'text-primary' : 'text-text/50 hover:text-primary'
+                }`}
+                title="Ajouter un emoji ou emote anime"
+              >
+                <Smile size={20} />
+              </button>
+              <input
+                type="text"
+                placeholder={user ? 'Envoyer un message' : 'Connectez-vous pour écrire'}
+                value={input}
+                readOnly={!user}
+                onFocus={() => !user && goToLogin()}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                className="input input-ghost w-full bg-transparent text-sm text-text placeholder:text-text/40 focus:outline-none"
+              />
+              <Button type="button" variant="icon" onClick={handleSend} aria-label="Envoyer">
+                <SendHorizonal size={18} />
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, X, Loader2 } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import Link from 'next/link'
+import Loader from './Loader'
 
 interface SearchModalProps {
   isOpen: boolean
@@ -12,7 +13,7 @@ interface SearchModalProps {
 
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState('')
-  const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts'>('all')
+  const [filter, setFilter] = useState<'all' | 'anime' | 'manga' | 'users' | 'posts' | 'forums'>('all')
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
@@ -46,8 +47,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     setSkip(0)
     try {
       const userIdParam = user?.id ? `&user_id=${user.id}` : ''
+      const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000'
       const response = await fetch(
-        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=0&limit=20`
+        `${aiUrl}/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=0&limit=20`
       )
       if (response.ok) {
         const data = await response.json()
@@ -72,8 +74,9 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const nextSkip = skip + 20
     try {
       const userIdParam = user?.id ? `&user_id=${user.id}` : ''
+      const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000'
       const response = await fetch(
-        `http://localhost:8000/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=${nextSkip}&limit=20`
+        `${aiUrl}/search?q=${encodeURIComponent(query)}&filter=${filter}${userIdParam}&skip=${nextSkip}&limit=20`
       )
       if (response.ok) {
         const data = await response.json()
@@ -95,11 +98,25 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
   }, [filter])
 
+  // Debounced search on query change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (query.trim()) {
+        handleSearch()
+      } else {
+        setResults([])
+      }
+    }, 400) // 400ms delay
+
+    return () => clearTimeout(delayDebounceFn)
+  }, [query])
+
   const getResultHref = (res: any): string => {
     if (res.type === 'anime') return `/bibliotheque/anime/${res.slug}`
     if (res.type === 'manga') return `/bibliotheque/manga/${res.slug}`
     if (res.type === 'users') return `/profil/${res.user_id}`
     if (res.type === 'posts') return `/post/${res.post_id}`
+    if (res.type === 'forums') return `/forum/${res.forum_id}`
     return '#'
   }
 
@@ -131,7 +148,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
         {/* Filters */}
         <div className="flex gap-2 p-3 bg-base-200/50  border-b border-border">
-          {['all', 'anime', 'manga', 'users', 'posts'].map((f) => (
+          {['all', 'anime', 'manga', 'users', 'posts', 'forums'].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f as any)}
@@ -146,7 +163,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2 min-h-[300px]">
           {loading && results.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-base-content/50 mt-10">
-              <Loader2 className="animate-spin mb-4" size={32} />
+              <Loader variant="plain" size="lg" className="mb-4" />
               <p>Recherche en cours...</p>
             </div>
           ) : null}
@@ -159,8 +176,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 onClick={onClose}
                 className="flex gap-4 p-3 rounded-lg hover:bg-base-200 transition-colors border border-transparent hover:border-border"
               >
-                <div className="w-12 h-12 bg-base-300 rounded shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50">
-                  {res.type === 'users' ? 'user' : res.type}
+                <div className="w-12 h-12 bg-base-300 rounded shrink-0 flex items-center justify-center font-bold text-xs uppercase text-base-content/50 overflow-hidden">
+                  {res.type === 'users' && res.avatar_url ? (
+                    <img src={res.avatar_url} alt={res.title} className="w-full h-full object-cover" />
+                  ) : (
+                    res.type === 'users' ? 'user' : res.type
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
@@ -192,7 +213,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 disabled={loadingMore}
                 className="btn btn-outline btn-primary rounded-full px-6 flex items-center gap-2"
               >
-                {loadingMore && <Loader2 className="animate-spin" size={16} />}
+                {loadingMore && <Loader variant="inline" size="sm" />}
                 Charger plus de résultats
               </button>
             </div>

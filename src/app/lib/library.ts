@@ -11,6 +11,16 @@ export async function getMyManga() {
     return data
 }
 
+export async function getUserAnime(id: number): Promise<MyAnime[]> {
+    const { data } = await api.get(`/users/${id}/library/anime`)
+    return data
+}
+
+export async function getUserManga(id: number): Promise<MyManga[]> {
+    const { data } = await api.get(`/users/${id}/library/manga`)
+    return data
+}
+
 export async function addMyAnime(body: MyAnime) {
     const { data } = await api.post('/library/anime', body)
     return data
@@ -61,6 +71,16 @@ export interface TopEntry {
   anime_id?: number
   manga_id?: number
   count: number
+}
+
+export interface PopularityEntry {
+  id: number
+  count: number
+}
+
+export async function getPopularity(type: 'anime' | 'manga'): Promise<PopularityEntry[]> {
+  const { data } = await api.get(`/library/popularity/${type}`)
+  return data
 }
 
 export async function getTopAnime(): Promise<TopEntry[]> {

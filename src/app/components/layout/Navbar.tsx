@@ -2,33 +2,52 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { Search, Bell, User, LogOut } from 'lucide-react'
+import { Search, Bell, User, LogOut, Shield } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { CircleUser } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useQueryClient, useMutation, useQuery } from '@tanstack/react-query'
 import { getNotifications, getUnreadCount, markAllAsRead, markAsRead } from '@/app/lib/notifications'
 import SearchModal from '../SearchModal'
 import { useRouter } from 'next/navigation'
 import { useToast } from '@/app/context/ToastContext'
-import { acceptFriend } from '@/app/lib/friends'
+import { acceptFriend, declineFriend } from '@/app/lib/friends'
 import Loader from '@/app/components/Loader'
 
 export default function Navbar() {
   const { isLoggedIn, isAuthLoading, hasStoredSession, logout, user } = useAuth()
-  const [menuOpen, setMenuOpen] = useState(false)
   const [searchModalOpen, setSearchModalOpen] = useState(false)
   const queryClient = useQueryClient()
   const router = useRouter()
   const { showToast } = useToast()
   const DAY_MS = 24 * 60 * 60 * 1000
 
+  const [prevUnreadCount, setPrevUnreadCount] = useState<number | null>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
+  const [selectedWarning, setSelectedWarning] = useState<string | null>(null)
+
   const { data: unreadCount = 0 } = useQuery({
     queryKey: ['notifications', 'unread-count'],
     queryFn: getUnreadCount,
     enabled: isLoggedIn,
-    refetchInterval: 30000,
+    refetchInterval: 3000,
   })
+  useEffect(() => {
+    // Only play sound if it's not the initial fetch (prevUnreadCount is not null)
+    if (prevUnreadCount !== null && unreadCount > prevUnreadCount) {
+      // Play sound
+      const audio = document.getElementById('notificationSound') as HTMLAudioElement;
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log('Audio autoplay blocked', e));
+      }
+      
+      // Trigger animation
+      setIsAnimating(true)
+      setTimeout(() => setIsAnimating(false), 1000)
+    }
+    setPrevUnreadCount(unreadCount)
+  }, [unreadCount, prevUnreadCount])
 
   const { data: notifications, isLoading: notificationsLoading } = useQuery({
     queryKey: ['notifications'],
@@ -40,7 +59,7 @@ export default function Navbar() {
       )
     }),
     enabled: isLoggedIn,
-    refetchInterval: 30000,
+    refetchInterval: 3000,
   })
 
   const notificationsList = notifications?.data ?? []
@@ -54,9 +73,19 @@ export default function Navbar() {
     onSuccess:() => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] })
       queryClient.invalidateQueries({ queryKey: ['friends'] })
-      showToast("Invitation accepté.", "success")
+      showToast("Invitation acceptée.", "success")
     },
     onError: () => showToast("Erreur lors de l'acceptation.", "error")
+  })
+
+  const declineMutation = useMutation({
+    mutationFn: declineFriend,
+    onSuccess:() => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+      queryClient.invalidateQueries({ queryKey: ['friends'] })
+      showToast("Invitation refusée.", "success")
+    },
+    onError: () => showToast("Erreur lors du refus.", "error")
   })
 
   const markAsReadMutation = useMutation({
@@ -73,7 +102,8 @@ export default function Navbar() {
 
 
   return (
-    <header className="w-full border-b border-border bg-accent">
+    <header className="w-full border-b border-border bg-accent relative z-50">
+      <audio id="notificationSound" src="/sounds/notification.mp3" preload="auto" className="hidden"></audio>
       <div className="navbar justify-between p-2 text-xl max-w-[1500px] mx-auto">
         <div className="pl-4 md:pl-10">
           <Link href="/">
@@ -106,7 +136,7 @@ export default function Navbar() {
           ) : isLoggedIn && user ? (
             <>
             {/* Search */}
-              <span className='tooltip tooltip-bottom hidden md:block' data-tip="Recherche">
+              <span className='tooltip tooltip-bottom' data-tip="Recherche">
                 <Search
                   size={27}
                   className="cursor-pointer hover:text-primary transition-colors"
@@ -114,11 +144,11 @@ export default function Navbar() {
                 />
               </span>
               {/* Notifications */}
-              <div className='dropdown dropdown-end relative hidden md:block tooltip tooltip-bottom' data-tip="Notifications">
+              <div className='dropdown dropdown-end relative tooltip tooltip-bottom' data-tip="Notifications">
                 <div tabIndex={0} role='button' className='relative'>
-                  <Bell size={27} className="cursor-pointer hover:text-primary transition-colors" />
+                  <Bell size={27} className={`cursor-pointer hover:text-primary transition-colors ${isAnimating ? 'animate-bounce text-primary' : ''}`} />
                   {unreadCount > 0 && (
-                    <span className='absolute -top-1 -right-1 bg-alerts text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
+                    <span className='absolute -top-1 -right-1 bg-primary text-white text-xs rounded-full w-4 h-4 flex items-center justify-center'>{unreadCount}</span>
                   )}
                 </div>
                 <div tabIndex={-1} className='dropdown-content w-100 rounded-box z-10 mt-3 p-3 bg-accent border-border shadow'>
@@ -130,7 +160,7 @@ export default function Navbar() {
                     {notificationsLoading ? (
                       <li><Loader variant="plain" size="md" className="py-4" /></li>
                     ) : notificationsList.length === 0 ? (
-                      <li><span className='text-border'>Aucune notifications</span></li>
+                      <li><span className='text-text-muted'>Aucune notifications</span></li>
                     ) : (
                       notificationsList.map((n) => (
                         <li key={n.id}>
@@ -139,23 +169,70 @@ export default function Navbar() {
                             onClick={() => { markAsReadMutation.mutate(n.id); router.push('/profil#amis') } }
                           >
                             {n.type === 'friend_request' && (
-                              <div className='flex text-base'>
-                                {n.sender.avatar_url ? (
-                                  <Image
-                                    src={n.sender.avatar_url}
-                                    alt='pp'
-                                    width={55}
-                                    height={20}
-                                    className='rounded-full m-2'
-                                  />
-                                ) : (
-                                  <User size={40} className='rounded-full m-2' />
-                                )}
-                                <p className=''>
-                                  <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`}>{n.sender.username}</Link>
-                                {" "} vous a envoyé une demande d&apos;ami
-                                </p>
-                                <button onClick={(e) => {e.stopPropagation(); acceptMutation.mutate(n.payload.friendship_id as number)}}>Accepter</button>
+                              <div className='flex flex-col text-sm w-full pt-1'>
+                                <div className='flex items-center px-1'>
+                                  {n.sender.avatar_url ? (
+                                    <Image
+                                      src={n.sender.avatar_url}
+                                      alt='pp'
+                                      width={40}
+                                      height={40}
+                                      className='rounded-full m-2 object-cover aspect-square shrink-0'
+                                    />
+                                  ) : (
+                                    <User size={30} className='rounded-full m-2 shrink-0' />
+                                  )}
+                                  <p className='ml-1 flex-1 leading-tight'>
+                                    <Link onClick={(e) => e.stopPropagation()} href={`/profil/${n.sender.id}`} className="font-bold hover:underline">
+                                      {n.sender.username}
+                                    </Link>
+                                    {" "} vous a envoyé une demande d&apos;ami
+                                  </p>
+                                </div>
+                                <div className='flex gap-2 justify-end px-3 pb-2 mt-1 relative z-[110]'>
+                                  <button
+                                    className='btn btn-primary btn-sm rounded-full'
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      acceptMutation.mutate(n.payload.friendship_id as number, {
+                                        onSuccess: () => markAsReadMutation.mutate(n.id)
+                                      })
+                                    }}
+                                  >
+                                    Accepter
+                                  </button>
+                                  <button
+                                    className='btn btn-outline btn-error btn-sm rounded-full'
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      declineMutation.mutate(n.payload.friendship_id as number, {
+                                        onSuccess: () => markAsReadMutation.mutate(n.id)
+                                      })
+                                    }}
+                                  >
+                                    Refuser
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {n.type === 'system_warning' && (
+                              <div className='flex flex-col text-sm w-full p-3' onClick={(e) => { 
+                                e.stopPropagation(); 
+                                markAsReadMutation.mutate(n.id);
+                                setSelectedWarning(n.payload.message);
+                              }}>
+                                <div className='flex items-start gap-3'>
+                                  <div className="bg-red-500/10 text-red-500 p-2 rounded-full shrink-0">
+                                    <Shield size={20} />
+                                  </div>
+                                  <div className='flex-1 leading-tight text-text/80'>
+                                    <p className="font-bold text-red-400 mb-1">Avertissement de modération</p>
+                                    <p className="text-xs line-clamp-2">{n.payload.message}</p>
+                                  </div>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -177,14 +254,22 @@ export default function Navbar() {
                   </div>
                 </div>
                 <ul tabIndex={-1} className="menu menu-lg dropdown-content rounded-box z-10 mt-3 p-2 bg-accent border border-border shadow">
+                   {user?.is_admin && (
+                   <li>
+                    <Link href="/admin" className="hover:text-primary transition-colors flex items-center gap-2">
+                      <Shield size={20} />
+                      <p>Admin</p>
+                    </Link>
+                  </li>
+                  )}
                   <li>
-                    <div className='flex'>
-                      <User size={20} /> 
-                      <Link href="/profil">Profil</Link>
-                    </div>
+                    <Link href="/profil">
+                      <User size={20} />
+                      <p>Profil</p>
+                    </Link>
                   </li>
                   <li>
-                    <div className='flex'> 
+                    <div className='flex'>
                       <LogOut size={20} />
                       <button onClick={logout}>Déconnexion</button>
                     </div>
@@ -193,68 +278,51 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <div className="hidden md:flex gap-5 p-2">
-              <Link href="/login">Se connecter</Link>
-              <Link href="/register">S&apos;inscrire</Link>
+            <div className="flex items-center gap-2 md:gap-5 text-sm md:text-base">
+              <Link href="/login" className="whitespace-nowrap hover:text-primary transition-colors">
+                Se connecter
+              </Link>
+              <Link
+                href="/register"
+                className="whitespace-nowrap inline-flex items-center rounded-full bg-primary hover:bg-primary/85 text-white font-bold px-3.5 py-1.5 transition-colors"
+              >
+                S&apos;inscrire
+              </Link>
             </div>
           )}
-
-          {/* Burger button - mobile only */}
-          <label className="md:hidden btn btn-ghost border-none btn-circle swap swap-rotate" aria-label="Menu">
-            <input type="checkbox" checked={menuOpen} onChange={() => setMenuOpen((prev) => !prev)} />
-
-            {/* hamburger icon */}
-            <svg
-              className="swap-off fill-current"
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 512 512"
-            >
-              <path d="M64,384H448V341.33H64Zm0-106.67H448V234.67H64ZM64,128v42.67H448V128Z" />
-            </svg>
-
-            {/* close icon */}
-            <svg
-              className="swap-on fill-current"
-              xmlns="http://www.w3.org/2000/svg"
-              width="32"
-              height="32"
-              viewBox="0 0 512 512"
-            >
-              <polygon points="400 145.49 366.51 112 256 222.51 145.49 112 112 145.49 222.51 256 112 366.51 145.49 400 256 289.49 366.51 400 400 366.51 289.49 256 400 145.49" />
-            </svg>
-          </label>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {menuOpen && (
-        <nav className="md:hidden flex flex-col bg-accent border-t border-border px-6 py-4 gap-5 text-lg">
-          <Link href="/list" onClick={() => setMenuOpen(false)}>
-            Bibliothèque
-          </Link>
-          <Link href="/forum" onClick={() => setMenuOpen(false)}>
-            Forum
-          </Link>
-          <Link href="/chat" onClick={() => setMenuOpen(false)}>
-            Chat
-          </Link>
-          {!isAuthLoading && !isLoggedIn && (
-            <>
-              <hr className="border-border" />
-              <Link href="/login" onClick={() => setMenuOpen(false)}>
-                Se connecter
-              </Link>
-              <Link href="/register" onClick={() => setMenuOpen(false)}>
-                S&apos;inscrire
-              </Link>
-            </>
-          )}
-        </nav>
-      )}
-
       <SearchModal isOpen={searchModalOpen} onClose={() => setSearchModalOpen(false)} />
+
+      {/* Warning Modal */}
+      {selectedWarning && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-accent border border-border/50 rounded-2xl w-full max-w-md overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="p-6 border-b border-border/50 flex items-center gap-3">
+              <div className="bg-red-500/10 text-red-500 p-3 rounded-full shrink-0">
+                <Shield size={28} />
+              </div>
+              <h3 className="text-xl font-bold text-red-400">
+                Avertissement de modération
+              </h3>
+            </div>
+            
+            <div className="p-6 overflow-y-auto bg-background/30 text-text/90 font-medium whitespace-pre-wrap leading-relaxed">
+              {selectedWarning}
+            </div>
+            
+            <div className="p-4 border-t border-border/50 bg-accent flex justify-end">
+              <button 
+                onClick={() => setSelectedWarning(null)} 
+                className="btn btn-primary px-6"
+              >
+                J'ai compris
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }

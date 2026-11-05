@@ -47,16 +47,22 @@ api.interceptors.response.use(
         api.defaults.headers.Authorization = `Bearer ${data.token}`
         processQueue(null, data.token)
         return api(originalRequest)
-      } catch (refreshError) {
+      } catch (refreshError: any) {
         processQueue(refreshError, null)
-        localStorage.removeItem('token')
-        localStorage.removeItem('expires_at')
-        window.location.href = '/login'
+
+        const status = refreshError?.response?.status
+        if (status === 401 || status === 403) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('expires_at')
+          window.location.href = '/login'
+        }
+
         return Promise.reject(refreshError)
       } finally {
         isRefreshing = false
       }
     }
+
     return Promise.reject(error)
   }
 )

@@ -14,6 +14,7 @@ export interface Anime {
   coverImage: string | null
   ageRating: string | null
   episodeCount: number | null
+  genres?: Genre[]
   episodeLength: number | null
   createdAt: string | null
   updatedAt: string | null
@@ -29,6 +30,7 @@ export interface Manga {
   status: string
   volumeCount: number | null
   chapterCount: number | null
+  genres?: Genre[]
   startDate: string | null
   endDate: string | null
   ageRating?: string | null

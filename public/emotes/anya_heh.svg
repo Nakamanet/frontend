@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Anya Heh (Smug) -->
+  <circle cx="32" cy="32" r="30" fill="#FFDFBA"/>
+  <!-- Pink Hair -->
+  <path d="M12 28 C10 12, 22 4, 32 4 C44 4, 54 12, 52 28 C50 18, 45 10, 32 10 C19 10, 14 18, 12 28 Z" fill="#FFAAA6"/>
+  <path d="M8 30 C6 44, 14 54, 14 54 C12 44, 10 36, 12 26 Z" fill="#FFAAA6"/>
+  <path d="M56 30 C58 44, 50 54, 50 54 C52 44, 54 36, 52 26 Z" fill="#FFAAA6"/>
+  <path d="M22 10 C26 22, 28 26, 28 26 C28 26, 24 16, 20 12 Z" fill="#FF8B94"/>
+  <path d="M42 10 C38 22, 36 26, 36 26 C36 26, 40 16, 44 12 Z" fill="#FF8B94"/>
+  <!-- Gold Hair Horns/Ornaments -->
+  <polygon points="12,18 18,12 16,22" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <polygon points="52,18 46,12 48,22" fill="#FFD700" stroke="#B8860B" stroke-width="1"/>
+  <!-- Smug Half-Closed Eyes -->
+  <path d="M18 32 Q25 28 28 32" stroke="#2D132C" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <path d="M36 32 Q39 28 46 32" stroke="#2D132C" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <!-- Eyebrows -->
+  <path d="M19 26 Q24 23 27 27" stroke="#2D132C" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <path d="M37 27 Q40 23 45 26" stroke="#2D132C" stroke-width="2" stroke-linecap="round" fill="none"/>
+  <!-- Smug Heh Mouth -->
+  <path d="M26 42 Q32 46 40 38" stroke="#2D132C" stroke-width="2.5" stroke-linecap="round" fill="#E84A5F"/>
+  <!-- Pink Blush -->
+  <ellipse cx="18" cy="38" rx="4" ry="2" fill="#FF8B94" opacity="0.6"/>
+  <ellipse cx="46" cy="38" rx="4" ry="2" fill="#FF8B94" opacity="0.6"/>
+</svg>
