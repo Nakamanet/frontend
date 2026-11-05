@@ -31,7 +31,7 @@ export const SOCIAL_LINKS = [
   },
   {
     label: 'Ko-fi',
-    href: '#',
+    href: 'https://ko-fi.com/nakamanet',
     icon: (size: number) => (
       <BrandIcon
         size={size}
