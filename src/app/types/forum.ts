@@ -8,6 +8,7 @@ export interface ForumReply {
   content: string
   votes_count: number
   user_has_voted: boolean
+  is_hidden?: boolean
   created_at: string
   updated_at: string
   user: User
@@ -24,6 +25,7 @@ export interface Forum {
   is_pinned: boolean
   is_locked: boolean
   is_archived: boolean
+  is_hidden?: boolean
   created_at: string
   updated_at: string
   replies_count: number

@@ -12,6 +12,7 @@ export interface Message {
   avatar_url: string | null
   content: string
   created_at: string
+  is_hidden?: boolean
   is_banned?: boolean
   is_admin?: boolean
 }
