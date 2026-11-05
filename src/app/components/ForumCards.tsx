@@ -2,7 +2,7 @@
 
 import { Forum } from '../types/forum'
 import Link from 'next/link'
-import { MessageSquare, Eye, ThumbsUp, Pin, Archive } from 'lucide-react'
+import { MessageSquare, Eye, ThumbsUp, Pin, Archive, Ban, Crown } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { pinTopic, archiveTopic } from '../lib/forum'
 import { useAuth } from '../context/AuthContext'
@@ -15,6 +15,11 @@ export default function ForumCards({ topic }: { topic: Forum }) {
   const queryClient = useQueryClient()
 
   const isPinned = topic.is_pinned || topic.user_has_pinned
+  const isAuthorAdmin = Boolean(topic.user?.is_admin || topic.user?.role === 'admin')
+  const isAuthorBanned = Boolean(
+    topic.user?.is_deleted ||
+    (topic.user?.banned_until && new Date(topic.user.banned_until) > new Date())
+  )
   const canArchive = !!user && (
     user.id === topic.user_id || ['moderator', 'admin'].includes(user.role)
   )
@@ -52,10 +57,38 @@ export default function ForumCards({ topic }: { topic: Forum }) {
 
   return (
     <Link href={`/forum/${topic.id}`}>
-      <Card variant="compact" className="flex flex-col gap-4 hover:bg-white/2 transition cursor-pointer">
+      <Card
+        variant="compact"
+        className={`flex flex-col gap-4 hover:bg-white/2 transition cursor-pointer ${
+          isAuthorBanned ? 'border-red-950/70 bg-red-950/15' : ''
+        }`}
+      >
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[14px] font-bold text-white">{topic.user?.username || 'Anonyme'}</span>
+            {isAuthorAdmin && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40">
+                <Crown size={10} className="text-amber-400 fill-amber-400" />
+                Staff
+              </span>
+            )}
+            {isAuthorBanned && !isAuthorAdmin && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-950/80 text-red-400 border border-red-500/40 shadow-xs">
+                <Ban size={10} className="text-red-400" />
+                Compte Banni
+              </span>
+            )}
+            <span
+              className={`text-[14px] font-bold ${
+                isAuthorBanned && !isAuthorAdmin
+                  ? 'text-red-400 line-through decoration-red-500/50'
+                  : 'text-white'
+              }`}
+            >
+              {topic.user?.username || 'Anonyme'}
+            </span>
+            {isAuthorBanned && !isAuthorAdmin && (
+              <Ban size={13} className="text-red-400 shrink-0" />
+            )}
             <span className="text-xs text-text-muted">
               • {new Date(topic.created_at).toLocaleDateString('fr-FR')}
             </span>

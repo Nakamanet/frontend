@@ -125,11 +125,11 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
     >
       <div className="flex gap-3 justify-between">
         <div className='flex gap-3 flex-1 min-w-0'>
-          <div className="relative shrink-0">
+          <div className="relative w-12 h-12 shrink-0 self-start">
             <Link
               href={`/profil/${post.user.id}`}
               onClick={(e) => e.stopPropagation()}
-              className="block"
+              className="block w-12 h-12"
             >
               {post.user.avatar_url ? (
                 <Image
@@ -160,7 +160,7 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
             {isAuthorBanned && !isAuthorAdmin && (
               <div
                 title="Compte banni"
-                className="absolute -bottom-1 -right-1 bg-red-600 text-white rounded-full p-0.5 border border-[#111827] shadow-sm pointer-events-none"
+                className="absolute -bottom-1 -right-1 bg-red-600 text-white rounded-full p-0.5 border border-[#111827] shadow-sm pointer-events-none z-10"
               >
                 <Ban size={10} strokeWidth={2.5} />
               </div>

@@ -64,8 +64,16 @@ export default function PostPage() {
     onError: () => showToast('Erreur lors de la suppression', 'error'),
   })
 
+  const isSelfBanned = Boolean(
+    user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date())
+  )
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSelfBanned) {
+      showToast('Votre compte est suspendu. Commentaire impossible.', 'error')
+      return
+    }
     if (!content.trim()) return
     postComment()
   }
@@ -93,6 +101,12 @@ export default function PostPage() {
           </h2>
 
           {isLoggedIn && user ? (
+            isSelfBanned ? (
+              <div className="flex items-center gap-3 border border-red-500/40 bg-red-950/40 rounded-card p-4 text-red-300 text-sm">
+                <Ban size={18} className="text-red-400 shrink-0" />
+                <span>Votre compte est actuellement suspendu. Vous ne pouvez pas poster de commentaire.</span>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="flex gap-2 items-start">
               <div className="w-10 h-10 rounded-full bg-muted border-2 border-border flex items-center justify-center shrink-0 overflow-hidden text-base-content/70">
                 {user.avatar_url ? (
@@ -141,6 +155,7 @@ export default function PostPage() {
                 </button>
               </div>
             </form>
+            )
           ) : (
             <p className="text-sm text-text/60">Connectez-vous pour laisser un commentaire.</p>
           )}

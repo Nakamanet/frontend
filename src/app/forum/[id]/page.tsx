@@ -7,7 +7,7 @@ import ReplyForum from '../components/ReplyForum'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import AppLayout from '@/app/components/layout/AppLayout'
-import { ThumbsUp, Pin, Archive, Flag } from 'lucide-react'
+import { ThumbsUp, Pin, Archive, Flag, Ban, ShieldAlert, Crown } from 'lucide-react'
 import { useAuth } from '@/app/context/AuthContext'
 import type { ForumReply } from '@/app/types/forum'
 import Loader from '@/app/components/Loader'
@@ -133,63 +133,109 @@ export default function TopicDetailPage() {
           </div>
         )}
 
-        <div className="border border-border bg-accent rounded-card p-6">
-          <div className="flex items-start justify-between gap-4">
-            <span className="text-[10px] font-bold px-3 py-1 bg-primary text-white rounded-full uppercase tracking-wide">
-              {topic.category}
-            </span>
-            {!!user && (user.id === topic.user_id || ['moderator', 'admin'].includes(user.role)) && (
-              <button
-                onClick={() => topicArchiveMutation.mutate(topic.id)}
-                title={topic.is_archived ? 'Désarchiver' : 'Archiver ce sujet'}
-                className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-primary/20 hover:text-primary flex items-center gap-1.5 shrink-0"
-              >
-                <Archive size={14} />
-                {topic.is_archived ? 'Désarchiver' : 'Archiver'}
-              </button>
-            )}
-          </div>
-          <h1 className="text-2xl font-bold text-white mt-6">{topic.title}</h1>
-          <p className="text-sm text-text-muted mt-2 mb-6">
-            Par <span className="font-bold text-white">{topic.user?.username || 'Anonyme'}</span> •{' '}
-            {new Date(topic.created_at).toLocaleDateString('fr-FR')}
-          </p>
-          <div className="whitespace-pre-wrap text-[15px] text-white">{topic.content}</div>
-          <div className="mt-4 flex items-center gap-2">
-            <button
-              onClick={() => handleVote('topic', topic.id)}
-              className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
-                topic.user_has_voted ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
-              }`}
-            >
-              <ThumbsUp size={14} />
-              {topic.votes_count ?? 0}
-            </button>
-            {!topic.is_pinned && (
-              <button
-                onClick={() => {
-                  if (!isLoggedIn) { router.push('/login'); return }
-                  topicPinMutation.mutate(topic.id)
-                }}
-                title={topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
-                className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
-                  topic.user_has_pinned ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
-                }`}
-              >
-                <Pin size={14} fill={topic.user_has_pinned ? 'currentColor' : 'none'} />
-                {topic.user_has_pinned ? 'Épinglé' : 'Épingler'}
-              </button>
-            )}
-            <button
-              onClick={() => handleReport('forum_topic', topic.id)}
-              title="Signaler ce sujet à la modération"
-              className="flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-red-500/10 hover:text-red-400"
-            >
-              <Flag size={14} />
-              Signaler
-            </button>
-          </div>
-        </div>
+        {(() => {
+          const isTopicAuthorAdmin = Boolean(topic.user?.is_admin || topic.user?.role === 'admin')
+          const isTopicAuthorBanned = Boolean(
+            topic.user?.is_deleted ||
+            (topic.user?.banned_until && new Date(topic.user.banned_until) > new Date())
+          )
+          return (
+            <div className={`border rounded-card p-6 ${
+              isTopicAuthorBanned ? 'border-red-950/80 bg-red-950/15' : 'border-border bg-accent'
+            }`}>
+              {isTopicAuthorBanned && (
+                <div className="mb-4 p-3 rounded-card bg-red-950/60 border border-red-500/50 flex items-center gap-2.5 text-xs text-red-200 shadow-sm">
+                  <ShieldAlert size={18} className="text-red-400 shrink-0" />
+                  <span>
+                    <strong className="text-red-400 uppercase tracking-wide">Compte désactivé / banni :</strong> L&apos;auteur de ce sujet a été suspendu par un modérateur ou administrateur suite au non-respect des règles.
+                  </span>
+                </div>
+              )}
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-bold px-3 py-1 bg-primary text-white rounded-full uppercase tracking-wide">
+                    {topic.category}
+                  </span>
+                  {isTopicAuthorAdmin && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40 shadow-xs">
+                      <Crown size={10} className="text-amber-400 fill-amber-400" />
+                      Staff
+                    </span>
+                  )}
+                  {isTopicAuthorBanned && !isTopicAuthorAdmin && (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-950/80 text-red-400 border border-red-500/50 shadow-xs">
+                      <Ban size={10} className="text-red-400" />
+                      Compte Banni
+                    </span>
+                  )}
+                </div>
+                {!!user && (user.id === topic.user_id || ['moderator', 'admin'].includes(user.role)) && (
+                  <button
+                    onClick={() => topicArchiveMutation.mutate(topic.id)}
+                    title={topic.is_archived ? 'Désarchiver' : 'Archiver ce sujet'}
+                    className="btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-primary/20 hover:text-primary flex items-center gap-1.5 shrink-0"
+                  >
+                    <Archive size={14} />
+                    {topic.is_archived ? 'Désarchiver' : 'Archiver'}
+                  </button>
+                )}
+              </div>
+              <h1 className="text-2xl font-bold text-white mt-6">{topic.title}</h1>
+              <p className="text-sm text-text-muted mt-2 mb-6 flex items-center gap-1.5 flex-wrap">
+                <span>Par</span>
+                <Link
+                  href={`/profil/${topic.user?.id}`}
+                  className={`font-bold hover:underline inline-flex items-center gap-1 ${
+                    isTopicAuthorBanned && !isTopicAuthorAdmin
+                      ? 'text-red-400 line-through decoration-red-500/50'
+                      : 'text-white'
+                  }`}
+                >
+                  {topic.user?.username || 'Anonyme'}
+                </Link>
+                {isTopicAuthorBanned && !isTopicAuthorAdmin && (
+                  <Ban size={13} className="text-red-400 shrink-0" />
+                )}
+                <span>• {new Date(topic.created_at).toLocaleDateString('fr-FR')}</span>
+              </p>
+              <div className="whitespace-pre-wrap text-[15px] text-white">{topic.content}</div>
+              <div className="mt-4 flex items-center gap-2">
+                <button
+                  onClick={() => handleVote('topic', topic.id)}
+                  className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
+                    topic.user_has_voted ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
+                  }`}
+                >
+                  <ThumbsUp size={14} />
+                  {topic.votes_count ?? 0}
+                </button>
+                {!topic.is_pinned && (
+                  <button
+                    onClick={() => {
+                      if (!isLoggedIn) { router.push('/login'); return }
+                      topicPinMutation.mutate(topic.id)
+                    }}
+                    title={topic.user_has_pinned ? "Retirer l'épingle" : 'Épingler ce sujet'}
+                    className={`flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors ${
+                      topic.user_has_pinned ? 'bg-primary/20 text-primary' : 'text-text-muted hover:bg-primary/20 hover:text-primary'
+                    }`}
+                  >
+                    <Pin size={14} fill={topic.user_has_pinned ? 'currentColor' : 'none'} />
+                    {topic.user_has_pinned ? 'Épinglé' : 'Épingler'}
+                  </button>
+                )}
+                <button
+                  onClick={() => handleReport('forum_topic', topic.id)}
+                  title="Signaler ce sujet à la modération"
+                  className="flex items-center gap-1.5 btn btn-ghost border-none btn-xs text-[13px] py-2 font-normal rounded-full px-3 transition-colors text-text-muted hover:bg-red-500/10 hover:text-red-400"
+                >
+                  <Flag size={14} />
+                  Signaler
+                </button>
+              </div>
+            </div>
+          )
+        })()}
 
         <div className="border-t border-border pt-6">
           <h2 className="text-xl font-bold text-white mb-4">Participer à la discussion</h2>
@@ -203,17 +249,50 @@ export default function TopicDetailPage() {
             const replyMap = new Map(topic.replies!.map(r => [r.id, r]))
             return groupReplies(topic.replies!).map((reply) => {
               const parentAuthor = reply.parent_id ? replyMap.get(reply.parent_id)?.user?.username : null
+              const isReplyAuthorAdmin = Boolean(reply.user?.is_admin || reply.user?.role === 'admin')
+              const isReplyAuthorBanned = Boolean(
+                reply.user?.is_deleted ||
+                (reply.user?.banned_until && new Date(reply.user.banned_until) > new Date())
+              )
               return (
-              <div key={reply.id} className={`border border-border bg-accent rounded-card p-4 ${reply.parent_id ? 'ml-8' : ''}`}>
-                <p className="text-sm text-text-muted mb-3">
-                  <span className="font-bold text-white">{reply.user?.username || 'Anonyme'}</span> •{' '}
-                  {new Date(reply.created_at).toLocaleDateString('fr-FR')}
+              <div
+                key={reply.id}
+                className={`border rounded-card p-4 ${
+                  reply.parent_id ? 'ml-8' : ''
+                } ${
+                  isReplyAuthorBanned ? 'border-red-950/70 bg-red-950/20' : 'border-border bg-accent'
+                }`}
+              >
+                <div className="flex items-center gap-2 flex-wrap text-sm text-text-muted mb-3">
+                  <Link
+                    href={`/profil/${reply.user?.id}`}
+                    className={`font-bold hover:underline inline-flex items-center gap-1 ${
+                      isReplyAuthorBanned && !isReplyAuthorAdmin
+                        ? 'text-red-400 line-through decoration-red-500/50'
+                        : 'text-white'
+                    }`}
+                  >
+                    {reply.user?.username || 'Anonyme'}
+                  </Link>
+                  {isReplyAuthorAdmin && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40 shadow-xs">
+                      <Crown size={10} className="text-amber-400 fill-amber-400" />
+                      Staff
+                    </span>
+                  )}
+                  {isReplyAuthorBanned && !isReplyAuthorAdmin && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-950/80 text-red-400 border border-red-500/40 shadow-xs">
+                      <Ban size={10} className="text-red-400" />
+                      Banni
+                    </span>
+                  )}
+                  <span>• {new Date(reply.created_at).toLocaleDateString('fr-FR')}</span>
                   {parentAuthor && (
                     <span className="ml-2 text-[10px] font-bold px-2 py-0.5 bg-muted text-text-muted rounded-full uppercase tracking-wide">
                       ↩ {parentAuthor}
                     </span>
                   )}
-                </p>
+                </div>
                 <div className="whitespace-pre-wrap text-[14px] text-text-muted mb-4">{reply.content}</div>
                 <div className="flex items-center gap-2">
                   <button

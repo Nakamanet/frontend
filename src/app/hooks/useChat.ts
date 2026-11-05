@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import { io, Socket } from 'socket.io-client'
 import { useAuth } from '../context/AuthContext'
 
-interface Message {
+export interface Message {
   _id: string
   room: string
   user_id: string
@@ -11,6 +11,8 @@ interface Message {
   avatar_url: string | null
   content: string
   created_at: string
+  is_banned?: boolean
+  is_admin?: boolean
 }
 
 export function useChat(room: string, { allowGuest = false }: { allowGuest?: boolean } = {}) {
@@ -76,12 +78,15 @@ export function useChat(room: string, { allowGuest = false }: { allowGuest?: boo
   }, [connected, room])
 
   const sendMessage = (content: string) => {
-    if (!content.trim() || !socketRef.current || !room) return
+    const isSelfBanned = Boolean(user?.is_deleted || (user?.banned_until && new Date(user.banned_until) > new Date()))
+    if (isSelfBanned || !content.trim() || !socketRef.current || !room) return
     socketRef.current.emit('chat:message', {
       room,
       content,
       username: user?.username ?? 'Anonymous',
       avatar_url: user?.avatar_url ?? null,
+      is_banned: isSelfBanned,
+      is_admin: Boolean(user?.is_admin || user?.role === 'admin'),
     })
   }
 
