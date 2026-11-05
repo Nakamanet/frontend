@@ -6,6 +6,7 @@ export interface User {
   birthdate: string
   role: string
   is_deleted: boolean
+  banned_until?: string | null
   is_admin: boolean
   is_moderator: boolean
   localisation?: string | null

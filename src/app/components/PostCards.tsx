@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { CircleUser, Heart, MessageCircle, Bookmark, EllipsisVertical, Crown, ShieldCheck } from 'lucide-react'
+import { CircleUser, Heart, MessageCircle, Bookmark, EllipsisVertical, Crown, ShieldCheck, Ban } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useAuth } from "../context/AuthContext"
 import { fr } from 'date-fns/locale'
@@ -30,7 +30,11 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
   const liked = likedOverride ?? (post.user_has_liked ?? false)
   const [saved, setSaved] = useState(post.user_has_saved ?? false)
   const isOwner = post.user.id === user?.id 
-  const isAuthorAdmin = Boolean(post.user?.is_admin || post.user?.role === 'admin') 
+  const isAuthorAdmin = Boolean(post.user?.is_admin || post.user?.role === 'admin')
+  const isAuthorBanned = Boolean(
+    post.user?.is_deleted ||
+    (post.user?.banned_until && new Date(post.user.banned_until) > new Date())
+  ) 
 
   const { mutate: like } = useMutation({
     mutationFn: () => toggleLikePost(post.id),
@@ -116,36 +120,52 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
       key={post.id}
       onClick={() => router.push(`/post/${post.id}`)}
       className={`shadow-sm w-full hover:border-primary/50 transition-all cursor-pointer ${
-        isAuthorAdmin ? 'admin-post-card' : ''
+        isAuthorAdmin ? 'admin-post-card' : isAuthorBanned ? 'border-red-950/70 bg-red-950/10' : ''
       }`}
     >
       <div className="flex gap-3 justify-between">
         <div className='flex gap-3 flex-1 min-w-0'>
-          <Link
-            href={`/profil/${post.user.id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="shrink-0"
-          >
-            {post.user.avatar_url ? (
-              <Image
-                src={post.user.avatar_url}
-                alt="Avatar"
-                width={100}
-                height={100}
-                className={`w-12 h-12 rounded-full object-cover hover:opacity-80 transition-all ${
-                  isAuthorAdmin ? 'ring-2 ring-red-500/80 ring-offset-2 ring-offset-[#111827] shadow-[0_0_10px_rgba(225,16,72,0.45)]' : ''
-                }`}
-              />
-            ) : (
-              <div className={`w-12 h-12 rounded-[10px] bg-muted border-2 flex items-center justify-center shrink-0 overflow-hidden text-base-content/70 hover:opacity-80 transition-all ${
-                isAuthorAdmin
-                  ? 'border-red-500/80 ring-2 ring-red-500/50 ring-offset-2 ring-offset-[#111827] shadow-[0_0_10px_rgba(225,16,72,0.45)]'
-                  : 'border-border'
-              }`}>
-                <CircleUser size={35} strokeWidth={1.5} />
+          <div className="relative shrink-0">
+            <Link
+              href={`/profil/${post.user.id}`}
+              onClick={(e) => e.stopPropagation()}
+              className="block"
+            >
+              {post.user.avatar_url ? (
+                <Image
+                  src={post.user.avatar_url}
+                  alt="Avatar"
+                  width={100}
+                  height={100}
+                  className={`w-12 h-12 rounded-full object-cover hover:opacity-80 transition-all ${
+                    isAuthorAdmin
+                      ? 'ring-2 ring-red-500/80 ring-offset-2 ring-offset-[#111827] shadow-[0_0_10px_rgba(225,16,72,0.45)]'
+                      : isAuthorBanned
+                      ? 'grayscale opacity-60 border-2 border-red-500/70'
+                      : ''
+                  }`}
+                />
+              ) : (
+                <div className={`w-12 h-12 rounded-[10px] bg-muted border-2 flex items-center justify-center shrink-0 overflow-hidden text-base-content/70 hover:opacity-80 transition-all ${
+                  isAuthorAdmin
+                    ? 'border-red-500/80 ring-2 ring-red-500/50 ring-offset-2 ring-offset-[#111827] shadow-[0_0_10px_rgba(225,16,72,0.45)]'
+                    : isAuthorBanned
+                    ? 'grayscale opacity-60 border-red-500/70 text-red-400/70'
+                    : 'border-border'
+                }`}>
+                  <CircleUser size={35} strokeWidth={1.5} />
+                </div>
+              )}
+            </Link>
+            {isAuthorBanned && !isAuthorAdmin && (
+              <div
+                title="Compte banni"
+                className="absolute -bottom-1 -right-1 bg-red-600 text-white rounded-full p-0.5 border border-[#111827] shadow-sm pointer-events-none"
+              >
+                <Ban size={10} strokeWidth={2.5} />
               </div>
             )}
-          </Link>
+          </div>
           <div className="flex flex-col gap-2 min-w-0 flex-1">
             {isAuthorAdmin && (
               <div className="flex items-center gap-1.5 -mb-0.5">
@@ -158,11 +178,21 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
                 </span>
               </div>
             )}
+            {isAuthorBanned && !isAuthorAdmin && (
+              <div className="flex items-center gap-1.5 -mb-0.5">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-red-950/70 border border-red-500/40 text-red-400 shadow-sm select-none">
+                  <Ban size={11} className="text-red-400 shrink-0" />
+                  <span>Compte Banni</span>
+                </span>
+              </div>
+            )}
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0 min-w-0">
               <Link
                 href={`/profil/${post.user.id}`}
                 onClick={(e) => e.stopPropagation()}
-                className="font-bold hover:underline inline-flex items-center gap-1"
+                className={`font-bold hover:underline inline-flex items-center gap-1 ${
+                  isAuthorBanned && !isAuthorAdmin ? 'text-red-400/90' : ''
+                }`}
               >
                 <span className={isAuthorAdmin ? 'text-white drop-shadow-[0_0_8px_rgba(225,16,72,0.4)]' : ''}>
                   {post.user.username}
@@ -170,6 +200,11 @@ export default function PostCards({ post, detailView = false }: { post: Post, de
                 {isAuthorAdmin && (
                   <span title="Compte officiel vérifié" className="inline-flex items-center">
                     <ShieldCheck size={14} className="text-amber-400 fill-amber-400/20 shrink-0" />
+                  </span>
+                )}
+                {isAuthorBanned && !isAuthorAdmin && (
+                  <span title="Cet utilisateur est actuellement banni de la plateforme" className="inline-flex items-center">
+                    <Ban size={13} className="text-red-400 shrink-0" />
                   </span>
                 )}
               </Link>
