@@ -46,7 +46,6 @@ export default function RegisterPage() {
   const [birthdate, setBirthdate] = useState('')
   const [error, setError] = useState('')
   const [turnstileToken, setTurnstileToken] = useState('')
-  const [turnstileReady, setTurnstileReady] = useState(false)
   const [step, setStep] = useState<'form' | 'code'>('form')
   const [code, setCode] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -74,28 +73,6 @@ export default function RegisterPage() {
     detect()
   }, [isAuthLoading, isLoggedIn, detect])
 
-  // Un widget par montage de la page, supprimé au démontage : sinon, en revenant sur
-  // /register sans recharger, le script est déjà chargé (onLoad ne se redéclenche pas)
-  // et l'ancien widget orphelin fait planter Turnstile (erreur 300030).
-  useEffect(() => {
-    if (!turnstileReady || isAuthLoading || isLoggedIn) return
-    const container = turnstileContainerRef.current
-    if (!container || !window.turnstile) return
-    const widgetId = window.turnstile.render(container, {
-      sitekey: TURNSTILE_SITE_KEY,
-      action: 'register',
-      // invisible tant que Cloudflare n'a pas besoin d'un clic de l'utilisateur
-      appearance: 'interaction-only',
-      callback: (token) => setTurnstileToken(token),
-      'expired-callback': () => setTurnstileToken(''),
-    })
-    turnstileWidgetIdRef.current = widgetId
-    return () => {
-      window.turnstile?.remove(widgetId)
-      turnstileWidgetIdRef.current = null
-    }
-  }, [turnstileReady, isAuthLoading, isLoggedIn])
-
   if (isAuthLoading || isLoggedIn) {
     return <Loader variant="plain" className="min-h-[80vh]" />
   }
@@ -107,6 +84,18 @@ export default function RegisterPage() {
   const minBirthdate = new Date(today.getFullYear() - 120, today.getMonth(), today.getDate())
     .toISOString()
     .split('T')[0]
+
+  const renderTurnstile = () => {
+    if (turnstileWidgetIdRef.current || !turnstileContainerRef.current || !window.turnstile) return
+    turnstileWidgetIdRef.current = window.turnstile.render(turnstileContainerRef.current, {
+      sitekey: TURNSTILE_SITE_KEY,
+      action: 'register',
+      // invisible tant que Cloudflare n'a pas besoin d'un clic de l'utilisateur
+      appearance: 'interaction-only',
+      callback: (token) => setTurnstileToken(token),
+      'expired-callback': () => setTurnstileToken(''),
+    })
+  }
 
   // un jeton Turnstile ne sert qu'une fois : on en redemande un après chaque envoi
   const resetTurnstile = () => {
@@ -204,8 +193,7 @@ export default function RegisterPage() {
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
-        // onReady (et non onLoad) : rappelé à chaque montage, même si le script est déjà chargé
-        onReady={() => setTurnstileReady(true)}
+        onLoad={renderTurnstile}
       />
       {/* Background effect */}
       <HaloBackdrop />
