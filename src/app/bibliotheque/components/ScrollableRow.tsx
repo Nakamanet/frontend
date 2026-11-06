@@ -41,7 +41,7 @@ export default function ScrollableRow({ children }: { children: React.ReactNode 
           <ChevronLeft size={16} />
         </button>
       )}
-      <div ref={ref} onScroll={update} className="flex gap-4 overflow-x-auto scrollbar-hide">
+      <div ref={ref} onScroll={update} className="isolate flex gap-4 overflow-x-auto scrollbar-hide">
         {children}
       </div>
       {canRight && (

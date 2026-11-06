@@ -1,9 +1,37 @@
 'use client'
 
-import { X } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { useEffect } from 'react'
-import { Anime, Manga, Genre, Category, Production, AnimeStaff, MangaStaff } from '@/app/types/catalog'
+import { Anime, Manga, Genre, Category, Production, AnimeStaff, MangaStaff, Person } from '@/app/types/catalog'
 import { useTranslation } from '@/app/context/TranslationContext'
+import { DUB_LANGUAGES, dubLanguageLabel } from '@/app/lib/dubLanguages'
+import DubFlag from './DubFlag'
+
+const VOICE_ACTOR_ROLE = 'Voice Actor'
+
+type VoiceActorGroup = { language: string | null; people: Person[] }
+
+function groupVoiceActors(voiceActors: AnimeStaff[]): VoiceActorGroup[] {
+  const groups = new Map<string | null, Map<number, Person>>()
+  for (const staff of voiceActors) {
+    const language = staff.language ?? null
+    if (!groups.has(language)) groups.set(language, new Map())
+    groups.get(language)!.set(staff.person.id, staff.person)
+  }
+
+  return [...groups.entries()]
+    .map(([language, people]) => ({
+      language,
+      people: [...people.values()].sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+    .sort((a, b) => {
+      if (a.language === 'Japanese') return -1
+      if (b.language === 'Japanese') return 1
+      if (a.language === null) return 1
+      if (b.language === null) return -1
+      return b.people.length - a.people.length
+    })
+}
 
 type InformationModalProps = {
   isOpen: boolean
@@ -41,6 +69,11 @@ export default function InformationModal({
   }, [isOpen])
 
   if (!isOpen) return null
+
+  const otherStaff = (staffs as (AnimeStaff | MangaStaff)[]).filter((staff) => staff.role !== VOICE_ACTOR_ROLE)
+  const voiceActorGroups = groupVoiceActors(
+    (staffs as (AnimeStaff | MangaStaff)[]).filter((staff): staff is AnimeStaff => staff.role === VOICE_ACTOR_ROLE)
+  )
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
@@ -164,18 +197,44 @@ export default function InformationModal({
 
           {/* Staff */}
           {staffs.length > 0 && (
-            <div>
-              <p className="font-semibold mb-2">Staff</p>
-              <table className="border-separate border-spacing-y-1 w-full">
-                <tbody>
-                  {staffs.map((staff, index) => (
-                    <tr key={`${staff.person.id}-${staff.role}-${index}`}>
-                      <td className="text-base-content/60 w-1/2">{staff.person.name}</td>
-                      <td>{translateTerm(staff.role)}</td>
-                    </tr>
+            <div className="flex flex-col gap-3">
+              <p className="font-semibold">Staff</p>
+              {otherStaff.length > 0 && (
+                <table className="border-separate border-spacing-y-1 w-full">
+                  <tbody>
+                    {otherStaff.map((staff, index) => (
+                      <tr key={`${staff.person.id}-${staff.role}-${index}`}>
+                        <td className="text-base-content/60 w-1/2">{staff.person.name}</td>
+                        <td>{translateTerm(staff.role)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {voiceActorGroups.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs font-semibold text-text-muted uppercase tracking-wider">Doubleurs</p>
+                  {voiceActorGroups.map((group) => (
+                    <details key={group.language ?? 'other'} className="group rounded-card border border-border bg-accent/40">
+                      <summary className="flex items-center gap-3 px-3 py-2.5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+                        {DUB_LANGUAGES[group.language ?? ''] ? (
+                          <DubFlag language={group.language} />
+                        ) : (
+                          <span className="w-7 h-5.25 rounded-[3px] bg-primary/20 shrink-0" />
+                        )}
+                        <span className="font-medium">{dubLanguageLabel(group.language)}</span>
+                        <span className="text-xs text-text-muted">{group.people.length}</span>
+                        <ChevronDown size={16} className="ml-auto text-text-muted transition-transform group-open:rotate-180" />
+                      </summary>
+                      <ul className="grid sm:grid-cols-2 gap-x-4 gap-y-1 px-3 pb-3 text-sm text-base-content/80">
+                        {group.people.map((person) => (
+                          <li key={person.id} className="truncate">{person.name}</li>
+                        ))}
+                      </ul>
+                    </details>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              )}
             </div>
           )}
         </div>

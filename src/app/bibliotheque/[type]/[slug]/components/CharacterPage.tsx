@@ -14,8 +14,10 @@ import { useTranslation } from '@/app/context/TranslationContext'
 
 type Character = { type: 'anime'; item: Anime } | { type: 'manga'; item: Manga }
 
-export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId'> & {
-  persons: Person[]
+export type VoiceActor = Person & { language: string | null }
+
+export type GroupedAnimeCharacter = Omit<AnimeCharacter, 'person' | 'personId' | 'language'> & {
+  persons: VoiceActor[]
 }
 
 const PAGE_SIZE = 15
@@ -51,9 +53,9 @@ export default function CharacterPage({ type, item }: Character) {
     .reduce<GroupedAnimeCharacter[]>((acc, ac) => {
       const existing = acc.find(g => g.characterId === ac.characterId)
       if (existing) {
-        existing.persons.push(ac.person)
+        existing.persons.push({ ...ac.person, language: ac.language })
       } else {
-        acc.push({ animeId: ac.animeId, characterId: ac.characterId, role: ac.role, character: ac.character, persons: [ac.person] })
+        acc.push({ animeId: ac.animeId, characterId: ac.characterId, role: ac.role, character: ac.character, persons: [{ ...ac.person, language: ac.language }] })
       }
       return acc
     }, [])
@@ -112,16 +114,18 @@ export default function CharacterPage({ type, item }: Character) {
       aria-label={name}
       className={`${index < visibleCount ? 'block animate-fade-in' : 'hidden'} group relative w-full aspect-2/3 rounded-card overflow-hidden border border-transparent bg-primary bg-clip-padding hover:border-primary focus-visible:border-primary outline-none cursor-pointer transition-colors`}
     >
-      <Image
-        src={imageUrl || '/logo.png'}
-        alt={name}
-        fill
-        sizes="(min-width: 1024px) 15vw, (min-width: 640px) 25vw, 33vw"
-        loading="eager"
-        onLoad={() => markLoaded(id)}
-        onError={() => markLoaded(id)}
-        className="object-cover transition-transform duration-500 group-hover:scale-105"
-      />
+      <span className="absolute inset-y-0 -inset-x-[2%]">
+        <Image
+          src={imageUrl || '/logo.png'}
+          alt={name}
+          fill
+          sizes="(min-width: 1024px) 15vw, (min-width: 640px) 25vw, 33vw"
+          loading="eager"
+          onLoad={() => markLoaded(id)}
+          onError={() => markLoaded(id)}
+          className="object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      </span>
       <span
         className={`pointer-events-none absolute inset-0 bg-linear-to-t from-black/90 via-black/35 to-black/10 transition-opacity duration-300 ${REVEAL}`}
       />

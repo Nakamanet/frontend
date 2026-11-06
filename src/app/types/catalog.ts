@@ -81,6 +81,7 @@ export interface AnimeStaff {
   characterId: number | null
   personId: number
   role: string
+  language?: string | null
   person: Person
 }
 
@@ -130,6 +131,7 @@ export interface AnimeCharacter {
   characterId: number
   personId: number
   role: string
+  language: string | null
   character: Character
   person: Person
 }
