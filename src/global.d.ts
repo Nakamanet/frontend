@@ -8,7 +8,6 @@ declare global {
         options: {
           sitekey: string
           action?: string
-          appearance?: 'always' | 'execute' | 'interaction-only'
           callback: (token: string) => void
           'error-callback'?: () => void
           'expired-callback'?: () => void
